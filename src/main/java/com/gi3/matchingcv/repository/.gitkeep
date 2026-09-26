@@ -1,0 +1,2 @@
+# Package réservé aux interfaces de repository (accès BDD via Spring Data JPA).
+# Ce dossier sera complété dans les séances suivantes.
