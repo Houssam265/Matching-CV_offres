@@ -50,7 +50,7 @@
             <ul class="nav-links" id="nav-links" role="list">
                 <li><a href="#profils" class="nav-link" id="nav-link-features">Fonctionnalit&eacute;s</a></li>
                 <li><a href="#comment-ca-marche" class="nav-link" id="nav-link-how">Comment &ccedil;a marche</a></li>
-                <li><a href="/competences.html" class="nav-link" id="nav-link-competences">Comp&eacute;tences</a></li>
+                <li id="nav-item-competences" style="display:none;"><a href="/competences.html" class="nav-link" id="nav-link-competences">Comp&eacute;tences</a></li>
             </ul>
 
             <div class="nav-cta">
@@ -275,7 +275,7 @@
                 <ul class="footer-links">
                     <li><a href="/dashboard-etudiant.html" id="footer-link-etudiant">Espace &Eacute;tudiant</a></li>
                     <li><a href="/dashboard-recruteur.html" id="footer-link-recruteur">Espace Recruteur</a></li>
-                    <li style="margin-top:1rem"><a href="/competences.html" class="footer-link-admin" id="footer-link-admin">Administration (Comp&eacute;tences)</a></li>
+                    <li><a href="/competences.html" id="footer-link-admin">Espace Administrateur</a></li>
                 </ul>
             </div>
         </div>
@@ -294,9 +294,21 @@
     /* -- Session management on index.html -- */
     (function() {
         var userStr = localStorage.getItem('matchingcv_user');
-        if (!userStr) return;
+        var navComp = document.getElementById('nav-item-competences');
+
+        if (!userStr) {
+            if (navComp) navComp.style.display = 'none';
+            return;
+        }
         var user; try { user = JSON.parse(userStr); } catch(e) { return; }
-        if (!user || !user.role) return;
+        if (!user || !user.role) {
+            if (navComp) navComp.style.display = 'none';
+            return;
+        }
+
+        /* Utilisateur connecté : afficher le lien Compétences dans la navbar */
+        if (navComp) navComp.style.display = '';
+
         var dashUrl = user.role === 'ETUDIANT' ? '/dashboard-etudiant.html'
                     : user.role === 'RECRUTEUR' ? '/dashboard-recruteur.html'
                     : '/competences.html';

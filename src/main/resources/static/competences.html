@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
@@ -9,6 +9,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
+    <script>
+    /* Protection de la page : accessible uniquement si connecté */
+    (function() {
+        var userStr = localStorage.getItem('matchingcv_user');
+        if (!userStr) {
+            window.location.replace('/login.html');
+            return;
+        }
+        try {
+            var u = JSON.parse(userStr);
+            if (!u || !u.role) {
+                window.location.replace('/login.html');
+            }
+        } catch(e) {
+            window.location.replace('/login.html');
+        }
+    })();
+    </script>
 </head>
 <body>
 
@@ -274,9 +292,9 @@
             <div class="footer-col">
                 <h5 class="footer-col-title">Comptes</h5>
                 <ul class="footer-links">
-                    <li><a href="/index.html" id="footer-link-etudiant">Espace &Eacute;tudiant</a></li>
-                    <li><a href="/index.html" id="footer-link-recruteur">Espace Recruteur</a></li>
-                    <li style="margin-top:1rem"><a href="/competences.html" class="footer-link-admin" id="footer-link-admin">Administration (Comp&eacute;tences)</a></li>
+                    <li><a href="/dashboard-etudiant.html" id="footer-link-etudiant">Espace &Eacute;tudiant</a></li>
+                    <li><a href="/dashboard-recruteur.html" id="footer-link-recruteur">Espace Recruteur</a></li>
+                    <li><a href="/competences.html" id="footer-link-admin">Espace Administrateur</a></li>
                 </ul>
             </div>
         </div>

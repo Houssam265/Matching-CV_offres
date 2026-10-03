@@ -205,6 +205,10 @@ function getSessionUser() {
 function initAuthNavigation() {
     const user = getSessionUser();
 
+    /* ── Liens navbar nécessitant une session active (masqué si déconnecté) ── */
+    const navComp = document.getElementById('nav-item-competences');
+    if (navComp) navComp.style.display = user ? '' : 'none';
+
     /* ── Liens de déconnexion / profil si session active ── */
     const navLogin  = document.getElementById('nav-btn-login');
     const navSignup = document.getElementById('nav-btn-signup');
