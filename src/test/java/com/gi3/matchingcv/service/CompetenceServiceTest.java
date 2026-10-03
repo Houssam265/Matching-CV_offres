@@ -1,5 +1,6 @@
 package com.gi3.matchingcv.service;
 
+import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
 import com.gi3.matchingcv.model.Competence;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.repository.CompetenceRepository;
@@ -84,9 +85,66 @@ class CompetenceServiceTest {
 
         assertThat(saved.getId()).isEqualTo(3L);
         assertThat(saved.getNom()).isEqualTo("Docker");
+        assertThat(saved.getNomNormalise()).isEqualTo("docker");
         assertThat(saved.getStatut()).isEqualTo(StatutCompetence.VALIDEE);
+        verify(competenceRepository, times(1)).findByNomNormalise("docker");
         verify(competenceRepository, times(1)).save(aCreer);
     }
+
+    @Test
+    @DisplayName("creer() doit lever CompetenceDejaExistanteException pour 'SpringBoot' quand 'Spring Boot' existe déjà")
+    void testCreerDoublonVariantesEspacementDoitLeverException() {
+        Competence existante = new Competence();
+        existante.setId(1L);
+        existante.setNom("Spring Boot");
+        existante.setNomNormalise("springboot");
+
+        when(competenceRepository.findByNomNormalise("springboot")).thenReturn(Optional.of(existante));
+
+        Competence nouvelle = new Competence();
+        nouvelle.setNom("SpringBoot");
+        nouvelle.setCategorie("Backend");
+
+        assertThatThrownBy(() -> competenceService.creer(nouvelle))
+                .isInstanceOf(com.gi3.matchingcv.exception.CompetenceDejaExistanteException.class)
+                .hasMessageContaining("Spring Boot");
+
+        verify(competenceRepository, times(1)).findByNomNormalise("springboot");
+        verify(competenceRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("creer() doit accepter 'C++' et 'C#' comme deux compétences distinctes (non-régression)")
+    void testCreerCPlusPlusEtCDieseAcceptesCommeDistincts() {
+        // Vérification de la normalisation : les caractères '+' et '#' doivent rester intacts
+        assertThat(Competence.normaliserNom("C++")).isEqualTo("c++");
+        assertThat(Competence.normaliserNom("C#")).isEqualTo("c#");
+        assertThat(Competence.normaliserNom("C")).isEqualTo("c");
+
+        // Simulation création de "C++"
+        Competence cPlusPlus = new Competence();
+        cPlusPlus.setNom("C++");
+        when(competenceRepository.findByNomNormalise("c++")).thenReturn(Optional.empty());
+        when(competenceRepository.save(any(Competence.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Competence savedCpp = competenceService.creer(cPlusPlus);
+        assertThat(savedCpp.getNom()).isEqualTo("C++");
+        assertThat(savedCpp.getNomNormalise()).isEqualTo("c++");
+
+        // Simulation création de "C#"
+        Competence cDiese = new Competence();
+        cDiese.setNom("C#");
+        when(competenceRepository.findByNomNormalise("c#")).thenReturn(Optional.empty());
+
+        Competence savedCSharp = competenceService.creer(cDiese);
+        assertThat(savedCSharp.getNom()).isEqualTo("C#");
+        assertThat(savedCSharp.getNomNormalise()).isEqualTo("c#");
+
+        verify(competenceRepository, times(1)).findByNomNormalise("c++");
+        verify(competenceRepository, times(1)).findByNomNormalise("c#");
+        verify(competenceRepository, times(2)).save(any(Competence.class));
+    }
+
 
     @Test
     @DisplayName("trouverParId() doit retourner la compétence lorsqu'elle existe")

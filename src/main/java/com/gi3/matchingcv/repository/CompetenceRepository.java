@@ -13,5 +13,7 @@ public interface CompetenceRepository extends JpaRepository<Competence, Long> {
 
     Optional<Competence> findByNomIgnoreCase(String nom);
 
+    Optional<Competence> findByNomNormalise(String nomNormalise);
+
     List<Competence> findByStatut(StatutCompetence statut);
 }

@@ -1,5 +1,6 @@
 package com.gi3.matchingcv.service;
 
+import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
 import com.gi3.matchingcv.model.Competence;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.repository.CompetenceRepository;
@@ -45,9 +46,17 @@ public class CompetenceServiceImpl implements CompetenceService {
 
     @Override
     public Competence creer(Competence competence) {
-        if (competence.getStatut() == null) {
-            competence.setStatut(StatutCompetence.VALIDEE);
-        }
+        String nomNettoye = competence.getNom() != null ? competence.getNom().trim() : "";
+        competence.setNom(nomNettoye);
+
+        String nomNormalise = Competence.normaliserNom(nomNettoye);
+        competence.setNomNormalise(nomNormalise);
+
+        competenceRepository.findByNomNormalise(nomNormalise).ifPresent(existante -> {
+            throw new CompetenceDejaExistanteException("Cette compétence existe déjà : " + existante.getNom());
+        });
+
+        competence.setStatut(StatutCompetence.VALIDEE);
         return competenceRepository.save(competence);
     }
 

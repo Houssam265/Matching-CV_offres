@@ -1,5 +1,6 @@
 package com.gi3.matchingcv.controller;
 
+import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
 import com.gi3.matchingcv.model.Competence;
 import com.gi3.matchingcv.service.CompetenceService;
 import jakarta.persistence.EntityNotFoundException;
@@ -82,6 +83,8 @@ public class CompetenceController {
         try {
             Competence nouvelleCompetence = competenceService.creer(competence);
             return ResponseEntity.status(HttpStatus.CREATED).body(nouvelleCompetence);
+        } catch (CompetenceDejaExistanteException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors de la création : " + e.getMessage()));
         }

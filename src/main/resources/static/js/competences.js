@@ -105,16 +105,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json().catch(() => null);
 
             if (response.status === 201 && data) {
-                showAlert(`La compétence « ${escapeHtml(data.nom)} » a été ajoutée avec succès !`, 'success');
+                showAlert(`La comp\u00e9tence \u00ab ${escapeHtml(data.nom)} \u00bb a \u00e9t\u00e9 ajout\u00e9e avec succ\u00e8s !`, 'success');
                 form.reset();
                 nomInput.focus();
 
-                // Rafraîchissement immédiat de la liste sans recharger la page
+                // Rafra\u00eechissement imm\u00e9diat de la liste sans recharger la page
                 await loadCompetences();
+            } else if (response.status === 409) {
+                const message = (data && data.message)
+                    ? data.message
+                    : 'Cette comp\u00e9tence existe d\u00e9j\u00e0.';
+                showAlert(message, 'danger');
+                nomInput.focus();
             } else {
                 const message = (data && data.message)
                     ? data.message
-                    : `Erreur lors de la création (Code HTTP: ${response.status})`;
+                    : `Erreur lors de la cr\u00e9ation (Code HTTP: ${response.status})`;
                 showAlert(message, 'danger');
             }
         } catch (error) {

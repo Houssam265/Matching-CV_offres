@@ -1,5 +1,6 @@
 package com.gi3.matchingcv.controller;
 
+import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
 import com.gi3.matchingcv.model.Competence;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.service.CompetenceService;
@@ -114,6 +115,27 @@ class CompetenceControllerTest {
                         .content(jsonPayload))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @DisplayName("POST /api/competences doit renvoyer 409 Conflict si la compétence existe déjà")
+    void testCreerDoublonConflit() throws Exception {
+        when(competenceService.creer(any(Competence.class)))
+                .thenThrow(new CompetenceDejaExistanteException("Cette compétence existe déjà : Spring Boot"));
+
+        String jsonPayload = """
+                {
+                    "nom": "Spring Boot",
+                    "categorie": "Backend"
+                }
+                """;
+
+        mockMvc.perform(post("/api/competences")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonPayload))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", is("Cette compétence existe déjà : Spring Boot")));
+    }
+
 
     @Test
     @DisplayName("DELETE /api/competences/{id} doit renvoyer 204 lorsque la compétence est supprimée")
