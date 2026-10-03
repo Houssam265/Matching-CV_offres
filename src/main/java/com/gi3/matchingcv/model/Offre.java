@@ -45,13 +45,14 @@ public class Offre {
     @JoinColumn(name = "recruteur_id")
     private Recruteur recruteur;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "offre_competence",
-        joinColumns = @JoinColumn(name = "offre_id"),
-        inverseJoinColumns = @JoinColumn(name = "competence_id")
-    )
-    private List<Competence> competences = new ArrayList<>();
+    @OneToMany(mappedBy = "offre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OffreCompetence> offreCompetences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Candidature> candidatures = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Notification> notifications = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

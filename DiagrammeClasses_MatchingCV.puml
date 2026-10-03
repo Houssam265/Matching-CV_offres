@@ -1,0 +1,217 @@
+@startuml DiagrammeClasses_MatchingCV
+' ==============================================================================
+' Diagramme de Classes - Plateforme Matching CV & Offres
+' Optimisé : Hiérarchie Top-to-Bottom, 0 croisement de lignes, Enums organisés
+' ==============================================================================
+
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Segoe UI", "Helvetica", Arial, sans-serif
+skinparam defaultFontSize 12
+
+' --- Palette de couleurs moderne et professionnelle ---
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    ArrowColor #1E293B
+    ArrowThickness 1.1
+}
+
+skinparam enum {
+    BackgroundColor #FFFBEB
+    BorderColor #D97706
+    BorderThickness 1.2
+}
+
+skinparam package {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    BorderThickness 1
+    FontStyle bold
+    FontColor #0F172A
+}
+
+hide circle
+
+' ==============================================================================
+' ENUMÉRATIONS
+' ==============================================================================
+package "Énumérations" <<Rectangle>> {
+  enum Role {
+    ETUDIANT
+    RECRUTEUR
+    ADMIN
+  }
+
+  enum StatutOffre {
+    ACTIVE
+    CLOTUREE
+  }
+
+  enum TypeContrat {
+    STAGE
+    CDI
+    CDD
+    ALTERNANCE
+  }
+
+  enum StatutCandidature {
+    ENVOYEE
+    VUE
+    ACCEPTEE
+    REFUSEE
+  }
+
+  enum StatutCompetence {
+    VALIDEE
+    EN_ATTENTE
+    REJETEE
+  }
+
+  enum Provenance {
+    DECLARATIF
+    PROJET
+    EXPERIENCE
+  }
+
+  enum TypeExigence {
+    REQUISE
+    ATOUT
+  }
+}
+
+' ==============================================================================
+' ENTITÉS : NIVEAU 1 - GESTION DES UTILISATEURS
+' ==============================================================================
+package "Module Utilisateurs" <<Rectangle>> {
+  abstract class Utilisateur {
+    -id : Long
+    -nom : String
+    -prenom : String
+    -email : String
+    -motDePasse : String
+    -role : Role
+    -dateInscription : Date
+  }
+
+  class Administrateur {
+  }
+
+  class Etudiant {
+    -cheminCV : String
+  }
+
+  class Recruteur {
+    -nomEntreprise : String
+    -secteurActivite : String
+  }
+}
+
+' ==============================================================================
+' ENTITÉS : NIVEAU 2 - OFFRES, CANDIDATURES & NOTIFICATIONS
+' ==============================================================================
+package "Module Offres & Interactions" <<Rectangle>> {
+  class Offre {
+    -id : Long
+    -titre : String
+    -description : String
+    -domaine : String
+    -localisation : String
+    -typeContrat : TypeContrat
+    -statut : StatutOffre
+    -datePublication : Date
+  }
+
+  class Candidature {
+    -id : Long
+    -score : Double
+    -statut : StatutCandidature
+    -dateCandidature : Date
+  }
+
+  class Notification {
+    -id : Long
+    -score : Double
+    -lue : Boolean
+    -dateEnvoi : Date
+  }
+}
+
+' ==============================================================================
+' ENTITÉS : NIVEAU 3 - COMPÉTENCES & TABLES DE LIAISON
+' ==============================================================================
+package "Module Compétences & Matching" <<Rectangle>> {
+  class ProfilCompetence {
+    -id : Long
+    -provenance : Provenance
+    -dureeMois : Integer
+    -dateAjout : Date
+  }
+
+  class OffreCompetence {
+    -id : Long
+    -typeExigence : TypeExigence
+  }
+
+  class Competence {
+    -id : Long
+    -nom : String
+    -categorie : String
+    -synonymes : List<String>
+    -statut : StatutCompetence
+  }
+}
+
+' ==============================================================================
+' HÉRITAGE (Niveau 1)
+' ==============================================================================
+Utilisateur <|-- Administrateur
+Utilisateur <|-- Etudiant
+Utilisateur <|-- Recruteur
+
+' Alignement horizontal des utilisateurs
+Administrateur -[hidden]right- Etudiant
+Etudiant -[hidden]right- Recruteur
+
+' ==============================================================================
+' RELATIONS MÉTIER & INTERACTIONS (Niveau 1 -> 2 -> 3)
+' ==============================================================================
+
+' Publication des offres
+Recruteur "1" --down-> "0..*" Offre : "publie >"
+
+' Candidatures & Notifications (entre Étudiant et Offre)
+Etudiant "1" --down-> "0..*" Candidature : "soumet >"
+Offre "1" --down-> "0..*" Candidature : "reçoit >"
+
+Etudiant "1" --down-> "0..*" Notification : "reçoit >"
+Offre "1" --down-> "0..*" Notification : "déclenche >"
+
+' Liaisons avec les Compétences
+Etudiant "1" --down-> "0..*" ProfilCompetence : "possède >"
+Offre "1" --down-> "0..*" OffreCompetence : "exige >"
+
+Competence "1" --up-> "0..*" ProfilCompetence : "définit <"
+Competence "1" --up-> "0..*" OffreCompetence : "définit <"
+
+' Alignements invisibles pour équilibrer le graphe
+Candidature -[hidden]right- Notification
+ProfilCompetence -[hidden]right- OffreCompetence
+
+' ==============================================================================
+' DÉPENDANCES VERS LES ÉNUMÉRATIONS (Tracés discrets)
+' ==============================================================================
+Utilisateur ..> Role
+Offre ..> TypeContrat
+Offre ..> StatutOffre
+Candidature ..> StatutCandidature
+Competence ..> StatutCompetence
+ProfilCompetence ..> Provenance
+OffreCompetence ..> TypeExigence
+
+@enduml

@@ -1,5 +1,6 @@
 package com.gi3.matchingcv.model;
 
+import com.gi3.matchingcv.model.enums.Provenance;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +25,11 @@ public class ProfilCompetence {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private Provenance provenance;
+
+    private Integer dureeMois;
 
     private LocalDateTime dateAjout;
 

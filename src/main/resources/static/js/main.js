@@ -192,31 +192,88 @@ function initCounters() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   6. FEEDBACK BOUTONS CTA (UI statique)
+   6. GESTION SESSION & NAVIGATION AUTH
 ═══════════════════════════════════════════════════════════ */
 
-function initCtaFeedback() {
-    const targets = [
-        '#btn-etudiant-signup', '#btn-etudiant-login',
-        '#btn-recruteur-signup', '#btn-recruteur-login',
-        '#nav-btn-login', '#nav-btn-signup',
-        '#hero-btn-signup',
+function getSessionUser() {
+    try {
+        const raw = localStorage.getItem('matchingcv_user');
+        return raw ? JSON.parse(raw) : null;
+    } catch (_) { return null; }
+}
+
+function initAuthNavigation() {
+    const user = getSessionUser();
+
+    /* ── Liens de déconnexion / profil si session active ── */
+    const navLogin  = document.getElementById('nav-btn-login');
+    const navSignup = document.getElementById('nav-btn-signup');
+
+    if (user) {
+        const dashUrl = user.role === 'ETUDIANT' ? '/dashboard-etudiant.html'
+                      : user.role === 'RECRUTEUR' ? '/dashboard-recruteur.html'
+                      : '/competences.html';
+
+        const logo = document.getElementById('nav-logo') || document.querySelector('.nav-logo');
+        if (logo) logo.href = dashUrl;
+
+        if (navLogin && navSignup) {
+            navLogin.textContent = user.prenom + ' ' + user.nom;
+            navLogin.href = dashUrl;
+            navLogin.removeAttribute('id');
+            navSignup.textContent = 'Se d\u00e9connecter';
+            navSignup.href = '#';
+            navSignup.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('matchingcv_user');
+                window.location.reload();
+            });
+        }
+
+        // Si l'utilisateur est étudiant, masquer l'option et la carte recruteur
+        if (user.role === 'ETUDIANT') {
+            const cardRecruteur = document.getElementById('card-recruteur');
+            if (cardRecruteur) cardRecruteur.style.display = 'none';
+            const btnRecruteurSignup = document.getElementById('btn-recruteur-signup');
+            if (btnRecruteurSignup) btnRecruteurSignup.style.display = 'none';
+            const btnRecruteurLogin = document.getElementById('btn-recruteur-login');
+            if (btnRecruteurLogin) btnRecruteurLogin.style.display = 'none';
+        } else if (user.role === 'RECRUTEUR') {
+            const cardEtudiant = document.getElementById('card-etudiant');
+            if (cardEtudiant) cardEtudiant.style.display = 'none';
+            const btnEtudiantSignup = document.getElementById('btn-etudiant-signup');
+            if (btnEtudiantSignup) btnEtudiantSignup.style.display = 'none';
+            const btnEtudiantLogin = document.getElementById('btn-etudiant-login');
+            if (btnEtudiantLogin) btnEtudiantLogin.style.display = 'none';
+        }
+        return;
+    }
+
+    /* ── Boutons "Se connecter" → login.html ── */
+    const loginTargets = ['nav-btn-login', 'btn-etudiant-login', 'btn-recruteur-login'];
+    loginTargets.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.href = '/login.html';
+            el.removeEventListener('click', blockClick);
+        }
+    });
+
+    /* ── Boutons "Créer un compte" / "S'inscrire" → register.html ── */
+    const signupTargets = [
+        'nav-btn-signup', 'hero-btn-signup',
+        'btn-etudiant-signup', 'btn-recruteur-signup'
     ];
-    targets.forEach(sel => {
-        const el = document.querySelector(sel);
-        if (!el) return;
-        el.addEventListener('click', (e) => {
-            e.preventDefault();
-            const orig = el.innerHTML;
-            el.innerHTML  = '🔒 Disponible prochainement';
-            el.style.opacity = '0.7';
-            setTimeout(() => {
-                el.innerHTML  = orig;
-                el.style.opacity = '';
-            }, 2200);
-        });
+    signupTargets.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.href = '/register.html';
+            el.removeEventListener('click', blockClick);
+        }
     });
 }
+
+function blockClick(e) { e.preventDefault(); }
 
 /* ═══════════════════════════════════════════════════════════
    INIT
@@ -228,5 +285,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollReveal();
     initCardTilt();
     initCounters();
-    initCtaFeedback();
+    initAuthNavigation();
 });

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Connectez-vous à votre espace Matching CV-Offres — Étudiants et Recruteurs." />
+    <title>Connexion &mdash; Matching CV-Offres</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
+</head>
+<body class="auth-body">
+
+    <!-- NAVBAR LÉGÈRE -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
+        <div class="nav-inner">
+            <a href="/index.html" class="nav-logo" id="nav-logo">
+                <span class="logo-mark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#2E5A9C"/>
+                                <stop offset="1" stop-color="#2E8B8B"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </span>
+                <span class="logo-text">Matching<strong>CV</strong></span>
+            </a>
+
+            <ul class="nav-links" id="nav-links" role="list">
+                <li><a href="/index.html#profils" class="nav-link">Fonctionnalit&eacute;s</a></li>
+                <li><a href="/index.html#comment-ca-marche" class="nav-link">Comment &ccedil;a marche</a></li>
+                <li><a href="/competences.html" class="nav-link">Comp&eacute;tences</a></li>
+            </ul>
+
+            <div class="nav-cta">
+                <a href="/login.html" class="btn-nav-filled" id="nav-btn-login" style="background:linear-gradient(135deg,var(--blue),var(--teal));">Se connecter</a>
+                <a href="/register.html" class="btn-nav-outline" id="nav-btn-signup">Cr&eacute;er un compte</a>
+            </div>
+            <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- LAYOUT SPLIT -->
+    <main class="auth-main">
+
+        <!-- PANNEAU GAUCHE : DÉCORATIF -->
+        <aside class="auth-panel-left" aria-hidden="true">
+            <div class="auth-panel-bg"></div>
+            <div class="auth-panel-blob auth-blob-1"></div>
+            <div class="auth-panel-blob auth-blob-2"></div>
+            <div class="auth-panel-grid"></div>
+
+            <div class="auth-panel-content">
+                <div class="auth-panel-logo">
+                    <svg width="36" height="36" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="14" cy="14" r="13" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="rgba(255,255,255,0.9)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Matching<strong>CV</strong></span>
+                </div>
+
+                <h2 class="auth-panel-title">
+                    Votre prochaine opportunit&eacute; vous attend
+                </h2>
+                <p class="auth-panel-subtitle">
+                    Connectez-vous pour acc&eacute;der &agrave; votre espace personnalis&eacute; et trouver la correspondance parfaite entre votre profil et les meilleures offres.
+                </p>
+
+                <div class="auth-testimonial">
+                    <div class="auth-testimonial-avatar">YB</div>
+                    <div>
+                        <p class="auth-testimonial-text">
+                            &laquo;&nbsp;J&rsquo;ai trouv&eacute; mon stage en 48h gr&acirc;ce au matching intelligent.&nbsp;&raquo;
+                        </p>
+                        <p class="auth-testimonial-author">Yassine B. &mdash; &Eacute;l&egrave;ve ing&eacute;nieur GI3</p>
+                    </div>
+                </div>
+
+                <div class="auth-panel-stats">
+                    <div class="auth-stat"><span class="auth-stat-num">1 250</span><span class="auth-stat-label">CVs analys&eacute;s</span></div>
+                    <div class="auth-stat-sep"></div>
+                    <div class="auth-stat"><span class="auth-stat-num">430</span><span class="auth-stat-label">Offres actives</span></div>
+                    <div class="auth-stat-sep"></div>
+                    <div class="auth-stat"><span class="auth-stat-num">87%</span><span class="auth-stat-label">Taux matching</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- PANNEAU DROIT : FORMULAIRE -->
+        <section class="auth-panel-right">
+            <div class="auth-form-container">
+
+                <div class="auth-form-header">
+                    <h1 class="auth-form-title">Bon retour&nbsp;!</h1>
+                    <p class="auth-form-subtitle">
+                        Pas encore de compte&nbsp;?
+                        <a href="/register.html" class="auth-link" id="link-to-register">Cr&eacute;er un compte gratuitement</a>
+                    </p>
+                </div>
+
+                <!-- Alert Box -->
+                <div id="login-alert" class="auth-alert" role="alert" style="display:none;"></div>
+
+                <form id="login-form" class="auth-form" novalidate>
+
+                    <div class="auth-field-group">
+                        <label for="login-email" class="auth-label">Adresse email</label>
+                        <div class="auth-input-wrap">
+                            <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            <input
+                                type="email"
+                                id="login-email"
+                                name="email"
+                                class="auth-input"
+                                placeholder="votre@email.com"
+                                required
+                                autocomplete="email"
+                            />
+                        </div>
+                        <span class="auth-field-error" id="error-email"></span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <div class="auth-label-row">
+                            <label for="login-password" class="auth-label">Mot de passe</label>
+                            <a href="#" class="auth-forgot" id="link-forgot">Mot de passe oubli&eacute;&nbsp;?</a>
+                        </div>
+                        <div class="auth-input-wrap">
+                            <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <input
+                                type="password"
+                                id="login-password"
+                                name="motDePasse"
+                                class="auth-input"
+                                placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                                required
+                                autocomplete="current-password"
+                            />
+                            <button type="button" class="auth-toggle-pwd" id="toggle-pwd" aria-label="Voir le mot de passe">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="auth-field-error" id="error-password"></span>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn" id="btn-login">
+                        <span class="btn-label">Se connecter</span>
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                    </button>
+
+                </form>
+
+                <div class="auth-divider"><span>ou</span></div>
+
+                <div class="auth-alt-actions">
+                    <p style="text-align:center;font-size:.88rem;color:var(--text-mid);">
+                        Premi&egrave;re visite&nbsp;?
+                        <a href="/register.html" class="auth-link">Cr&eacute;ez votre compte gratuitement</a>
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        // Rediriger si déjà connecté
+        (function() {
+            var u; try { u = JSON.parse(localStorage.getItem('matchingcv_user')); } catch(e) {}
+            if (u && u.role) {
+                window.location.replace(
+                    u.role === 'ETUDIANT' ? '/dashboard-etudiant.html' :
+                    u.role === 'RECRUTEUR' ? '/dashboard-recruteur.html' : '/competences.html'
+                );
+            }
+        })();
+        // Init page connexion
+        document.addEventListener('DOMContentLoaded', () => initLoginPage());
+    </script>
+</body>
+</html>

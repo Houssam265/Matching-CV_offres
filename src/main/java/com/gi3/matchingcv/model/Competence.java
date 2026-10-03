@@ -2,6 +2,7 @@ package com.gi3.matchingcv.model;
 
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class Competence {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Le nom de la compétence est obligatoire")
     @Column(nullable = false, unique = true)
     private String nom;
 

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Tableau de bord recruteur — Matching CV-Offres" />
+    <title>Espace Recruteur &mdash; Matching CV-Offres</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
+    <style>
+        .dash-hero {
+            background: linear-gradient(135deg, #1A0A44 0%, #3A2080 45%, #2E5A9C 80%, #2E8B8B 100%);
+            padding: 3rem 1.5rem; color: #fff; position: relative; overflow: hidden;
+        }
+        .dash-hero::before {
+            content:'';position:absolute;inset:0;pointer-events:none;
+            background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+            background-size:48px 48px;
+        }
+        .dash-hero-inner { position:relative;z-index:1;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem; }
+        .dash-welcome { font-size:clamp(1.4rem,3vw,2rem);font-weight:800; }
+        .dash-welcome span { color:#B594FF; }
+        .dash-sub { font-size:.92rem;color:rgba(255,255,255,.75);margin-top:.4rem; }
+        .dash-badge { background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:.5rem 1rem;font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600; }
+        .dash-logout-btn { background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:.5rem 1.1rem;font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s; }
+        .dash-logout-btn:hover { background:rgba(255,255,255,.2); }
+        .dash-body { max-width:1200px;margin:2.5rem auto 4rem;padding:0 1.5rem; }
+        .dash-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:2rem; }
+        .dash-card { background:#fff;border:1px solid var(--border-card);border-radius:var(--radius);padding:1.8rem;box-shadow:var(--shadow-sm);transition:box-shadow .25s; }
+        .dash-card:hover { box-shadow:var(--shadow-md); }
+        .dash-card-icon { width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem; }
+        .icon-purple { background:linear-gradient(135deg,rgba(123,79,204,.15),rgba(46,90,156,.1));color:#7B4FCC; }
+        .icon-blue { background:linear-gradient(135deg,rgba(46,90,156,.15),rgba(46,139,139,.1));color:var(--blue); }
+        .icon-teal { background:linear-gradient(135deg,rgba(46,139,139,.15),rgba(46,90,156,.1));color:var(--teal); }
+        .dash-card h3 { font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.4rem; }
+        .dash-card p { font-size:.86rem;color:var(--text-mid);line-height:1.6; }
+        .dash-card-link { display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;font-size:.84rem;font-weight:600;color:#7B4FCC;text-decoration:none;transition:color .2s; }
+        .dash-card-link:hover { color:var(--blue); }
+        .dash-section-title { font-size:1.2rem;font-weight:800;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem; }
+        .coming-soon-card { background:linear-gradient(135deg,#F9FBFE,#EAF1F8);border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;min-height:200px; }
+        .coming-soon-card .dash-card-icon { margin:0 auto 1rem; }
+        .coming-badge { background:var(--teal-pale);color:var(--teal);border:1px solid rgba(46,139,139,.25);padding:.2rem .7rem;border-radius:100px;font-size:.72rem;font-weight:700;display:inline-block;margin-top:.5rem; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar" role="navigation">
+        <div class="nav-inner">
+            <a href="/dashboard-recruteur.html" class="nav-logo">
+                <span class="logo-mark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs>
+                    </svg>
+                </span>
+                <span class="logo-text">Matching<strong>CV</strong></span>
+            </a>
+            <ul class="nav-links" role="list">
+                <li><a href="/competences.html" class="nav-link">Comp&eacute;tences</a></li>
+            </ul>
+            <div class="nav-cta">
+                <span id="nav-user-name" style="font-size:.85rem;font-weight:600;color:var(--navy);"></span>
+                <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">D&eacute;connexion</button>
+            </div>
+            <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="dash-hero">
+        <div class="dash-hero-inner">
+            <div>
+                <div class="dash-welcome">Bienvenue, <span id="user-prenom">Recruteur</span>&nbsp;! 🏢</div>
+                <div class="dash-sub">Votre espace recruteur — Matching CV-Offres</div>
+            </div>
+            <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+                <span class="dash-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                    Espace Recruteur
+                </span>
+                <button class="dash-logout-btn" id="logout-hero-btn">Se d&eacute;connecter</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="dash-body">
+        <div class="dash-grid">
+            <div class="dash-card">
+                <div class="dash-card-icon icon-purple">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+                </div>
+                <h3>Publier une offre</h3>
+                <p>Cr&eacute;ez et publiez vos offres de stage ou d&rsquo;emploi pour attirer les meilleurs talents.</p>
+                <a href="#" class="dash-card-link">
+                    Cr&eacute;er une offre
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-icon icon-blue">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <h3>CVs Correspondants</h3>
+                <p>Parcourez les CVs class&eacute;s automatiquement par score de compatibilit&eacute; avec vos offres.</p>
+                <a href="#" class="dash-card-link">
+                    Voir les CV
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-icon icon-teal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
+                <h3>R&eacute;f&eacute;rentiel Comp&eacute;tences</h3>
+                <p>Explorez le catalogue des comp&eacute;tences pour affiner vos crit&egrave;res de recherche.</p>
+                <a href="/competences.html" class="dash-card-link">
+                    Voir les comp&eacute;tences
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Candidatures Re&ccedil;ues
+        </div>
+        <div class="dash-card coming-soon-card">
+            <div class="dash-card-icon icon-purple" style="margin:0 auto 1rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            </div>
+            <h3>Tableau de bord candidatures</h3>
+            <p>Visualisez et g&eacute;rez toutes les candidatures re&ccedil;ues class&eacute;es par score.</p>
+            <span class="coming-badge">Prochainement</span>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userStr = localStorage.getItem('matchingcv_user');
+        if (!userStr) { window.location.href = '/login.html'; return; }
+
+        const user = JSON.parse(userStr);
+        if (user.role !== 'RECRUTEUR') {
+            if (user.role === 'ETUDIANT') window.location.href = '/dashboard-etudiant.html';
+            else window.location.href = '/index.html';
+            return;
+        }
+
+        const prenomEl = document.getElementById('user-prenom');
+        if (prenomEl) prenomEl.textContent = user.prenom || 'Recruteur';
+        const navName = document.getElementById('nav-user-name');
+        if (navName) navName.textContent = user.prenom + ' ' + user.nom;
+
+        function logout() {
+            localStorage.removeItem('matchingcv_user');
+            window.location.href = '/login.html';
+        }
+        document.getElementById('nav-logout')?.addEventListener('click', logout);
+        document.getElementById('logout-hero-btn')?.addEventListener('click', logout);
+
+        const navbar = document.getElementById('navbar');
+        const burger = document.getElementById('nav-burger');
+        if (navbar) {
+            window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20), {passive:true});
+            if (burger) {
+                burger.addEventListener('click', () => {
+                    const isOpen = navbar.classList.toggle('menu-open');
+                    burger.classList.toggle('open', isOpen);
+                    burger.setAttribute('aria-expanded', String(isOpen));
+                });
+            }
+        }
+    });
+    </script>
+</body>
+</html>

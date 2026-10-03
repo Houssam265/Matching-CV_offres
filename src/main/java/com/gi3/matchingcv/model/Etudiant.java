@@ -17,9 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 public class Etudiant extends Utilisateur {
 
-    @Column(name = "chemin_cv", nullable = true)
-    private String cheminCV;
-
     @OneToMany(mappedBy = "etudiant", fetch = FetchType.LAZY)
     private List<ProfilCompetence> profilCompetences = new ArrayList<>();
 
