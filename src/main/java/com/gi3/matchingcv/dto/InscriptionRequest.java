@@ -32,6 +32,10 @@ public class InscriptionRequest {
     private String nomEntreprise;
     private String secteurActivite;
 
+    // Champs optionnels pour Étudiant
+    private String filiere;
+    private String etablissement;
+
     public String getPrenom() { return prenom; }
     public void setPrenom(String prenom) { this.prenom = prenom; }
 
@@ -52,4 +56,10 @@ public class InscriptionRequest {
 
     public String getSecteurActivite() { return secteurActivite; }
     public void setSecteurActivite(String secteurActivite) { this.secteurActivite = secteurActivite; }
+
+    public String getFiliere() { return filiere; }
+    public void setFiliere(String filiere) { this.filiere = filiere; }
+
+    public String getEtablissement() { return etablissement; }
+    public void setEtablissement(String etablissement) { this.etablissement = etablissement; }
 }

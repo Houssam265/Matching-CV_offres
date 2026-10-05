@@ -186,6 +186,40 @@
                         <span class="auth-field-error" id="error-reg-password"></span>
                     </div>
 
+                    <!-- Champs spécifiques pour Étudiant -->
+                    <div class="auth-etudiant-fields" id="etudiant-fields">
+                        <div class="auth-field-group">
+                            <label for="reg-filiere" class="auth-label">Fili&egrave;re d&apos;&eacute;tudes</label>
+                            <div class="auth-input-wrap">
+                                <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                                <input type="text" id="reg-filiere" name="filiere" class="auth-input" placeholder="ex. G&eacute;nie Informatique (GI3)" list="filieres-list" />
+                                <datalist id="filieres-list">
+                                    <option value="Génie Informatique (GI3)"></option>
+                                    <option value="Génie Télécoms & Réseaux (GTR)"></option>
+                                    <option value="Génie Mécatronique"></option>
+                                    <option value="Génie Civil"></option>
+                                    <option value="Supply Chain Management"></option>
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="auth-field-group">
+                            <label for="reg-etablissement" class="auth-label">&Eacute;tablissement / &Eacute;cole</label>
+                            <div class="auth-input-wrap">
+                                <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+                                <input type="text" id="reg-etablissement" name="etablissement" class="auth-input" placeholder="ex. ENSA T&eacute;touan" list="ecoles-list" />
+                                <datalist id="ecoles-list">
+                                    <option value="ENSA Tétouan"></option>
+                                    <option value="ENSA Tanger"></option>
+                                    <option value="ENSAM"></option>
+                                    <option value="EMI"></option>
+                                    <option value="ENSIAS"></option>
+                                    <option value="FST Tanger"></option>
+                                </datalist>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Champs supplémentaires pour Recruteur (masqués par défaut) -->
                     <div class="auth-recruteur-fields" id="recruteur-fields" style="display:none;">
                         <div class="auth-field-group">

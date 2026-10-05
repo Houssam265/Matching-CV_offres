@@ -104,6 +104,36 @@ public class EtudiantController {
         }
     }
 
+    /**
+     * Met à jour les informations du profil de l'étudiant (prénom, nom, filière, établissement).
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> mettreAJour(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        try {
+            Etudiant etudiant = etudiantService.trouverParId(id);
+            if (body.containsKey("prenom") && body.get("prenom") != null) {
+                etudiant.setPrenom(((String) body.get("prenom")).trim());
+            }
+            if (body.containsKey("nom") && body.get("nom") != null) {
+                etudiant.setNom(((String) body.get("nom")).trim());
+            }
+            if (body.containsKey("filiere")) {
+                Object f = body.get("filiere");
+                etudiant.setFiliere(f != null ? ((String) f).trim() : null);
+            }
+            if (body.containsKey("etablissement")) {
+                Object e = body.get("etablissement");
+                etudiant.setEtablissement(e != null ? ((String) e).trim() : null);
+            }
+            Etudiant sauve = etudiantService.sauvegarder(etudiant);
+            return ResponseEntity.ok(sauve);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors de la mise à jour : " + e.getMessage()));
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Profil — Compétences déclarées
     // -------------------------------------------------------------------------

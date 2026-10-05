@@ -573,16 +573,26 @@ async function loadAllData(id) {
         document.getElementById('pc-av').textContent = init;
         document.getElementById('pc-nm').textContent = prenom + ' ' + nom;
         document.getElementById('pc-em').textContent = e.email || '';
-        document.getElementById('pc-tags').innerHTML = `
-            <span class="pct">Filière GI3</span>
-            <span class="pct">ENSA Tétouan</span>
-            <span class="pct">Profil Actif</span>
-        `;
+        const roleLabel = e.role === 'ETUDIANT' ? 'Étudiant' : (e.role || 'Étudiant');
+        
+        let tagsHtml = `<span class="pct"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:2px;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>${esc(roleLabel)}</span>`;
+        if (e.filiere) {
+            tagsHtml += `<span class="pct"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:2px;"><path d="M12 2l10 5-10 5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>${esc(e.filiere)}</span>`;
+        }
+        if (e.etablissement) {
+            tagsHtml += `<span class="pct"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:2px;"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>${esc(e.etablissement)}</span>`;
+        }
+        tagsHtml += `<span class="pct" style="color:var(--green);border-color:rgba(22,163,74,.25);background:var(--green-pale);">Compte Actif</span>`;
+        document.getElementById('pc-tags').innerHTML = tagsHtml;
 
-        // Drawer Header
+        // Drawer Header & Inputs
         document.getElementById('dr-av').textContent = init;
         document.getElementById('dr-nm').textContent = prenom + ' ' + nom;
         document.getElementById('dr-em').textContent = e.email || '';
+        if (document.getElementById('dr-prenom')) document.getElementById('dr-prenom').value = prenom;
+        if (document.getElementById('dr-nom')) document.getElementById('dr-nom').value = nom;
+        if (document.getElementById('dr-filiere')) document.getElementById('dr-filiere').value = e.filiere || '';
+        if (document.getElementById('dr-etablissement')) document.getElementById('dr-etablissement').value = e.etablissement || '';
     } catch (_) {}
 
     try {
@@ -638,6 +648,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') closeDrawer();
+    });
+
+    // 4b. Mise à jour des informations personnelles & formation
+    document.getElementById('dr-save-info')?.addEventListener('click', async () => {
+        if (!S.id) return;
+        const prenom = document.getElementById('dr-prenom')?.value.trim();
+        const nom = document.getElementById('dr-nom')?.value.trim();
+        const filiere = document.getElementById('dr-filiere')?.value.trim() || null;
+        const etablissement = document.getElementById('dr-etablissement')?.value.trim() || null;
+
+        if (!prenom || !nom) {
+            alert$('al-info', 'Prénom et nom sont obligatoires.');
+            return;
+        }
+
+        try {
+            const updated = await api(`/api/etudiants/${S.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ prenom, nom, filiere, etablissement })
+            });
+            S.etudiant = updated;
+            await loadAllData(S.id);
+            alert$('al-info', 'Informations mises à jour avec succès !', 'ok');
+        } catch (e) {
+            alert$('al-info', e.message);
+        }
     });
 
     // 5. Autocomplete pour ajouter une compétence globale au profil

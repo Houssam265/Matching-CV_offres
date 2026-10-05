@@ -372,6 +372,49 @@
     </div>
     <div class="drbd">
 
+        <!-- SECTION 0 : MON PROFIL & FORMATION -->
+        <div class="ds open" id="ds-info">
+            <div class="dsh" onclick="toggleSec('ds-info')">
+                <div class="dshl">
+                    <div class="dsi ib" style="background:rgba(46,90,156,.12);color:var(--navy);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                    <span class="dst">Mon Profil &amp; Formation</span>
+                </div>
+                <svg class="dsarr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="dsbd">
+                <div class="alert" id="al-info"></div>
+                <div class="fr2">
+                    <div class="fg" style="margin:0;"><label class="fl">Pr&eacute;nom</label><input type="text" id="dr-prenom" class="fi" autocomplete="given-name"/></div>
+                    <div class="fg" style="margin:0;"><label class="fl">Nom</label><input type="text" id="dr-nom" class="fi" autocomplete="family-name"/></div>
+                </div>
+                <div class="fr2" style="margin-top:.6rem;">
+                    <div class="fg" style="margin:0;"><label class="fl">Fili&egrave;re d&apos;&eacute;tudes</label><input type="text" id="dr-filiere" class="fi" placeholder="ex. G&eacute;nie Informatique (GI3)" list="dr-filieres"/>
+                        <datalist id="dr-filieres">
+                            <option value="Génie Informatique (GI3)"></option>
+                            <option value="Génie Télécoms & Réseaux (GTR)"></option>
+                            <option value="Génie Mécatronique"></option>
+                            <option value="Génie Civil"></option>
+                        </datalist>
+                    </div>
+                    <div class="fg" style="margin:0;"><label class="fl">&Eacute;tablissement / &Eacute;cole</label><input type="text" id="dr-etablissement" class="fi" placeholder="ex. ENSA T&eacute;touan" list="dr-ecoles"/>
+                        <datalist id="dr-ecoles">
+                            <option value="ENSA Tétouan"></option>
+                            <option value="ENSA Tanger"></option>
+                            <option value="ENSAM"></option>
+                            <option value="EMI"></option>
+                            <option value="ENSIAS"></option>
+                        </datalist>
+                    </div>
+                </div>
+                <div style="margin-top:.75rem;">
+                    <button class="bsave" id="dr-save-info">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                        Mettre &agrave; jour mes informations
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- SECTION 1 : COMPÉTENCES -->
         <div class="ds open" id="ds-c">
             <div class="dsh" onclick="toggleSec('ds-c')">

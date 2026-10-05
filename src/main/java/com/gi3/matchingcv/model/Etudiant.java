@@ -18,6 +18,12 @@ import java.util.List;
 @AllArgsConstructor
 public class Etudiant extends Utilisateur {
 
+    @Column(length = 100)
+    private String filiere;
+
+    @Column(length = 150)
+    private String etablissement;
+
     @JsonIgnore
     @OneToMany(mappedBy = "etudiant", fetch = FetchType.LAZY)
     private List<ProfilCompetence> profilCompetences = new ArrayList<>();

@@ -56,6 +56,12 @@ public class AuthServiceImpl implements AuthService {
             etudiant.setEmail(request.getEmail().trim().toLowerCase());
             etudiant.setMotDePasse(request.getMotDePasse());
             etudiant.setRole(Role.ETUDIANT);
+            if (request.getFiliere() != null && !request.getFiliere().isBlank()) {
+                etudiant.setFiliere(request.getFiliere().trim());
+            }
+            if (request.getEtablissement() != null && !request.getEtablissement().isBlank()) {
+                etudiant.setEtablissement(request.getEtablissement().trim());
+            }
             saved = etudiantRepository.save(etudiant);
 
         } else if (request.getRole() == Role.RECRUTEUR) {

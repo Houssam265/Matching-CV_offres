@@ -225,6 +225,8 @@ function initRegisterPage() {
         const role        = document.getElementById('register-role')?.value || 'ETUDIANT';
         const nomEntreprise   = document.getElementById('reg-entreprise')?.value.trim() || null;
         const secteurActivite = document.getElementById('reg-secteur')?.value.trim() || null;
+        const filiere         = document.getElementById('reg-filiere')?.value.trim() || null;
+        const etablissement   = document.getElementById('reg-etablissement')?.value.trim() || null;
 
         // Validation
         let hasError = false;
@@ -262,7 +264,7 @@ function initRegisterPage() {
 
         setSubmitting('btn-register', true);
 
-        const payload = { prenom, nom, email, motDePasse, role, nomEntreprise, secteurActivite };
+        const payload = { prenom, nom, email, motDePasse, role, nomEntreprise, secteurActivite, filiere, etablissement };
 
         try {
             const res = await fetch('/api/auth/inscription', {
@@ -335,6 +337,10 @@ function initRoleToggle() {
 
             if (recruteurFields) {
                 recruteurFields.style.display = role === 'RECRUTEUR' ? 'flex' : 'none';
+            }
+            const etudiantFields = document.getElementById('etudiant-fields');
+            if (etudiantFields) {
+                etudiantFields.style.display = role === 'ETUDIANT' ? 'block' : 'none';
             }
         });
     });
