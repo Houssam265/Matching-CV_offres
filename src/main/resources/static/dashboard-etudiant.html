@@ -239,7 +239,7 @@
             <div class="sci ib"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
             <div class="slb">Compétences</div>
             <div class="sv" id="sc">0</div>
-            <div class="ss">compétences déclarées</div>
+            <div class="ss">compétences mobilisées</div>
         </div>
         <div class="sc">
             <div class="sci it"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div>
@@ -294,7 +294,7 @@
                     <div class="sum-col-head">
                         <div class="sum-col-title">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--navy);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            Compétences Déclarées
+                            Compétences mobilisées
                         </div>
                         <span class="sum-count-pill" id="sum-cnt-c">0</span>
                     </div>
@@ -415,23 +415,22 @@
             </div>
         </div>
 
-        <!-- SECTION 1 : COMPÉTENCES -->
+        <!-- SECTION 1 : COMPÉTENCES (lecture seule — agrégées depuis projets & expériences) -->
         <div class="ds open" id="ds-c">
             <div class="dsh" onclick="toggleSec('ds-c')">
                 <div class="dshl">
                     <div class="dsi ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                    <span class="dst">Mes Compétences Déclarées</span>
+                    <span class="dst">Compétences mobilisées</span>
                     <span class="dscnt" id="cnt-c">0</span>
                 </div>
                 <svg class="dsarr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
             <div class="dsbd">
-                <div class="alert" id="al-c"></div>
+                <p style="font-size:.78rem;color:var(--text-light);margin-bottom:.75rem;line-height:1.5;display:flex;align-items:flex-start;gap:.4rem;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;margin-top:1px;color:var(--teal);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Collectées automatiquement depuis vos projets et expériences. Liez une compétence à un projet ou une expérience pour qu'elle apparaisse ici.</span>
+                </p>
                 <div class="ctags" id="dr-c"></div>
-                <div class="di-ac">
-                    <input type="text" id="c-inp" class="di-ai" placeholder="+ Rechercher ou proposer une compétence..." autocomplete="off"/>
-                    <div class="di-ad" id="c-drop"></div>
-                </div>
             </div>
         </div>
 

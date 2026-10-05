@@ -78,6 +78,9 @@ function getCompetenceRelations(compId) {
 
 /* ─── RENDU DU RÉSUMÉ SUR LE DASHBOARD ────────────────────── */
 function renderDashboardSummary() {
+    // 0. Recalculer les compétences depuis projets + expériences
+    computeCompetencesFromContext();
+
     // 1. Stats KPI
     document.getElementById('sc').textContent = S.competences.length;
     document.getElementById('sp').textContent = S.projets.length;
@@ -87,10 +90,10 @@ function renderDashboardSummary() {
     document.getElementById('sum-cnt-p').textContent = S.projets.length;
     document.getElementById('sum-cnt-e').textContent = S.experiences.length;
 
-    // 2. Colonne Compétences déclarées
+    // 2. Colonne Compétences (agrégées depuis projets + expériences)
     const cList = document.getElementById('sum-list-c');
     if (!S.competences.length) {
-        cList.innerHTML = '<span class="r-chip-empty" style="padding:.5rem 0;">Aucune compétence déclarée pour le moment. Cliquez sur "Gérer" pour en ajouter.</span>';
+        cList.innerHTML = '<span class="r-chip-empty" style="padding:.5rem 0;">Aucune compétence liée pour le moment. Ajoutez un projet ou une expérience et liez-y des compétences.</span>';
     } else {
         cList.innerHTML = S.competences.map(c => {
             const rel = getCompetenceRelations(c.id);
@@ -187,18 +190,30 @@ function renderDashboardSummary() {
     }
 }
 
+/* ─── CALCUL DES COMPÉTENCES DEPUIS PROJETS + EXPÉRIENCES ─── */
+function computeCompetencesFromContext() {
+    const map = new Map();
+    (S.projets || []).forEach(p =>
+        (p.competences || []).forEach(c => { if (!map.has(c.id)) map.set(c.id, c); })
+    );
+    (S.experiences || []).forEach(e =>
+        (e.competences || []).forEach(c => { if (!map.has(c.id)) map.set(c.id, c); })
+    );
+    S.competences = Array.from(map.values());
+}
+
 /* ─── RENDU DU DRAWER ─────────────────────────────────────── */
 function renderDrawer() {
-    // 1. Compétences
+    // 1. Compétences (agrégées automatiquement)
+    computeCompetencesFromContext();
     document.getElementById('cnt-c').textContent = S.competences.length;
     const dc = document.getElementById('dr-c');
     if (!S.competences.length) {
-        dc.innerHTML = '<span class="din">Aucune compétence déclarée pour le moment.</span>';
+        dc.innerHTML = '<span class="din" style="font-style:italic;color:var(--text-light);">Aucune compétence liée pour le moment — ajoutez-en via vos projets ou expériences ci-dessous.</span>';
     } else {
         dc.innerHTML = S.competences.map(c => `
             <span class="ctag ${c.statut === 'EN_ATTENTE' ? 'pend' : ''}" title="${c.statut === 'EN_ATTENTE' ? 'En attente de validation' : 'Validée'}">
                 ${c.statut === 'EN_ATTENTE' ? '&#9203;' : '&#10003;'} ${esc(c.nom)}
-                <button class="ctdel" onclick="delC(${c.id})" title="Supprimer cette compétence">&times;</button>
             </span>
         `).join('');
     }
@@ -360,8 +375,8 @@ window.linkCompToProj = async function(projId, payload) {
         });
         const idx = S.projets.findIndex(p => p.id === projId);
         if (idx !== -1) S.projets[idx] = updatedProj;
-        // Recharger les compétences du profil car la nouvelle compétence est maintenant rattachée au profil
-        S.competences = await api(`/api/etudiants/${S.id}/competences`).catch(() => S.competences);
+        // Recomputer les compétences depuis les projets + expériences
+        computeCompetencesFromContext();
         renderDrawer();
         renderDashboardSummary();
         alert$('al-p', 'Compétence liée au projet avec succès !', 'ok');
@@ -431,7 +446,7 @@ window.linkCompToExp = async function(expId, payload) {
         });
         const idx = S.experiences.findIndex(e => e.id === expId);
         if (idx !== -1) S.experiences[idx] = updatedExp;
-        S.competences = await api(`/api/etudiants/${S.id}/competences`).catch(() => S.competences);
+        computeCompetencesFromContext();
         renderDrawer();
         renderDashboardSummary();
         alert$('al-e', 'Compétence liée à l\'expérience avec succès !', 'ok');
@@ -457,18 +472,6 @@ window.unlinkExpComp = async function(expId, compId) {
 };
 
 /* ─── SUPPRESSIONS ────────────────────────────────────────── */
-window.delC = async id => {
-    if (!S.id) return;
-    try {
-        await api(`/api/etudiants/${S.id}/competences/${id}`, { method: 'DELETE' });
-        S.competences = S.competences.filter(c => c.id !== id);
-        renderDrawer();
-        renderDashboardSummary();
-        alert$('al-c', 'Compétence retirée du profil.', 'ok');
-    } catch (e) {
-        alert$('al-c', e.message);
-    }
-};
 
 window.delP = async id => {
     if (!S.id) return;
@@ -596,14 +599,14 @@ async function loadAllData(id) {
     } catch (_) {}
 
     try {
-        const [comps, projs, exps] = await Promise.all([
-            api(`/api/etudiants/${id}/competences`).catch(() => []),
+        const [projs, exps] = await Promise.all([
             api(`/api/etudiants/${id}/projets`).catch(() => []),
             api(`/api/etudiants/${id}/experiences`).catch(() => [])
         ]);
-        S.competences = comps;
         S.projets = projs;
         S.experiences = exps;
+        // Les compétences sont déduites automatiquement depuis projets + expériences
+        computeCompetencesFromContext();
     } catch (_) {}
 
     renderDashboardSummary();
@@ -692,27 +695,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 5. Autocomplete pour ajouter une compétence globale au profil
-    setupAutocomplete('c-inp', 'c-drop', () => new Set(S.competences.map(c => c.id)), async item => {
-        if (!S.id) return;
-        let payload;
-        if (item.dataset.id) payload = { competenceId: parseInt(item.dataset.id, 10) };
-        else if (item.dataset.propose) payload = { nouvelleCompetence: item.dataset.propose };
-        else return;
-
-        try {
-            const saved = await api(`/api/etudiants/${S.id}/competences`, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-            if (!S.competences.find(c => c.id === saved.id)) S.competences.push(saved);
-            renderDrawer();
-            renderDashboardSummary();
-            alert$('al-c', 'Compétence ajoutée au profil.', 'ok');
-        } catch (e) {
-            alert$('al-c', e.message);
-        }
-    });
+    // 5. (supprimé) — la déclaration manuelle de compétences est remplacée par la liaison via projets/expériences
 
     // 6. Formulaire d'ajout de projet dans le drawer
     const btnAp = document.getElementById('btn-ap');
@@ -753,8 +736,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({ titre, description: desc, competences: S.fpChips })
             });
             S.projets.push(created);
-            // Rafraîchir les compétences du profil
-            S.competences = await api(`/api/etudiants/${S.id}/competences`).catch(() => S.competences);
+            // Recalculer compétences depuis projets + expériences
+            computeCompetencesFromContext();
             fp.classList.remove('show');
             if (btnAp) btnAp.style.display = 'flex';
             S.fpChips.length = 0;
@@ -813,7 +796,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({ poste, entreprise: entr, dateDebut: deb, dateFin: fin, competences: S.feChips })
             });
             S.experiences.push(created);
-            S.competences = await api(`/api/etudiants/${S.id}/competences`).catch(() => S.competences);
+            computeCompetencesFromContext();
             fe.classList.remove('show');
             if (btnAe) btnAe.style.display = 'flex';
             S.feChips.length = 0;
