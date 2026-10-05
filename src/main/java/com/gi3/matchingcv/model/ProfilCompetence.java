@@ -33,6 +33,7 @@ public class ProfilCompetence {
 
     private LocalDateTime dateAjout;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "etudiant_id", nullable = false)
     private Etudiant etudiant;

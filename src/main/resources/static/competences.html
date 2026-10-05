@@ -328,6 +328,16 @@
         var breadcrumbHome = document.querySelector('.page-breadcrumb a[href="/index.html"]');
         if (breadcrumbHome) breadcrumbHome.href = dashUrl;
 
+        /* Harmoniser la navbar pour un étudiant connecté */
+        if (user.role === 'ETUDIANT') {
+            var navLinks = document.getElementById('nav-links');
+            if (navLinks) {
+                navLinks.innerHTML = '<li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>' +
+                                     '<li><a href="/profil-etudiant.html" class="nav-link">Mon Profil</a></li>' +
+                                     '<li><a href="/competences.html" class="nav-link active" style="color:var(--navy);font-weight:700;">Comp\u00e9tences</a></li>';
+            }
+        }
+
         /* Afficher le nom et le bouton de deconnexion */
         loginBtn.textContent = (user.prenom || '') + ' ' + (user.nom || '');
         loginBtn.href = dashUrl;
@@ -338,7 +348,7 @@
         signupBtn.addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.removeItem('matchingcv_user');
-            window.location.href = '/index.html';
+            window.location.href = '/login.html';
         });
     })();
     </script>

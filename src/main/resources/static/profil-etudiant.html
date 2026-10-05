@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Mon Profil — Matching CV-Offres" />
+    <title>Mon Profil — Matching CV-Offres</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+        :root{--teal:#2E8B8B;--navy:#1E3A5F;--navy-deep:#0F172A;--border:#E2E8F0;--text-mid:#475569;--text-light:#94A3B8;--green:#16A34A;--green-pale:#DCFCE7;}
+        .profil-hero{background:linear-gradient(135deg,#0D1F44 0%,#1F3864 50%,#2E8B8B 100%);padding:3rem 1.5rem 2.5rem;position:relative;overflow:hidden;}
+        .profil-hero::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px;}
+        .hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;}
+        .hero-left{display:flex;align-items:center;gap:1.25rem;flex:1;min-width:0;}
+        .hero-avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.15);border:2.5px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:1.9rem;font-weight:800;color:#fff;flex-shrink:0;}
+        .hero-name{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;color:#fff;}
+        .hero-email{font-size:.875rem;color:rgba(255,255,255,.65);margin-top:.2rem;}
+        .profil-selector{appearance:none;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);color:#fff;font-family:inherit;font-size:.875rem;font-weight:600;padding:.55rem 2.5rem .55rem 1rem;border-radius:10px;cursor:pointer;outline:none;}
+        .profil-selector option{background:#1E3A5F;}
+        .sel-wrap{position:relative;display:flex;align-items:center;}
+        .sel-icon{position:absolute;right:.75rem;pointer-events:none;color:rgba(255,255,255,.7);}
+        .profil-main{max-width:900px;margin:2.5rem auto 5rem;padding:0 1.5rem;display:flex;flex-direction:column;gap:2rem;}
+        .sum-card{background:#fff;border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 12px rgba(0,0,0,.05);border:1px solid var(--border);overflow:hidden;}
+        .sum-head{padding:1.25rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;}
+        .sum-head-l{display:flex;align-items:center;gap:.75rem;}
+        .sum-icon{width:38px;height:38px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,rgba(46,90,156,.1),rgba(46,139,139,.07));color:var(--teal);display:flex;align-items:center;justify-content:center;}
+        .sum-title{font-size:.97rem;font-weight:800;color:var(--navy-deep);}
+        .sum-badge{background:var(--teal);color:#fff;border-radius:100px;font-size:.7rem;font-weight:700;padding:.15rem .55rem;margin-left:.4rem;}
+        .btn-edit{display:inline-flex;align-items:center;gap:.4rem;padding:.48rem 1.1rem;border-radius:9px;background:linear-gradient(135deg,#1E3A5F,#2E8B8B);color:#fff;font-size:.82rem;font-weight:700;font-family:inherit;border:none;cursor:pointer;transition:opacity .2s,transform .15s;}
+        .btn-edit:hover{opacity:.9;transform:translateY(-1px);}
+        .sum-body{padding:1.4rem 1.75rem;}
+        .tags-wrap{display:flex;flex-wrap:wrap;gap:.5rem;}
+        .t-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .8rem;border-radius:100px;font-size:.8rem;font-weight:600;background:linear-gradient(135deg,rgba(46,90,156,.07),rgba(46,139,139,.05));color:var(--navy);border:1px solid rgba(46,139,139,.2);}
+        .t-chip.pending{background:rgba(251,191,36,.1);color:#B45309;border-color:rgba(251,191,36,.3);}
+        .item-grid{display:flex;flex-direction:column;gap:.85rem;}
+        .item-card{background:#F8FAFC;border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;transition:box-shadow .2s,transform .2s;}
+        .item-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.12);transform:translateY(-1px);}
+        .ic-title{font-size:.92rem;font-weight:700;color:var(--navy-deep);margin-bottom:.2rem;}
+        .ic-meta{font-size:.8rem;color:var(--text-mid);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.35rem;}
+        .ic-desc{font-size:.82rem;color:var(--text-mid);line-height:1.5;margin-bottom:.5rem;}
+        .ic-tags{display:flex;flex-wrap:wrap;gap:.3rem;}
+        .ic-tag{background:#E2E8F0;color:#475569;padding:.15rem .6rem;border-radius:100px;font-size:.72rem;font-weight:600;}
+        .badge-ec{background:var(--green-pale);color:var(--green);padding:.15rem .55rem;border-radius:100px;font-size:.7rem;font-weight:700;}
+        .empty-hint{color:var(--text-light);font-size:.85rem;font-style:italic;}
+        .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:9000;opacity:0;pointer-events:none;transition:opacity .25s;}
+        .modal-overlay.open{opacity:1;pointer-events:auto;}
+        .modal-box{background:#fff;width:92%;max-width:600px;max-height:88vh;border-radius:20px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 48px rgba(0,0,0,.18);transform:translateY(24px) scale(.96);transition:transform .3s cubic-bezier(.22,.68,0,1.2);}
+        .modal-overlay.open .modal-box{transform:translateY(0) scale(1);}
+        .modal-head{padding:1.3rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+        .modal-head-title{font-size:1.05rem;font-weight:800;color:var(--navy-deep);display:flex;align-items:center;gap:.5rem;}
+        .modal-x{background:none;border:none;font-size:1.6rem;line-height:1;color:var(--text-light);cursor:pointer;padding:0 .25rem;transition:color .2s;}
+        .modal-x:hover{color:var(--navy-deep);}
+        .modal-body{padding:1.5rem 1.75rem;overflow-y:auto;flex:1;}
+        .modal-footer{padding:1rem 1.75rem;border-top:1px solid var(--border);display:flex;gap:.65rem;justify-content:flex-end;flex-shrink:0;}
+        .m-alert{display:none;padding:.65rem 1rem;border-radius:8px;font-size:.83rem;font-weight:600;margin-bottom:1rem;}
+        .m-alert.ok{display:block;background:var(--green-pale);color:var(--green);border:1px solid #a3dcc8;}
+        .m-alert.err{display:block;background:#fef2f2;color:#c0392b;border:1px solid #f5c2c2;}
+        .m-alert.info{display:block;background:#fffbeb;color:#B45309;border:1px solid #fde68a;}
+        .m-section{font-size:.88rem;font-weight:800;color:var(--navy-deep);margin:1.25rem 0 .65rem;padding-bottom:.5rem;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:.4rem;}
+        .m-section:first-child{margin-top:0;}
+        .edit-row{background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;display:flex;align-items:flex-start;justify-content:space-between;gap:.65rem;margin-bottom:.55rem;}
+        .er-info{flex:1;min-width:0;}
+        .er-title{font-size:.86rem;font-weight:700;color:var(--navy-deep);}
+        .er-sub{font-size:.76rem;color:var(--text-mid);margin-top:.1rem;}
+        .er-tags{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.35rem;}
+        .er-tag{background:#E2E8F0;color:#475569;padding:.12rem .5rem;border-radius:100px;font-size:.7rem;font-weight:600;}
+        .btn-del{background:none;border:none;cursor:pointer;color:var(--text-light);padding:.3rem;border-radius:6px;transition:color .2s,background .2s;flex-shrink:0;}
+        .btn-del:hover{color:#c0392b;background:#fef2f2;}
+        .add-block{background:#F0F9FF;border:1.5px dashed rgba(46,139,139,.35);border-radius:12px;padding:1.1rem 1.25rem;margin-top:.5rem;}
+        .add-block-title{font-size:.78rem;font-weight:700;color:var(--teal);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+        .fg{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem;}
+        .fl{font-size:.78rem;font-weight:700;color:#475569;letter-spacing:.02em;}
+        .fi{padding:.65rem .9rem;border-radius:9px;border:1.5px solid var(--border);font-size:.875rem;font-family:inherit;background:#FAFBFC;color:#1E293B;transition:border-color .2s,box-shadow .2s;width:100%;box-sizing:border-box;}
+        .fi:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46,139,139,.12);background:#fff;}
+        textarea.fi{resize:vertical;min-height:72px;}
+        .fr2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+        .ac-wrap{position:relative;}
+        .ac-drop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:10000;overflow:hidden;display:none;}
+        .ac-drop.open{display:block;}
+        .ac-item{display:flex;align-items:center;gap:.55rem;padding:.6rem .9rem;cursor:pointer;font-size:.85rem;color:#1E293B;transition:background .15s;}
+        .ac-item:hover,.ac-item.foc{background:#F0F9FF;}
+        .ac-item.prop{color:var(--teal);font-weight:600;border-top:1px solid var(--border);}
+        .sel-chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.45rem;min-height:0;}
+        .s-chip{display:inline-flex;align-items:center;gap:.3rem;background:rgba(46,139,139,.1);color:var(--teal);border:1px solid rgba(46,139,139,.25);padding:.22rem .65rem;border-radius:100px;font-size:.76rem;font-weight:600;}
+        .s-chip button{background:none;border:none;cursor:pointer;color:inherit;font-size:.9rem;line-height:1;padding:0;}
+        .btn-p{padding:.55rem 1.15rem;border-radius:9px;background:linear-gradient(135deg,#1E3A5F,#2E8B8B);color:#fff;font-size:.85rem;font-weight:700;font-family:inherit;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:opacity .2s,transform .15s;}
+        .btn-p:hover{opacity:.9;transform:translateY(-1px);}
+        .btn-s{padding:.55rem 1.1rem;border-radius:9px;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);font-size:.85rem;font-weight:600;font-family:inherit;cursor:pointer;transition:border-color .2s,color .2s;}
+        .btn-s:hover{border-color:var(--navy);color:var(--navy);}
+        .btn-sm{padding:.45rem .95rem;border-radius:8px;background:var(--teal);color:#fff;font-size:.8rem;font-weight:700;font-family:inherit;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;transition:background .2s;}
+        .btn-sm:hover{background:var(--navy);}
+        @media(max-width:640px){.hero-inner,.sum-head{flex-direction:column;align-items:flex-start;}.fr2{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+<nav class="navbar" id="navbar" role="navigation">
+    <div class="nav-inner">
+        <a href="/dashboard-etudiant.html" class="nav-logo">
+            <span class="logo-mark">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="13" stroke="url(#nl1)" stroke-width="2"/><path d="M8 14l4 4 8-8" stroke="url(#nl1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="nl1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs></svg>
+            </span>
+            <span class="logo-text">Matching<strong>CV</strong></span>
+        </a>
+        <ul class="nav-links" id="nav-links" role="list">
+            <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
+            <li><a href="/profil-etudiant.html" class="nav-link active" style="color:var(--navy);font-weight:700;">Mon Profil</a></li>
+            <li><a href="/competences.html" class="nav-link">Compétences</a></li>
+        </ul>
+        <div class="nav-cta">
+            <span id="nav-user-name" style="font-size:.85rem;font-weight:700;color:var(--navy);"></span>
+            <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">Déconnexion</button>
+        </div>
+        <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+</nav>
+<div class="profil-hero">
+    <div class="hero-inner">
+        <div class="hero-left">
+            <div class="hero-avatar" id="profil-avatar">?</div>
+            <div>
+                <div class="hero-name" id="profil-name">Chargement...</div>
+                <div class="hero-email" id="profil-email"></div>
+            </div>
+        </div>
+        <div class="sel-wrap">
+            <select class="profil-selector" id="etudiant-select"><option value="">Choisir un etudiant</option></select>
+            <svg class="sel-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+    </div>
+</div>
+<main class="profil-main">
+    <div class="sum-card">
+        <div class="sum-head">
+            <div class="sum-head-l">
+                <div class="sum-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                <span class="sum-title">Competences declarees <span class="sum-badge" id="cnt-c">0</span></span>
+            </div>
+            <button class="btn-edit" id="btn-ec"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Modifier</button>
+        </div>
+        <div class="sum-body"><div class="tags-wrap" id="disp-c"><span class="empty-hint">Aucune competence declaree.</span></div></div>
+    </div>
+    <div class="sum-card">
+        <div class="sum-head">
+            <div class="sum-head-l">
+                <div class="sum-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div>
+                <span class="sum-title">Projets <span class="sum-badge" id="cnt-p">0</span></span>
+            </div>
+            <button class="btn-edit" id="btn-ep"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Modifier</button>
+        </div>
+        <div class="sum-body"><div class="item-grid" id="disp-p"><span class="empty-hint">Aucun projet renseigne.</span></div></div>
+    </div>
+    <div class="sum-card">
+        <div class="sum-head">
+            <div class="sum-head-l">
+                <div class="sum-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+                <span class="sum-title">Experiences <span class="sum-badge" id="cnt-e">0</span></span>
+            </div>
+            <button class="btn-edit" id="btn-ee"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Modifier</button>
+        </div>
+        <div class="sum-body"><div class="item-grid" id="disp-e"><span class="empty-hint">Aucune experience renseignee.</span></div></div>
+    </div>
+</main>
+<!-- MODAL COMPETENCES -->
+<div class="modal-overlay" id="m-comp" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+        <div class="modal-head"><span class="modal-head-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--teal)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Gerer mes competences</span><button class="modal-x" data-close="m-comp">&times;</button></div>
+        <div class="modal-body">
+            <div class="m-alert" id="a-comp"></div>
+            <div class="m-section">Competences actuelles</div>
+            <div id="ml-comp"></div>
+            <div class="m-section" style="margin-top:1.5rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Associer une nouvelle competence</div>
+            <div class="ac-wrap"><input type="text" id="mc-search" class="fi" placeholder="Rechercher ou proposer une competence..." autocomplete="off" /><div class="ac-drop" id="mc-drop"></div></div>
+        </div>
+        <div class="modal-footer"><button class="btn-s" data-close="m-comp">Fermer</button></div>
+    </div>
+</div>
+<!-- MODAL PROJETS -->
+<div class="modal-overlay" id="m-proj" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+        <div class="modal-head"><span class="modal-head-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--teal)"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Gerer mes projets</span><button class="modal-x" data-close="m-proj">&times;</button></div>
+        <div class="modal-body">
+            <div class="m-alert" id="a-proj"></div>
+            <div class="m-section">Projets existants</div>
+            <div id="ml-proj"></div>
+            <div class="add-block" style="margin-top:1.5rem;">
+                <div class="add-block-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter un nouveau projet</div>
+                <div class="fg"><label class="fl" for="mp-titre">Titre <span style="color:#e74c3c">*</span></label><input type="text" id="mp-titre" class="fi" placeholder="ex. Plateforme de matching CV" autocomplete="off" /></div>
+                <div class="fg"><label class="fl" for="mp-desc">Description</label><textarea id="mp-desc" class="fi" placeholder="Decrivez brievement le projet..."></textarea></div>
+                <div class="fg"><label class="fl">Competences utilisees</label><div class="sel-chips" id="mp-chips"></div><div class="ac-wrap"><input type="text" id="mp-csearch" class="fi" placeholder="Lier une competence..." autocomplete="off" /><div class="ac-drop" id="mp-cdrop"></div></div></div>
+                <button class="btn-sm" id="mp-save"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Enregistrer</button>
+            </div>
+        </div>
+        <div class="modal-footer"><button class="btn-s" data-close="m-proj">Fermer</button></div>
+    </div>
+</div>
+<!-- MODAL EXPERIENCES -->
+<div class="modal-overlay" id="m-exp" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+        <div class="modal-head"><span class="modal-head-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--teal)"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Gerer mes experiences</span><button class="modal-x" data-close="m-exp">&times;</button></div>
+        <div class="modal-body">
+            <div class="m-alert" id="a-exp"></div>
+            <div class="m-section">Experiences existantes</div>
+            <div id="ml-exp"></div>
+            <div class="add-block" style="margin-top:1.5rem;">
+                <div class="add-block-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter une nouvelle experience</div>
+                <div class="fr2">
+                    <div class="fg"><label class="fl" for="me-poste">Poste <span style="color:#e74c3c">*</span></label><input type="text" id="me-poste" class="fi" placeholder="ex. Dev Backend" autocomplete="off" /></div>
+                    <div class="fg"><label class="fl" for="me-entr">Entreprise <span style="color:#e74c3c">*</span></label><input type="text" id="me-entr" class="fi" placeholder="ex. Google" autocomplete="off" /></div>
+                </div>
+                <div class="fr2">
+                    <div class="fg"><label class="fl" for="me-deb">Date debut <span style="color:#e74c3c">*</span></label><input type="date" id="me-deb" class="fi" /></div>
+                    <div class="fg"><label class="fl" for="me-fin">Date fin <span style="color:var(--text-light)">(vide = en cours)</span></label><input type="date" id="me-fin" class="fi" /></div>
+                </div>
+                <div class="fg"><label class="fl">Competences utilisees</label><div class="sel-chips" id="me-chips"></div><div class="ac-wrap"><input type="text" id="me-csearch" class="fi" placeholder="Lier une competence..." autocomplete="off" /><div class="ac-drop" id="me-cdrop"></div></div></div>
+                <button class="btn-sm" id="me-save"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Enregistrer</button>
+            </div>
+        </div>
+        <div class="modal-footer"><button class="btn-s" data-close="m-exp">Fermer</button></div>
+    </div>
+</div>
+<script src="/js/profil-etudiant.js"></script>
+</body>
+</html>

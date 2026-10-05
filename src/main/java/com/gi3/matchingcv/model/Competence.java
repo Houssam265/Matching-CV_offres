@@ -42,6 +42,7 @@ public class Competence {
     @Enumerated(EnumType.STRING)
     private StatutCompetence statut;
 
+    @JsonIgnore
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "competence_synonymes", joinColumns = @JoinColumn(name = "competence_id"))
     @Column(name = "synonyme")

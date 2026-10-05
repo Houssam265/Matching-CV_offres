@@ -1,224 +1,461 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Tableau de bord étudiant — Matching CV-Offres" />
-    <title>Espace &Eacute;tudiant &mdash; Matching CV-Offres</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>Tableau de bord Étudiant — Matching CV-Offres</title>
+    <link rel="stylesheet" href="/css/style.css"/>
     <style>
-        .dash-hero {
-            background: linear-gradient(135deg, #0D1F44 0%, #1F3864 45%, #2E8B8B 100%);
-            padding: 3rem 1.5rem;
-            color: #fff;
-            position: relative;
-            overflow: hidden;
+        :root{
+            --teal:#2E8B8B;--teal-dark:#1E6464;--teal-light:rgba(46,139,139,.1);
+            --navy:#1E3A5F;--navy-deep:#0F172A;--navy-light:#2E5A9C;
+            --border:#E2E8F0;--text-dark:#1E293B;--text-mid:#475569;--text-light:#94A3B8;
+            --green:#16A34A;--green-pale:#DCFCE7;--amber:#D97706;--amber-pale:#FEF3C7;
+            --card-shadow:0 1px 3px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.04);
+            --card-shadow-hover:0 8px 30px rgba(0,0,0,.1);
         }
-        .dash-hero::before {
-            content:'';position:absolute;inset:0;pointer-events:none;
-            background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
-            background-size:48px 48px;
-        }
-        .dash-hero-inner {
-            position:relative;z-index:1;max-width:1200px;margin:0 auto;
-            display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;
-        }
-        .dash-welcome { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; }
-        .dash-welcome span { color: #5FD88A; }
-        .dash-sub { font-size:.92rem;color:rgba(255,255,255,.75);margin-top:.4rem; }
-        .dash-badge { background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:.5rem 1rem;font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600; }
-        .dash-logout-btn {
-            background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:#fff;
-            border-radius:8px;padding:.5rem 1.1rem;font-size:.84rem;font-weight:600;cursor:pointer;
-            transition:background .2s;
-        }
-        .dash-logout-btn:hover { background:rgba(255,255,255,.2); }
-        .dash-body { max-width:1200px;margin:2.5rem auto 4rem;padding:0 1.5rem; }
-        .dash-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:2rem; }
-        .dash-card {
-            background:#fff;border:1px solid var(--border-card);border-radius:var(--radius);
-            padding:1.8rem;box-shadow:var(--shadow-sm);
-            transition:box-shadow .25s;
-        }
-        .dash-card:hover { box-shadow:var(--shadow-md); }
-        .dash-card-icon {
-            width:48px;height:48px;border-radius:12px;
-            display:flex;align-items:center;justify-content:center;
-            margin-bottom:1rem;
-        }
-        .icon-blue { background:linear-gradient(135deg,rgba(46,90,156,.15),rgba(46,139,139,.1));color:var(--blue); }
-        .icon-teal { background:linear-gradient(135deg,rgba(46,139,139,.15),rgba(46,90,156,.1));color:var(--teal); }
-        .icon-green { background:linear-gradient(135deg,rgba(46,139,62,.12),rgba(46,139,139,.1));color:#2E8B3E; }
-        .dash-card h3 { font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.4rem; }
-        .dash-card p { font-size:.86rem;color:var(--text-mid);line-height:1.6; }
-        .dash-card-link {
-            display:inline-flex;align-items:center;gap:.4rem;
-            margin-top:1rem;font-size:.84rem;font-weight:600;color:var(--teal);
-            text-decoration:none;transition:color .2s;
-        }
-        .dash-card-link:hover { color:var(--blue); }
-        .dash-section-title {
-            font-size:1.2rem;font-weight:800;color:var(--navy);margin-bottom:1rem;
-            display:flex;align-items:center;gap:.6rem;
-        }
-        .coming-soon-card {
-            background:linear-gradient(135deg,#F9FBFE,#EAF1F8);
-            border:1.5px dashed var(--border);
-            display:flex;flex-direction:column;align-items:center;justify-content:center;
-            text-align:center;padding:2.5rem;min-height:200px;
-        }
-        .coming-soon-card .dash-card-icon { margin:0 auto 1rem; }
-        .coming-soon-card h3 { margin-bottom:.5rem; }
-        .coming-badge { background:var(--teal-pale);color:var(--teal);border:1px solid rgba(46,139,139,.25);padding:.2rem .7rem;border-radius:100px;font-size:.72rem;font-weight:700;display:inline-block;margin-top:.5rem; }
+        body{background:#F8FAFC;color:var(--text-dark);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;}
+
+        /* Hero */
+        .dh{background:linear-gradient(135deg,#0D1F44 0%,#1F3864 50%,#2E8B8B 100%);padding:3rem 1.5rem 2.8rem;color:#fff;position:relative;overflow:hidden;}
+        .dh::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:48px 48px;}
+        .dhi{position:relative;z-index:1;max-width:1160px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;}
+        .dw{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;}.dw span{color:#5FD88A;}
+        .dsub{font-size:.92rem;color:rgba(255,255,255,.75);margin-top:.35rem;}
+        .dbadge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:.5rem 1rem;font-size:.82rem;color:rgba(255,255,255,.9);font-weight:600;display:inline-flex;align-items:center;gap:.4rem;}
+        .dlo{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.28);color:#fff;border-radius:9px;padding:.5rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;}
+        .dlo:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.45);}
+
+        /* Main Container */
+        .db{max-width:1160px;margin:2rem auto 5rem;padding:0 1.5rem;}
+
+        /* Stats */
+        .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;margin-bottom:2rem;}
+        .sc{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.4rem 1.6rem;box-shadow:var(--card-shadow);transition:box-shadow .25s,transform .2s;}
+        .sc:hover{box-shadow:var(--card-shadow-hover);transform:translateY(-2px);}
+        .sci{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:.8rem;}
+        .ib{background:linear-gradient(135deg,rgba(46,90,156,.12),rgba(46,139,139,.08));color:#2E5A9C;}
+        .it{background:linear-gradient(135deg,rgba(46,139,139,.14),rgba(46,90,156,.08));color:var(--teal);}
+        .ig{background:linear-gradient(135deg,rgba(22,163,74,.12),rgba(46,139,139,.08));color:var(--green);}
+        .slb{font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem;}
+        .sv{font-size:2.1rem;font-weight:900;color:var(--navy-deep);line-height:1;}
+        .ss{font-size:.75rem;color:var(--text-mid);margin-top:.3rem;}
+
+        /* Profil Card */
+        .pc{background:linear-gradient(135deg,#fff 0%,#F0FDF4 50%,#F0F9FF 100%);border:1.5px solid rgba(46,139,139,.22);border-radius:20px;padding:1.75rem 2rem;margin-bottom:2.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;box-shadow:0 3px 12px rgba(46,139,139,.08);}
+        .pcl{display:flex;align-items:center;gap:1.3rem;}
+        .pca{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#1E3A5F,#2E8B8B);display:flex;align-items:center;justify-content:center;font-size:1.75rem;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 6px 16px rgba(46,139,139,.32);}
+        .pcn{font-size:1.25rem;font-weight:800;color:var(--navy-deep);}
+        .pce{font-size:.85rem;color:var(--text-mid);margin-top:.15rem;}
+        .pcs{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.6rem;}
+        .pct{background:rgba(46,139,139,.08);color:var(--teal);border:1px solid rgba(46,139,139,.25);padding:.22rem .75rem;border-radius:100px;font-size:.72rem;font-weight:700;}
+        .btn-op{display:inline-flex;align-items:center;gap:.6rem;padding:.75rem 1.6rem;border-radius:12px;background:linear-gradient(135deg,#1E3A5F,#2E8B8B);color:#fff;font-size:.9rem;font-weight:800;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(46,139,139,.32);transition:opacity .2s,transform .15s,box-shadow .2s;}
+        .btn-op:hover{opacity:.94;transform:translateY(-2px);box-shadow:0 8px 24px rgba(46,139,139,.4);}
+
+        /* ═══ RÉSUMÉ DU PROFIL (SUR LE DASHBOARD) ═══ */
+        .dash-summary{background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:2.5rem;}
+        .ds-header{background:linear-gradient(135deg,#FAFBFC 0%,#F1F5F9 100%);padding:1.4rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+        .ds-htitle{font-size:1.05rem;font-weight:800;color:var(--navy-deep);display:flex;align-items:center;gap:.6rem;}
+        .ds-hsub{font-size:.82rem;color:var(--text-mid);margin-top:.2rem;}
+        .btn-edit-sec{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:8px;background:var(--teal-light);color:var(--teal);border:1px solid rgba(46,139,139,.3);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .18s;}
+        .btn-edit-sec:hover{background:var(--teal);color:#fff;}
+        .ds-body{padding:1.75rem 2rem;}
+
+        /* Grille des 3 colonnes du résumé */
+        .summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;}
+        @media(max-width:960px){.summary-grid{grid-template-columns:1fr;}}
+
+        .sum-col{background:#F8FAFC;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.4rem;display:flex;flex-direction:column;gap:.9rem;}
+        .sum-col-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:.7rem;border-bottom:1.5px solid var(--border);}
+        .sum-col-title{font-size:.88rem;font-weight:800;color:var(--navy-deep);display:flex;align-items:center;gap:.45rem;}
+        .sum-count-pill{background:var(--teal);color:#fff;border-radius:100px;font-size:.68rem;font-weight:800;padding:.12rem .5rem;}
+
+        /* Item card dans résumé */
+        .sum-card-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 1px 3px rgba(0,0,0,.03);transition:transform .15s,box-shadow .15s;}
+        .sum-card-item:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.07);}
+        .sci-t{font-size:.86rem;font-weight:700;color:var(--navy-deep);display:flex;align-items:center;justify-content:space-between;gap:.4rem;}
+        .sci-desc{font-size:.78rem;color:var(--text-mid);margin:.3rem 0 .5rem;line-height:1.45;}
+        .sci-meta{font-size:.75rem;color:var(--text-mid);margin:.2rem 0 .45rem;}
+        
+        /* Relation labels & chips */
+        .relation-box{margin-top:.45rem;padding-top:.45rem;border-top:1px dashed var(--border);}
+        .relation-label{font-size:.68rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;display:flex;align-items:center;gap:.3rem;}
+        .relation-chips{display:flex;flex-wrap:wrap;gap:.3rem;}
+        .r-chip{display:inline-flex;align-items:center;gap:.25rem;background:rgba(46,139,139,.08);color:var(--teal-dark);border:1px solid rgba(46,139,139,.22);padding:.18rem .55rem;border-radius:100px;font-size:.72rem;font-weight:600;}
+        .r-chip-empty{font-size:.74rem;color:var(--text-light);font-style:italic;}
+
+        /* Compétence item spécifique */
+        .skill-item-row{display:flex;flex-direction:column;gap:.3rem;background:#fff;border:1px solid var(--border);border-radius:9px;padding:.7rem .85rem;}
+        .skill-item-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}
+        .skill-name{font-size:.84rem;font-weight:700;color:var(--navy-deep);display:flex;align-items:center;gap:.35rem;}
+        .skill-badge-status{font-size:.65rem;font-weight:700;padding:.15rem .5rem;border-radius:100px;}
+        .skill-badge-status.val{background:var(--green-pale);color:var(--green);}
+        .skill-badge-status.att{background:var(--amber-pale);color:var(--amber);}
+        .skill-usage-line{font-size:.73rem;color:var(--text-mid);display:flex;align-items:center;gap:.35rem;}
+
+        /* Quick Access */
+        .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;}
+        .sh-t{font-size:1rem;font-weight:800;color:var(--navy-deep);display:flex;align-items:center;gap:.45rem;}
+        .qg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.15rem;}
+        .qc{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.4rem;box-shadow:var(--card-shadow);transition:box-shadow .2s,transform .2s;text-decoration:none;}
+        .qc:hover{box-shadow:0 6px 24px rgba(0,0,0,.09);transform:translateY(-2px);}
+        .qci{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:.8rem;}
+        .qc h3{font-size:.9rem;font-weight:700;color:var(--navy-deep);margin-bottom:.25rem;}
+        .qc p{font-size:.8rem;color:var(--text-mid);line-height:1.5;}
+        .ql{display:inline-flex;align-items:center;gap:.3rem;margin-top:.65rem;font-size:.78rem;font-weight:700;color:var(--teal);}
+        .cc{background:linear-gradient(135deg,#F9FBFE,#EAF1F8);border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.8rem;min-height:140px;}
+        .cb{background:rgba(46,139,139,.08);color:var(--teal);border:1px solid rgba(46,139,139,.2);padding:.18rem .65rem;border-radius:100px;font-size:.68rem;font-weight:700;display:inline-block;margin-top:.45rem;}
+
+        /* ═══ DRAWER / VOLET LATÉRAL DE MODIFICATION ═══ */
+        .drover{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(5px);z-index:8000;opacity:0;pointer-events:none;transition:opacity .3s;}
+        .drover.open{opacity:1;pointer-events:auto;}
+        .drawer{position:fixed;top:0;right:0;width:min(640px,100vw);height:100vh;background:#fff;z-index:8001;display:flex;flex-direction:column;box-shadow:-10px 0 45px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .35s cubic-bezier(.22,.68,0,1.2);}
+        .drover.open .drawer{transform:translateX(0);}
+        .drh{background:linear-gradient(135deg,#0D1F44,#2E8B8B);padding:1.4rem 1.75rem;display:flex;align-items:center;gap:1rem;flex-shrink:0;}
+        .drav{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:#fff;flex-shrink:0;}
+        .drin{flex:1;min-width:0;}
+        .drnm{font-size:1.1rem;font-weight:800;color:#fff;}
+        .drem{font-size:.78rem;color:rgba(255,255,255,.7);margin-top:.1rem;}
+        .drx{background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:8px;font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;line-height:1;}
+        .drx:hover{background:rgba(255,255,255,.28);}
+        .drbd{flex:1;overflow-y:auto;padding:0;}
+
+        /* Sections dans Drawer */
+        .ds{border-bottom:1px solid var(--border);}
+        .dsh{padding:1.1rem 1.75rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
+        .dsh:hover{background:#F8FAFC;}
+        .dshl{display:flex;align-items:center;gap:.65rem;}
+        .dsi{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .dst{font-size:.9rem;font-weight:800;color:var(--navy-deep);}
+        .dscnt{background:var(--teal);color:#fff;border-radius:100px;font-size:.65rem;font-weight:700;padding:.1rem .5rem;margin-left:.35rem;}
+        .dsarr{color:var(--text-light);transition:transform .2s;}
+        .ds.open .dsarr{transform:rotate(180deg);}
+        .dsbd{display:none;padding:.3rem 1.75rem 1.5rem;}
+        .ds.open .dsbd{display:block;}
+
+        /* Items dans Drawer */
+        .di{background:#F8FAFC;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin-bottom:.8rem;position:relative;}
+        .dit{font-size:.9rem;font-weight:700;color:var(--navy-deep);margin-bottom:.15rem;padding-right:2.2rem;}
+        .dim{font-size:.78rem;color:var(--text-mid);margin-bottom:.45rem;line-height:1.45;}
+        .dicl{font-size:.68rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;margin:.5rem 0 .35rem;}
+        .dics{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.55rem;}
+        .dic{display:inline-flex;align-items:center;gap:.3rem;background:rgba(46,139,139,.1);color:var(--teal);border:1px solid rgba(46,139,139,.25);padding:.22rem .65rem;border-radius:100px;font-size:.74rem;font-weight:600;}
+        .dicd{background:none;border:none;cursor:pointer;color:inherit;font-size:.95rem;line-height:1;padding:0;opacity:.6;transition:opacity .15s;}
+        .dicd:hover{opacity:1;color:#c0392b;}
+        .din{font-size:.75rem;color:var(--text-light);font-style:italic;}
+
+        /* Inline associate competence inside project/experience */
+        .di-link-box{background:#fff;border:1px dashed rgba(46,139,139,.35);border-radius:9px;padding:.55rem .75rem;margin-top:.4rem;}
+        .btn-inline-link{background:none;border:none;color:var(--teal);font-size:.77rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;padding:0;}
+        .btn-inline-link:hover{text-decoration:underline;}
+        .di-ac{position:relative;}
+        .di-ai{width:100%;padding:.45rem .75rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:inherit;background:#fff;box-sizing:border-box;transition:border-color .2s;}
+        .di-ai:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46,139,139,.1);}
+        .di-ad{position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:9999;display:none;overflow:hidden;max-height:220px;overflow-y:auto;}
+        .di-ad.open{display:block;}
+        .aitem{display:flex;align-items:center;gap:.45rem;padding:.5rem .85rem;font-size:.8rem;cursor:pointer;transition:background .15s;}
+        .aitem:hover{background:#F0F9FF;}
+        .aitem.prop{color:var(--teal);font-weight:700;border-top:1px solid var(--border);background:#F8FAFC;}
+        .aitem.prop:hover{background:#F0F9FF;}
+        .dide{position:absolute;top:.75rem;right:.75rem;background:none;border:none;cursor:pointer;color:var(--text-light);padding:.25rem;border-radius:6px;transition:color .15s,background .15s;}
+        .dide:hover{color:#c0392b;background:#fef2f2;}
+
+        /* Formulaire d'ajout dans drawer */
+        .addf{background:#F0F9FF;border:1.5px dashed rgba(46,139,139,.35);border-radius:12px;padding:1.1rem 1.2rem;margin-top:.6rem;display:none;}
+        .addf.show{display:block;}
+        .adft{font-size:.76rem;font-weight:800;color:var(--teal);margin-bottom:.75rem;display:flex;align-items:center;gap:.35rem;}
+        .fi{width:100%;padding:.55rem .85rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:inherit;background:#fff;box-sizing:border-box;transition:border-color .2s;}
+        .fi:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46,139,139,.1);}
+        textarea.fi{resize:vertical;min-height:60px;}
+        .fg{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.7rem;}
+        .fl{font-size:.72rem;font-weight:700;color:#475569;}
+        .fr2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.7rem;}
+        .schips{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.4rem;}
+        .schip{display:inline-flex;align-items:center;gap:.25rem;background:rgba(46,139,139,.12);color:var(--teal);border:1px solid rgba(46,139,139,.28);padding:.22rem .65rem;border-radius:100px;font-size:.75rem;font-weight:600;}
+        .schip button{background:none;border:none;cursor:pointer;color:inherit;font-size:.9rem;line-height:1;padding:0;}
+        .bsave{padding:.52rem 1.1rem;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:.8rem;font-weight:700;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;transition:background .2s;}
+        .bsave:hover{background:var(--navy);}
+        .bcan{padding:.52rem .85rem;background:none;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;font-family:inherit;cursor:pointer;color:var(--text-mid);transition:border-color .2s;}
+        .bcan:hover{border-color:var(--navy);color:var(--navy);}
+        .badd{display:flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:10px;background:rgba(46,139,139,.08);color:var(--teal);border:1.5px dashed rgba(46,139,139,.32);font-size:.8rem;font-weight:700;font-family:inherit;cursor:pointer;width:100%;justify-content:center;transition:all .2s;margin-top:.4rem;}
+        .badd:hover{background:rgba(46,139,139,.15);border-color:var(--teal);}
+
+        /* Comp tags dans drawer */
+        .ctags{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.85rem;}
+        .ctag{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .8rem;border-radius:100px;font-size:.8rem;font-weight:600;background:rgba(46,90,156,.07);color:var(--navy);border:1px solid rgba(46,139,139,.2);}
+        .ctag.pend{background:rgba(251,191,36,.1);color:#B45309;border-color:rgba(251,191,36,.3);}
+        .ctdel{background:none;border:none;cursor:pointer;color:inherit;font-size:.9rem;line-height:1;padding:0;opacity:.55;transition:opacity .15s;}
+        .ctdel:hover{opacity:1;color:#c0392b;}
+
+        /* Alert notifications */
+        .alert{display:none;padding:.6rem 1rem;border-radius:8px;font-size:.8rem;font-weight:600;margin-bottom:.75rem;}
+        .alert.ok{display:block;background:var(--green-pale);color:var(--green);border:1px solid #86efac;}
+        .alert.err{display:block;background:#fef2f2;color:#c0392b;border:1px solid #fca5a5;}
+        .badge-ec{background:var(--green-pale);color:var(--green);padding:.12rem .5rem;border-radius:100px;font-size:.66rem;font-weight:700;}
+
+        @media(max-width:640px){.fr2{grid-template-columns:1fr;}.pcl{flex-direction:column;align-items:flex-start;}}
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
-        <div class="nav-inner">
-            <a href="/dashboard-etudiant.html" class="nav-logo">
-                <span class="logo-mark">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
-                        <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <defs>
-                            <linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </span>
-                <span class="logo-text">Matching<strong>CV</strong></span>
-            </a>
-            <ul class="nav-links" role="list">
-                <li><a href="/competences.html" class="nav-link">Comp&eacute;tences</a></li>
-            </ul>
-            <div class="nav-cta">
-                <span id="nav-user-name" style="font-size:.85rem;font-weight:600;color:var(--navy);"></span>
-                <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">D&eacute;connexion</button>
-            </div>
-            <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+<!-- NAVBAR COMMUNE ET HARMONISÉE -->
+<nav class="navbar" id="navbar" role="navigation">
+    <div class="nav-inner">
+        <a href="/dashboard-etudiant.html" class="nav-logo">
+            <span class="logo-mark"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/><path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs></svg></span>
+            <span class="logo-text">Matching<strong>CV</strong></span>
+        </a>
+        <ul class="nav-links" id="nav-links" role="list">
+            <li><a href="/dashboard-etudiant.html" class="nav-link active" style="color:var(--navy);font-weight:700;">Tableau de bord</a></li>
+            <li><a href="/profil-etudiant.html" class="nav-link">Mon Profil</a></li>
+            <li><a href="/competences.html" class="nav-link">Compétences</a></li>
+        </ul>
+        <div class="nav-cta">
+            <span id="nav-user-name" style="font-size:.85rem;font-weight:700;color:var(--navy);"></span>
+            <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">Déconnexion</button>
         </div>
-    </nav>
+        <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+</nav>
 
-    <!-- HERO DASHBOARD -->
-    <div class="dash-hero">
-        <div class="dash-hero-inner">
-            <div>
-                <div class="dash-welcome">Bonjour, <span id="user-prenom">Étudiant</span>&nbsp;! 👋</div>
-                <div class="dash-sub">Votre espace &eacute;tudiant — Matching CV-Offres</div>
-            </div>
-            <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                <span class="dash-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>
-                    Espace &Eacute;tudiant
-                </span>
-                <button class="dash-logout-btn" id="logout-hero-btn">Se d&eacute;connecter</button>
-            </div>
+<!-- HERO HEADER -->
+<div class="dh">
+    <div class="dhi">
+        <div>
+            <div class="dw">Bonjour, <span id="user-prenom">Étudiant</span>&nbsp;! &#128075;</div>
+            <div class="dsub">Votre espace étudiant &mdash; Synthèse complète de votre profil &amp; compétences</div>
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+            <span class="dbadge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>Espace Étudiant</span>
+            <button class="dlo" id="logout-hero">Se déconnecter</button>
+        </div>
+    </div>
+</div>
+
+<main class="db">
+    <!-- STATS -->
+    <div class="sg">
+        <div class="sc">
+            <div class="sci ib"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+            <div class="slb">Compétences</div>
+            <div class="sv" id="sc">0</div>
+            <div class="ss">compétences déclarées</div>
+        </div>
+        <div class="sc">
+            <div class="sci it"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div>
+            <div class="slb">Projets</div>
+            <div class="sv" id="sp">0</div>
+            <div class="ss">projets renseignés</div>
+        </div>
+        <div class="sc">
+            <div class="sci ig"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+            <div class="slb">Expériences</div>
+            <div class="sv" id="se">0</div>
+            <div class="ss">expériences professionnelles</div>
         </div>
     </div>
 
-    <!-- CORPS DASHBOARD -->
-    <main class="dash-body">
-        <div class="dash-grid">
-
-            <div class="dash-card">
-                <div class="dash-card-icon icon-blue">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <h3>Mon Profil</h3>
-                <p>G&eacute;rez vos informations personnelles, votre profil de comp&eacute;tences et vos pr&eacute;f&eacute;rences de matching.</p>
-                <a href="#" class="dash-card-link">
-                    Modifier le profil
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
+    <!-- CARTE PROFIL PRINCIPALE -->
+    <div class="pc">
+        <div class="pcl">
+            <div class="pca" id="pc-av">?</div>
+            <div>
+                <div class="pcn" id="pc-nm">Chargement de votre profil...</div>
+                <div class="pce" id="pc-em"></div>
+                <div class="pcs" id="pc-tags"></div>
             </div>
+        </div>
+        <button class="btn-op" id="btn-dr">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Modifier mon profil &amp; liaisons
+        </button>
+    </div>
 
-            <div class="dash-card">
-                <div class="dash-card-icon icon-teal">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <!-- ═══════════════ RÉSUMÉ STRUCTURÉ DU PROFIL & LIAISONS (AU COEUR DU DASHBOARD) ═══════════════ -->
+    <section class="dash-summary" id="dash-summary">
+        <div class="ds-header">
+            <div>
+                <div class="ds-htitle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Résumé de mon Profil &amp; Articulation des Compétences
                 </div>
-                <h3>Mes Comp&eacute;tences</h3>
-                <p>D&eacute;clarez et g&eacute;rez votre profil de comp&eacute;tences pour am&eacute;liorer votre score de matching.</p>
-                <a href="/competences.html" class="dash-card-link">
-                    Explorer le r&eacute;f&eacute;rentiel
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
+                <div class="ds-hsub">Vue synthétique et relation directe entre vos compétences, vos projets et vos expériences.</div>
             </div>
-
-            <div class="dash-card coming-soon-card">
-                <div class="dash-card-icon icon-green" style="margin:0 auto 1rem;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <button class="btn-edit-sec" id="btn-summary-edit">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Gérer &amp; Associer des compétences
+            </button>
+        </div>
+        <div class="ds-body">
+            <div class="summary-grid">
+                
+                <!-- COLONNE 1 : COMPÉTENCES & OÙ ELLES SONT MOBILISÉES -->
+                <div class="sum-col">
+                    <div class="sum-col-head">
+                        <div class="sum-col-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--navy);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            Compétences Déclarées
+                        </div>
+                        <span class="sum-count-pill" id="sum-cnt-c">0</span>
+                    </div>
+                    <div id="sum-list-c" style="display:flex;flex-direction:column;gap:.6rem;">
+                        <span class="din">Chargement...</span>
+                    </div>
                 </div>
-                <h3>Offres Recommand&eacute;es</h3>
-                <p>Offres tri&eacute;es par score de matching selon votre profil.</p>
-                <span class="coming-badge">Prochainement</span>
-            </div>
 
+                <!-- COLONNE 2 : PROJETS ET COMPÉTENCES MOBILISÉES -->
+                <div class="sum-col">
+                    <div class="sum-col-head">
+                        <div class="sum-col-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--teal);"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                            Projets Réalisés
+                        </div>
+                        <span class="sum-count-pill" id="sum-cnt-p">0</span>
+                    </div>
+                    <div id="sum-list-p" style="display:flex;flex-direction:column;gap:.75rem;">
+                        <span class="din">Chargement...</span>
+                    </div>
+                </div>
+
+                <!-- COLONNE 3 : EXPÉRIENCES ET COMPÉTENCES APPLIQUÉES -->
+                <div class="sum-col">
+                    <div class="sum-col-head">
+                        <div class="sum-col-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--green);"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                            Expériences Pro
+                        </div>
+                        <span class="sum-count-pill" id="sum-cnt-e">0</span>
+                    </div>
+                    <div id="sum-list-e" style="display:flex;flex-direction:column;gap:.75rem;">
+                        <span class="din">Chargement...</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ACCÈS RAPIDE -->
+    <div class="sh"><div class="sh-t"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>Accès rapide</div></div>
+    <div class="qg">
+        <a href="/competences.html" class="qc">
+            <div class="qci it"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <h3>Référentiel Compétences</h3>
+            <p>Explorez toutes les compétences du système et leurs catégories.</p>
+            <span class="ql">Explorer <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </a>
+        <div class="qc cc">
+            <div class="qci ig" style="margin:0 auto .6rem;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+            <h3>Offres Recommandées</h3>
+            <p>Offres triées automatiquement par score de matching avec votre CV.</p>
+            <span class="cb">Prochainement</span>
+        </div>
+        <div class="qc cc">
+            <div class="qci ib" style="margin:0 auto .6rem;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+            <h3>Mes Candidatures</h3>
+            <p>Suivez l'état d'avancement de vos candidatures auprès des recruteurs.</p>
+            <span class="cb">Prochainement</span>
+        </div>
+    </div>
+</main>
+
+<!-- ═══════════════ DRAWER LATÉRAL INTERACTIF ═══════════════ -->
+<div class="drover" id="drover">
+<div class="drawer" id="drawer" role="dialog" aria-modal="true">
+    <div class="drh">
+        <div class="drav" id="dr-av">?</div>
+        <div class="drin">
+            <div class="drnm" id="dr-nm">Profil Étudiant</div>
+            <div class="drem" id="dr-em"></div>
+        </div>
+        <button class="drx" id="dr-close" title="Fermer le volet">&times;</button>
+    </div>
+    <div class="drbd">
+
+        <!-- SECTION 1 : COMPÉTENCES -->
+        <div class="ds open" id="ds-c">
+            <div class="dsh" onclick="toggleSec('ds-c')">
+                <div class="dshl">
+                    <div class="dsi ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                    <span class="dst">Mes Compétences Déclarées</span>
+                    <span class="dscnt" id="cnt-c">0</span>
+                </div>
+                <svg class="dsarr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="dsbd">
+                <div class="alert" id="al-c"></div>
+                <div class="ctags" id="dr-c"></div>
+                <div class="di-ac">
+                    <input type="text" id="c-inp" class="di-ai" placeholder="+ Rechercher ou proposer une compétence..." autocomplete="off"/>
+                    <div class="di-ad" id="c-drop"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="dash-section-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-            Mes Candidatures
-        </div>
-        <div class="dash-card coming-soon-card">
-            <div class="dash-card-icon icon-teal" style="margin:0 auto 1rem;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        <!-- SECTION 2 : PROJETS -->
+        <div class="ds open" id="ds-p">
+            <div class="dsh" onclick="toggleSec('ds-p')">
+                <div class="dshl">
+                    <div class="dsi it"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>
+                    <span class="dst">Mes Projets &amp; Compétences</span>
+                    <span class="dscnt" id="cnt-p">0</span>
+                </div>
+                <svg class="dsarr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
-            <h3>Suivi de vos candidatures</h3>
-            <p>Visualisez l'&eacute;tat de toutes vos candidatures en temps r&eacute;el.</p>
-            <span class="coming-badge">Prochainement</span>
+            <div class="dsbd">
+                <div class="alert" id="al-p"></div>
+                <div id="dr-p"></div>
+                <button class="badd" id="btn-ap">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Ajouter un projet
+                </button>
+                <div class="addf" id="fp">
+                    <div class="adft"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouveau projet</div>
+                    <div class="fg"><label class="fl">Titre du projet *</label><input type="text" id="fp-t" class="fi" placeholder="ex. Plateforme de matching CV" autocomplete="off"/></div>
+                    <div class="fg"><label class="fl">Description</label><textarea id="fp-d" class="fi" placeholder="Décrivez les objectifs et réalisations..."></textarea></div>
+                    <div class="fg"><label class="fl">Compétences mobilisées</label><div class="schips" id="fp-chips"></div><div class="di-ac"><input type="text" id="fp-ci" class="di-ai" placeholder="Lier une compétence à ce projet..." autocomplete="off"/><div class="di-ad" id="fp-cd"></div></div></div>
+                    <div style="display:flex;gap:.55rem;margin-top:.4rem;"><button class="bsave" id="fp-sv"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Enregistrer</button><button class="bcan" id="fp-ca">Annuler</button></div>
+                </div>
+            </div>
         </div>
-    </main>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const userStr = localStorage.getItem('matchingcv_user');
-        if (!userStr) { window.location.href = '/login.html'; return; }
+        <!-- SECTION 3 : EXPÉRIENCES -->
+        <div class="ds open" id="ds-e">
+            <div class="dsh" onclick="toggleSec('ds-e')">
+                <div class="dshl">
+                    <div class="dsi ig"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+                    <span class="dst">Mes Expériences &amp; Compétences</span>
+                    <span class="dscnt" id="cnt-e">0</span>
+                </div>
+                <svg class="dsarr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="dsbd">
+                <div class="alert" id="al-e"></div>
+                <div id="dr-e"></div>
+                <button class="badd" id="btn-ae">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Ajouter une expérience
+                </button>
+                <div class="addf" id="fe">
+                    <div class="adft"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouvelle expérience</div>
+                    <div class="fr2">
+                        <div class="fg" style="margin:0;"><label class="fl">Poste *</label><input type="text" id="fe-po" class="fi" placeholder="ex. Développeur Full-Stack" autocomplete="off"/></div>
+                        <div class="fg" style="margin:0;"><label class="fl">Entreprise *</label><input type="text" id="fe-en" class="fi" placeholder="ex. Capgemini, OCP..." autocomplete="off"/></div>
+                    </div>
+                    <div class="fr2" style="margin-top:.6rem;">
+                        <div class="fg" style="margin:0;"><label class="fl">Date début *</label><input type="date" id="fe-db" class="fi"/></div>
+                        <div class="fg" style="margin:0;"><label class="fl">Date fin (laisser vide si en cours)</label><input type="date" id="fe-fi" class="fi"/></div>
+                    </div>
+                    <div class="fg" style="margin-top:.6rem;"><label class="fl">Compétences appliquées</label><div class="schips" id="fe-chips"></div><div class="di-ac"><input type="text" id="fe-ci" class="di-ai" placeholder="Lier une compétence à cette expérience..." autocomplete="off"/><div class="di-ad" id="fe-cd"></div></div></div>
+                    <div style="display:flex;gap:.55rem;margin-top:.4rem;"><button class="bsave" id="fe-sv"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Enregistrer</button><button class="bcan" id="fe-ca">Annuler</button></div>
+                </div>
+            </div>
+        </div>
 
-        const user = JSON.parse(userStr);
+    </div>
+</div>
+</div>
 
-        // Vérification du rôle
-        if (user.role !== 'ETUDIANT') {
-            if (user.role === 'RECRUTEUR') window.location.href = '/dashboard-recruteur.html';
-            else window.location.href = '/index.html';
-            return;
-        }
-
-        // Affichage du nom
-        const prenomEl = document.getElementById('user-prenom');
-        if (prenomEl) prenomEl.textContent = user.prenom || 'Étudiant';
-
-        const navName = document.getElementById('nav-user-name');
-        if (navName) navName.textContent = user.prenom + ' ' + user.nom;
-
-        // Déconnexion
-        function logout() {
-            localStorage.removeItem('matchingcv_user');
-            window.location.href = '/login.html';
-        }
-
-        document.getElementById('nav-logout')?.addEventListener('click', logout);
-        document.getElementById('logout-hero-btn')?.addEventListener('click', logout);
-
-        // Navbar
-        const navbar = document.getElementById('navbar');
-        const burger = document.getElementById('nav-burger');
-        if (navbar) {
-            window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20), {passive:true});
-            if (burger) {
-                burger.addEventListener('click', () => {
-                    const isOpen = navbar.classList.toggle('menu-open');
-                    burger.classList.toggle('open', isOpen);
-                    burger.setAttribute('aria-expanded', String(isOpen));
-                });
-            }
-        }
-    });
-    </script>
+<script src="/js/dashboard-etudiant.js"></script>
 </body>
 </html>

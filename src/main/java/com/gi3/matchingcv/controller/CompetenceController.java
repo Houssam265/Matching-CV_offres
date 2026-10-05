@@ -107,5 +107,28 @@ public class CompetenceController {
             return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors de la suppression : " + e.getMessage()));
         }
     }
-}
 
+    /**
+     * Propose une nouvelle compétence avec le statut EN_ATTENTE.
+     * Accepte un corps JSON {"nom": "...", "categorie": "..."}.
+     *
+     * @param body map contenant les clés "nom" et optionnellement "categorie"
+     * @return 201 CREATED avec la compétence proposée, ou 409 CONFLICT si doublon
+     */
+    @PostMapping("/proposer")
+    public ResponseEntity<?> proposer(@RequestBody Map<String, String> body) {
+        String nom = body.get("nom");
+        if (nom == null || nom.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Le nom de la compétence est obligatoire."));
+        }
+        String categorie = body.get("categorie");
+        try {
+            Competence proposee = competenceService.proposer(nom, categorie);
+            return ResponseEntity.status(HttpStatus.CREATED).body(proposee);
+        } catch (CompetenceDejaExistanteException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors de la proposition : " + e.getMessage()));
+        }
+    }
+}

@@ -1,5 +1,6 @@
 package com.gi3.matchingcv.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gi3.matchingcv.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public abstract class Utilisateur {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String motDePasse;
 

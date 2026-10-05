@@ -196,5 +196,73 @@ class CompetenceServiceTest {
         verify(competenceRepository, times(1)).findById(99L);
         verify(competenceRepository, never()).delete(any());
     }
-}
 
+    // -------------------------------------------------------------------------
+    // Tests de proposer()
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("proposer() doit créer la compétence avec le statut EN_ATTENTE")
+    void testProposerStatutEnAttente() {
+        when(competenceRepository.findByNomNormalise("rust")).thenReturn(Optional.empty());
+        when(competenceRepository.save(any(Competence.class))).thenAnswer(inv -> {
+            Competence c = inv.getArgument(0);
+            c.setId(10L);
+            return c;
+        });
+
+        Competence proposee = competenceService.proposer("Rust", "Backend");
+
+        assertThat(proposee.getId()).isEqualTo(10L);
+        assertThat(proposee.getNom()).isEqualTo("Rust");
+        assertThat(proposee.getNomNormalise()).isEqualTo("rust");
+        assertThat(proposee.getCategorie()).isEqualTo("Backend");
+        assertThat(proposee.getStatut()).isEqualTo(StatutCompetence.EN_ATTENTE);
+        verify(competenceRepository, times(1)).findByNomNormalise("rust");
+        verify(competenceRepository, times(1)).save(any(Competence.class));
+    }
+
+    @Test
+    @DisplayName("proposer() doit lever CompetenceDejaExistanteException si la compétence existe (même après normalisation)")
+    void testProposerDoublonLeverException() {
+        Competence existante = new Competence();
+        existante.setId(1L);
+        existante.setNom("Spring Boot");
+        existante.setNomNormalise("springboot");
+
+        when(competenceRepository.findByNomNormalise("springboot")).thenReturn(Optional.of(existante));
+
+        assertThatThrownBy(() -> competenceService.proposer("Spring-Boot", "Backend"))
+                .isInstanceOf(CompetenceDejaExistanteException.class)
+                .hasMessageContaining("Spring Boot");
+
+        verify(competenceRepository, times(1)).findByNomNormalise("springboot");
+        verify(competenceRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("proposer() doit normaliser le nom avant la vérification de doublon")
+    void testProposerNormalisationNom() {
+        when(competenceRepository.findByNomNormalise("kubernetes")).thenReturn(Optional.empty());
+        when(competenceRepository.save(any(Competence.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Competence proposee = competenceService.proposer("  Kubernetes  ", "DevOps");
+
+        assertThat(proposee.getNom()).isEqualTo("Kubernetes");
+        assertThat(proposee.getNomNormalise()).isEqualTo("kubernetes");
+        assertThat(proposee.getStatut()).isEqualTo(StatutCompetence.EN_ATTENTE);
+    }
+
+    @Test
+    @DisplayName("proposer() avec categorie null doit fonctionner (catégorie optionnelle)")
+    void testProposerSansCategorie() {
+        when(competenceRepository.findByNomNormalise("lua")).thenReturn(Optional.empty());
+        when(competenceRepository.save(any(Competence.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Competence proposee = competenceService.proposer("Lua", null);
+
+        assertThat(proposee.getNom()).isEqualTo("Lua");
+        assertThat(proposee.getCategorie()).isNull();
+        assertThat(proposee.getStatut()).isEqualTo(StatutCompetence.EN_ATTENTE);
+    }
+}

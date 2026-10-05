@@ -44,4 +44,16 @@ public interface CompetenceService {
      * @throws jakarta.persistence.EntityNotFoundException si la compétence n'existe pas
      */
     void supprimer(Long id);
+
+    /**
+     * Propose une nouvelle compétence avec le statut EN_ATTENTE.
+     * Même normalisation et détection de doublon que creer(), mais la compétence
+     * attend une validation par un administrateur avant d'être intégrée au référentiel.
+     *
+     * @param nom      le nom de la compétence proposée
+     * @param categorie la catégorie (peut être null)
+     * @return la compétence créée avec le statut EN_ATTENTE
+     * @throws com.gi3.matchingcv.exception.CompetenceDejaExistanteException si un doublon existe déjà
+     */
+    Competence proposer(String nom, String categorie);
 }
