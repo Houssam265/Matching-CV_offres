@@ -642,6 +642,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 4. Drawer boutons d'ouverture / fermeture
     document.getElementById('btn-dr')?.addEventListener('click', openDrawer);
     document.getElementById('btn-summary-edit')?.addEventListener('click', openDrawer);
+    document.getElementById('nav-link-profil')?.addEventListener('click', e => {
+        e.preventDefault();
+        openDrawer();
+    });
+    document.getElementById('nav-user-name')?.addEventListener('click', () => {
+        openDrawer();
+    });
+    document.getElementById('pc-av')?.addEventListener('click', () => {
+        openDrawer();
+    });
     document.getElementById('dr-close')?.addEventListener('click', closeDrawer);
     document.getElementById('drover')?.addEventListener('click', e => {
         if (e.target === document.getElementById('drover')) closeDrawer();
@@ -649,6 +659,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') closeDrawer();
     });
+
+    // 4a. Ouvrir le volet si demandé dans l'URL (?open=profil ou ?open=drawer ou #profil)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('open') === 'profil' || urlParams.get('open') === 'drawer' || window.location.hash === '#profil' || window.location.hash === '#dash-summary') {
+        openDrawer();
+    }
 
     // 4b. Mise à jour des informations personnelles & formation
     document.getElementById('dr-save-info')?.addEventListener('click', async () => {
