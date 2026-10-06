@@ -498,6 +498,7 @@ function resetEForm() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (!MatchingCVSession.require('ETUDIANT')) return;
     const nb = document.getElementById('navbar'), bg = document.getElementById('nav-burger');
     if (nb) window.addEventListener('scroll', () => nb.classList.toggle('scrolled', window.scrollY > 20), { passive: true });
     if (bg) bg.addEventListener('click', () => {
@@ -507,8 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('nav-logout')?.addEventListener('click', () => {
-        localStorage.removeItem('matchingcv_user');
-        window.location.href = '/login.html';
+        MatchingCVSession.logout();
     });
 
     document.getElementById('etudiant-select').addEventListener('change', function() {

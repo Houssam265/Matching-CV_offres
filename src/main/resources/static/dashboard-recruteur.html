@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Tableau de bord recruteur — Matching CV-Offres" />
     <title>Espace Recruteur &mdash; Matching CV-Offres</title>
+    <script src="/js/session.js"></script>
+    <script>MatchingCVSession.protect('RECRUTEUR');</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
     <style>
         .dash-hero {
-            background: linear-gradient(135deg, #1A0A44 0%, #3A2080 45%, #2E5A9C 80%, #2E8B8B 100%);
+            background: var(--banner-gradient);
             padding: 3rem 1.5rem; color: #fff; position: relative; overflow: hidden;
         }
         .dash-hero::before {
@@ -19,14 +21,14 @@
             background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
             background-size:48px 48px;
         }
-        .dash-hero-inner { position:relative;z-index:1;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem; }
+        .dash-hero-inner { position:relative;z-index:1;max-width:var(--content-width);margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem; }
         .dash-welcome { font-size:clamp(1.4rem,3vw,2rem);font-weight:800; }
         .dash-welcome span { color:#B594FF; }
         .dash-sub { font-size:.92rem;color:rgba(255,255,255,.75);margin-top:.4rem; }
         .dash-badge { background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:.5rem 1rem;font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600; }
         .dash-logout-btn { background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:.5rem 1.1rem;font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s; }
         .dash-logout-btn:hover { background:rgba(255,255,255,.2); }
-        .dash-body { max-width:1200px;margin:2.5rem auto 4rem;padding:0 1.5rem; }
+        .dash-body { max-width:var(--content-width);margin:2rem auto 4rem;padding:0 1.5rem; }
         .dash-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:2rem; }
         .dash-card { background:#fff;border:1px solid var(--border-card);border-radius:var(--radius);padding:1.8rem;box-shadow:var(--shadow-sm);transition:box-shadow .25s; }
         .dash-card:hover { box-shadow:var(--shadow-md); }
@@ -62,7 +64,7 @@
                 <li><a href="/competences.html" class="nav-link">Comp&eacute;tences</a></li>
             </ul>
             <div class="nav-cta">
-                <span id="nav-user-name" style="font-size:.85rem;font-weight:600;color:var(--navy);"></span>
+                <span id="nav-user-name" class="nav-user-label"></span>
                 <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">D&eacute;connexion</button>
             </div>
             <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -140,15 +142,8 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const userStr = localStorage.getItem('matchingcv_user');
-        if (!userStr) { window.location.href = '/login.html'; return; }
-
-        const user = JSON.parse(userStr);
-        if (user.role !== 'RECRUTEUR') {
-            if (user.role === 'ETUDIANT') window.location.href = '/dashboard-etudiant.html';
-            else window.location.href = '/index.html';
-            return;
-        }
+        const user = MatchingCVSession.require('RECRUTEUR');
+        if (!user) return;
 
         const prenomEl = document.getElementById('user-prenom');
         if (prenomEl) prenomEl.textContent = user.prenom || 'Recruteur';
@@ -156,8 +151,7 @@
         if (navName) navName.textContent = user.prenom + ' ' + user.nom;
 
         function logout() {
-            localStorage.removeItem('matchingcv_user');
-            window.location.href = '/login.html';
+            MatchingCVSession.logout();
         }
         document.getElementById('nav-logout')?.addEventListener('click', logout);
         document.getElementById('logout-hero-btn')?.addEventListener('click', logout);

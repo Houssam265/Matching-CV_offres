@@ -615,6 +615,8 @@ async function loadAllData(id) {
 
 /* ─── INITIALISATION AU CHARGEMENT DE LA PAGE ─────────────── */
 document.addEventListener('DOMContentLoaded', async () => {
+    const user = MatchingCVSession.require('ETUDIANT');
+    if (!user) return;
     // 1. Navbar mobile burger & déconnexion
     const nb = document.getElementById('navbar'), bg = document.getElementById('nav-burger');
     if (nb) window.addEventListener('scroll', () => nb.classList.toggle('scrolled', window.scrollY > 20), { passive: true });
@@ -625,18 +627,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const doLogout = () => {
-        localStorage.removeItem('matchingcv_user');
-        window.location.href = '/login.html';
+        MatchingCVSession.logout();
     };
     document.getElementById('nav-logout')?.addEventListener('click', doLogout);
     document.getElementById('logout-hero')?.addEventListener('click', doLogout);
 
     // 2. Déterminer l'étudiant connecté
-    let studentId = 1;
-    try {
-        const u = JSON.parse(localStorage.getItem('matchingcv_user') || 'null');
-        if (u && u.id) studentId = u.id;
-    } catch (_) {}
+    const studentId = user.id;
     S.id = studentId;
 
     // 3. Charger les données

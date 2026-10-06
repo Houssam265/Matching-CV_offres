@@ -258,10 +258,11 @@
     </main>
 
     <script src="/js/auth.js"></script>
+    <script src="/js/session.js"></script>
     <script>
         // Rediriger si déjà connecté
         (function() {
-            var u; try { u = JSON.parse(localStorage.getItem('matchingcv_user')); } catch(e) {}
+            var u = MatchingCVSession.read();
             if (u && u.role) {
                 window.location.replace(
                     u.role === 'ETUDIANT' ? '/dashboard-etudiant.html' :

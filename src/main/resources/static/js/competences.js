@@ -13,6 +13,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (!MatchingCVSession.require()) return;
     // Éléments du DOM
     const form = document.getElementById('competence-form');
     const nomInput = document.getElementById('competence-nom');

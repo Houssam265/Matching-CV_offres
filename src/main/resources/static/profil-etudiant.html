@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Mon Profil — Matching CV-Offres" />
     <title>Mon Profil — Matching CV-Offres</title>
+    <script src="/js/session.js"></script>
     <script>
     /* Redirection immédiate vers le profil complet et moderne du tableau de bord */
     (function() {
-        window.location.replace('/dashboard-etudiant.html?open=profil');
+        if (MatchingCVSession.protect('ETUDIANT')) {
+            window.location.replace('/dashboard-etudiant.html?open=profil');
+        }
     })();
     </script>
     <link rel="stylesheet" href="/css/style.css" />
     <style>
-        :root{--teal:#2E8B8B;--navy:#1E3A5F;--navy-deep:#0F172A;--border:#E2E8F0;--text-mid:#475569;--text-light:#94A3B8;--green:#16A34A;--green-pale:#DCFCE7;}
+        /* La palette et la police sont définies dans le CSS commun. */
         .profil-hero{background:linear-gradient(135deg,#0D1F44 0%,#1F3864 50%,#2E8B8B 100%);padding:3rem 1.5rem 2.5rem;position:relative;overflow:hidden;}
         .profil-hero::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px;}
         .hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;}
@@ -109,11 +112,11 @@
         </a>
         <ul class="nav-links" id="nav-links" role="list">
             <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
-            <li><a href="/profil-etudiant.html" class="nav-link active" style="color:var(--navy);font-weight:700;">Mon Profil</a></li>
+            <li><a href="/profil-etudiant.html" class="nav-link active" aria-current="page">Mon Profil</a></li>
             <li><a href="/competences.html" class="nav-link">Compétences</a></li>
         </ul>
         <div class="nav-cta">
-            <span id="nav-user-name" style="font-size:.85rem;font-weight:700;color:var(--navy);"></span>
+            <span id="nav-user-name" class="nav-user-label"></span>
             <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">Déconnexion</button>
         </div>
         <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>

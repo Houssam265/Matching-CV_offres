@@ -9,24 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
-    <script>
-    /* Protection de la page : accessible uniquement si connecté */
-    (function() {
-        var userStr = localStorage.getItem('matchingcv_user');
-        if (!userStr) {
-            window.location.replace('/login.html');
-            return;
-        }
-        try {
-            var u = JSON.parse(userStr);
-            if (!u || !u.role) {
-                window.location.replace('/login.html');
-            }
-        } catch(e) {
-            window.location.replace('/login.html');
-        }
-    })();
-    </script>
+    <script src="/js/session.js"></script>
+    <script>MatchingCVSession.protect();</script>
 </head>
 <body>
 
@@ -50,14 +34,14 @@
             </a>
 
             <ul class="nav-links" id="nav-links" role="list">
-                <li><a href="/index.html#profils" class="nav-link" id="nav-link-features">Fonctionnalit&eacute;s</a></li>
-                <li><a href="/index.html#comment-ca-marche" class="nav-link" id="nav-link-how">Comment &ccedil;a marche</a></li>
-                <li><a href="/competences.html" class="nav-link active" id="nav-link-competences" style="color:var(--navy);font-weight:700;">Comp&eacute;tences</a></li>
+                <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
+                <li><a href="/dashboard-etudiant.html?open=profil" class="nav-link" id="nav-link-profil">Mon Profil</a></li>
+                <li><a href="/competences.html" class="nav-link active" id="nav-link-competences" aria-current="page">Comp&eacute;tences</a></li>
             </ul>
 
-            <div class="nav-cta" id="nav-cta-comp">
-                <a href="/login.html" class="btn-nav-outline" id="nav-btn-login-comp">Se connecter</a>
-                <a href="/register.html" class="btn-nav-filled" id="nav-btn-signup-comp">Cr&eacute;er un compte</a>
+            <div class="nav-cta">
+                <span id="nav-user-name" class="nav-user-label" style="cursor:pointer;" title="Consulter mon profil"></span>
+                <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">D&eacute;connexion</button>
             </div>
 
             <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false">
@@ -313,12 +297,8 @@
     <script>
     /* -- Gestion session navbar competences.html -- */
     (function() {
-        var userStr = localStorage.getItem('matchingcv_user');
-        var loginBtn  = document.getElementById('nav-btn-login-comp');
-        var signupBtn = document.getElementById('nav-btn-signup-comp');
-        if (!userStr || !loginBtn || !signupBtn) return;
-        var user; try { user = JSON.parse(userStr); } catch(e) { return; }
-        if (!user || !user.role) return;
+        var user = MatchingCVSession.require();
+        if (!user) return;
         var dashUrl = user.role === 'ETUDIANT' ? '/dashboard-etudiant.html'
                     : user.role === 'RECRUTEUR' ? '/dashboard-recruteur.html'
                     : '/competences.html';
@@ -328,27 +308,22 @@
         var breadcrumbHome = document.querySelector('.page-breadcrumb a[href="/index.html"]');
         if (breadcrumbHome) breadcrumbHome.href = dashUrl;
 
-        /* Harmoniser la navbar pour un étudiant connecté */
+        /* Garder les liens adaptés au rôle et marquer cette page comme active. */
+        var navLinks = document.getElementById('nav-links');
         if (user.role === 'ETUDIANT') {
-            var navLinks = document.getElementById('nav-links');
             if (navLinks) {
                 navLinks.innerHTML = '<li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>' +
                                      '<li><a href="/dashboard-etudiant.html?open=profil" class="nav-link">Mon Profil</a></li>' +
-                                     '<li><a href="/competences.html" class="nav-link active" style="color:var(--navy);font-weight:700;">Comp\u00e9tences</a></li>';
+                                     '<li><a href="/competences.html" class="nav-link active" aria-current="page">Comp\u00e9tences</a></li>';
             }
+        } else if (navLinks) {
+            navLinks.innerHTML = '<li><a href="/competences.html" class="nav-link active" aria-current="page">Comp\u00e9tences</a></li>';
         }
 
-        /* Afficher le nom et le bouton de deconnexion */
-        loginBtn.textContent = (user.prenom || '') + ' ' + (user.nom || '');
-        loginBtn.href = dashUrl;
-        loginBtn.style.fontWeight = '600';
-        loginBtn.style.color = 'var(--navy)';
-        signupBtn.textContent = 'Se d\u00e9connecter';
-        signupBtn.href = '#';
-        signupBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.removeItem('matchingcv_user');
-            window.location.href = '/login.html';
+        var navName = document.getElementById('nav-user-name');
+        if (navName) navName.textContent = (user.prenom || '') + ' ' + (user.nom || '');
+        document.getElementById('nav-logout')?.addEventListener('click', function() {
+            MatchingCVSession.logout();
         });
     })();
     </script>
