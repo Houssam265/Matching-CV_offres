@@ -372,7 +372,7 @@ function initPasswordStrength() {
         if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength++;
 
         fill.className = 'pwd-strength-fill';
-        if (strength === 1) {
+        if (strength <= 1) {
             fill.classList.add('weak');
             label.textContent = 'Mot de passe faible';
         } else if (strength === 2) {
