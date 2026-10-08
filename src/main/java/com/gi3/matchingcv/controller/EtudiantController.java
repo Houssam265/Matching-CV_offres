@@ -303,13 +303,30 @@ public class EtudiantController {
                 return ResponseEntity.badRequest().body(Map.of("message", "Poste, entreprise et date de début sont obligatoires."));
             }
 
+            LocalDate dateDebut;
+            try {
+                dateDebut = LocalDate.parse(dateDebutStr);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Format de date de début invalide."));
+            }
+
+            LocalDate dateFin = null;
+            if (dateFinStr != null && !dateFinStr.isBlank()) {
+                try {
+                    dateFin = LocalDate.parse(dateFinStr);
+                } catch (Exception e) {
+                    return ResponseEntity.badRequest().body(Map.of("message", "Format de date de fin invalide."));
+                }
+                if (dateFin.isBefore(dateDebut)) {
+                    return ResponseEntity.badRequest().body(Map.of("message", "La date de fin ne peut pas être antérieure à la date de début."));
+                }
+            }
+
             ExperienceProfessionnelle experience = new ExperienceProfessionnelle();
             experience.setPoste(poste.trim());
             experience.setEntreprise(entreprise.trim());
-            experience.setDateDebut(LocalDate.parse(dateDebutStr));
-            if (dateFinStr != null && !dateFinStr.isBlank()) {
-                experience.setDateFin(LocalDate.parse(dateFinStr));
-            }
+            experience.setDateDebut(dateDebut);
+            experience.setDateFin(dateFin);
             experience.setEtudiant(etudiant);
 
             // Compétences optionnelles attachées à la création

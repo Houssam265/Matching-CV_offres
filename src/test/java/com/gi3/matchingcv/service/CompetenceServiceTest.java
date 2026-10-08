@@ -36,6 +36,12 @@ class CompetenceServiceTest {
     @Mock
     private OffreCompetenceRepository offreCompetenceRepository;
 
+    @Mock
+    private jakarta.persistence.EntityManager entityManager;
+
+    @Mock
+    private jakarta.persistence.Query nativeQuery;
+
     @InjectMocks
     private CompetenceServiceImpl competenceService;
 
@@ -175,6 +181,8 @@ class CompetenceServiceTest {
     @DisplayName("supprimer() doit supprimer la compétence existante")
     void testSupprimerExistant() {
         when(competenceRepository.findById(1L)).thenReturn(Optional.of(competence1));
+        when(entityManager.createNativeQuery(anyString())).thenReturn(nativeQuery);
+        when(nativeQuery.setParameter(anyString(), any())).thenReturn(nativeQuery);
 
         competenceService.supprimer(1L);
 
