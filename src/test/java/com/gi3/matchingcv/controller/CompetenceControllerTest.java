@@ -1,6 +1,7 @@
 package com.gi3.matchingcv.controller;
 
 import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
+import com.gi3.matchingcv.exception.CompetenceUtiliseeException;
 import com.gi3.matchingcv.model.Competence;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.service.CompetenceService;
@@ -157,6 +158,18 @@ class CompetenceControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(competenceService, times(1)).supprimer(99L);
+    }
+
+    @Test
+    @DisplayName("DELETE /api/competences/{id} doit renvoyer 409 lorsque la compétence est utilisée")
+    void testSupprimerUtiliseeConflit() throws Exception {
+        doThrow(new CompetenceUtiliseeException("Cette compétence est utilisée")).when(competenceService).supprimer(1L);
+
+        mockMvc.perform(delete("/api/competences/{id}", 1L))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", is("Cette compétence est utilisée")));
+
+        verify(competenceService, times(1)).supprimer(1L);
     }
 }
 

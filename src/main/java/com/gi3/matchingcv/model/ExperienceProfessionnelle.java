@@ -2,6 +2,7 @@ package com.gi3.matchingcv.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -56,4 +57,13 @@ public class ExperienceProfessionnelle {
         inverseJoinColumns = @JoinColumn(name = "competence_id")
     )
     private List<Competence> competences = new ArrayList<>();
+
+    @JsonIgnore
+    @AssertTrue(message = "La date de fin ne peut pas être antérieure à la date de début")
+    public boolean isDateFinValide() {
+        if (dateDebut == null || dateFin == null) {
+            return true;
+        }
+        return !dateFin.isBefore(dateDebut);
+    }
 }

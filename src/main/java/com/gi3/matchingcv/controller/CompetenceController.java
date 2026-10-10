@@ -1,6 +1,7 @@
 package com.gi3.matchingcv.controller;
 
 import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
+import com.gi3.matchingcv.exception.CompetenceUtiliseeException;
 import com.gi3.matchingcv.model.Competence;
 import com.gi3.matchingcv.service.CompetenceService;
 import jakarta.persistence.EntityNotFoundException;
@@ -92,10 +93,12 @@ public class CompetenceController {
 
     /**
      * Supprime une compétence du référentiel par son identifiant unique.
+     * // TODO sécurité : réservé ADMIN.
      *
      * @param id identifiant de la compétence à supprimer
-     * @return 204 NO CONTENT si succès, 404 NOT FOUND si inexistante, ou 400 BAD REQUEST en cas d'erreur
+     * @return 204 NO CONTENT si succès, 404 NOT FOUND si inexistante, 409 CONFLICT si utilisée, ou 400 BAD REQUEST en cas d'erreur
      */
+    // TODO sécurité : réservé ADMIN
     @DeleteMapping("/{id}")
     public ResponseEntity<?> supprimer(@PathVariable Long id) {
         try {
@@ -103,6 +106,8 @@ public class CompetenceController {
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (CompetenceUtiliseeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors de la suppression : " + e.getMessage()));
         }

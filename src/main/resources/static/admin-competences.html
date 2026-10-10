@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Mes compétences — Matching CV-Offres" />
-    <title>Mes compétences &mdash; Matching CV-Offres</title>
+    <meta name="description" content="Administration du référentiel des compétences — Matching CV-Offres" />
+    <title>Référentiel des Compétences (Admin) &mdash; Matching CV-Offres</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
     <script src="/js/session.js"></script>
-    <script>MatchingCVSession.protect('ETUDIANT');</script>
+    <!-- TODO sécurité : vérification du rôle ADMIN côté serveur -->
+    <script>MatchingCVSession.protect('ADMIN');</script>
 </head>
 <body>
 
-    <!-- NAVBAR ÉTUDIANT -->
+    <!-- NAVBAR ADMIN -->
     <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
         <div class="nav-inner">
-            <a href="/dashboard-etudiant.html" class="nav-logo" id="nav-logo">
+            <a href="/admin-competences.html" class="nav-logo" id="nav-logo">
                 <span class="logo-mark">
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
@@ -30,17 +31,15 @@
                         </defs>
                     </svg>
                 </span>
-                <span class="logo-text">Matching<strong>CV</strong></span>
+                <span class="logo-text">Matching<strong>CV</strong> <span style="font-size:.7rem;background:rgba(46,90,156,.15);padding:2px 6px;border-radius:4px;color:var(--navy);font-weight:700;">ADMIN</span></span>
             </a>
 
             <ul class="nav-links" id="nav-links" role="list">
-                <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
-                <li><a href="/dashboard-etudiant.html?open=profil" class="nav-link" id="nav-link-profil">Mon Profil</a></li>
-                <li><a href="/competences.html" class="nav-link active" id="nav-link-competences" aria-current="page">Mes comp&eacute;tences</a></li>
+                <li><a href="/admin-competences.html" class="nav-link active" id="nav-link-admin-competences" aria-current="page">R&eacute;f&eacute;rentiel Comp&eacute;tences</a></li>
             </ul>
 
             <div class="nav-cta">
-                <span id="nav-user-name" class="nav-user-label" style="cursor:pointer;" title="Consulter mon profil"></span>
+                <span id="nav-user-name" class="nav-user-label" style="cursor:default;" title="Administrateur">Administrateur</span>
                 <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">D&eacute;connexion</button>
             </div>
 
@@ -56,26 +55,28 @@
         <div class="page-banner-inner">
             <div>
                 <nav class="page-breadcrumb" aria-label="Fil d'Ariane">
-                    <a href="/dashboard-etudiant.html">Accueil</a>
+                    <a href="/admin-competences.html">Accueil</a>
                     <span class="page-breadcrumb-sep">/</span>
-                    <span>Mes comp&eacute;tences</span>
+                    <a href="/admin-competences.html">Administration</a>
+                    <span class="page-breadcrumb-sep">/</span>
+                    <span>Comp&eacute;tences</span>
                 </nav>
                 <h1 class="page-title">
-                    Mes <span>comp&eacute;tences</span>
+                    R&eacute;f&eacute;rentiel des <span>Comp&eacute;tences</span>
                 </h1>
                 <p class="page-subtitle">
-                    G&eacute;rez votre liste personnelle de comp&eacute;tences et suivez leur mobilisation dans vos projets et exp&eacute;riences.
+                    G&eacute;rez le catalogue centralis&eacute; des comp&eacute;tences techniques et fonctionnelles utilis&eacute;es par l&apos;algorithme de matching.
                 </p>
             </div>
 
-            <div class="banner-stats" aria-label="Statistiques mes compétences">
+            <div class="banner-stats" aria-label="Statistiques compétences">
                 <div class="banner-stat-box">
                     <span class="banner-stat-num" id="stat-total-count">0</span>
-                    <span class="banner-stat-label">Dans ma liste</span>
+                    <span class="banner-stat-label">Total en base</span>
                 </div>
                 <div class="banner-stat-box">
-                    <span class="banner-stat-num" id="stat-unused-count">0</span>
-                    <span class="banner-stat-label">Non utilis&eacute;es</span>
+                    <span class="banner-stat-num" id="stat-cat-count">0</span>
+                    <span class="banner-stat-label">Cat&eacute;gories</span>
                 </div>
             </div>
         </div>
@@ -85,7 +86,7 @@
     <main class="page-main">
         <div class="competences-layout">
 
-            <!-- COLONNE GAUCHE : FORMULAIRE AVEC AUTOCOMPLÉTION -->
+            <!-- COLONNE GAUCHE : FORMULAIRE D'AJOUT -->
             <section class="box-card" aria-labelledby="form-card-title">
                 <div class="card-top-bar"></div>
                 <div class="card-header-styled">
@@ -98,44 +99,32 @@
                             </svg>
                             Ajouter une comp&eacute;tence
                         </h3>
-                        <p>Recherchez dans le catalogue ou proposez-en une nouvelle</p>
+                        <p>Cr&eacute;ez une nouvelle entr&eacute;e dans le r&eacute;f&eacute;rentiel</p>
                     </div>
                 </div>
 
                 <div class="card-body-styled">
-                    <!-- Message d'alerte / feedback / Toast -->
+                    <!-- Message d'alerte / feedback -->
                     <div id="form-alert" role="alert" style="display:none;"></div>
 
-                    <form id="competence-form" class="app-form" novalidate onsubmit="return false;">
-                        <!-- Champ unique avec autocomplétion -->
+                    <form id="competence-form" class="app-form" novalidate>
                         <div class="form-group">
-                            <label for="competence-search-input" class="form-label">
-                                <span>Comp&eacute;tence <span class="req">*</span></span>
-                                <span class="form-hint">Autocompl&eacute;tion</span>
+                            <label for="competence-nom" class="form-label">
+                                <span>Nom de la comp&eacute;tence <span class="req">*</span></span>
+                                <span class="form-hint">Obligatoire</span>
                             </label>
-                            <div class="autocomplete-wrapper">
-                                <input
-                                    type="text"
-                                    id="competence-search-input"
-                                    name="nom"
-                                    class="form-input"
-                                    placeholder="Rechercher (ex. Spring Boot, React, Docker...)"
-                                    required
-                                    autocomplete="off"
-                                />
-                                <div id="autocomplete-dropdown" class="autocomplete-dropdown" role="listbox"></div>
-                            </div>
+                            <input
+                                type="text"
+                                id="competence-nom"
+                                name="nom"
+                                class="form-input"
+                                placeholder="ex. Spring Boot, React, Python, Docker..."
+                                required
+                                autocomplete="off"
+                            />
                         </div>
 
-                        <!-- Champ Catégorie conditionnel (apparaît si proposition d'une nouvelle compétence) -->
-                        <div id="categorie-group" class="form-group" style="display:none;margin-top:1.2rem;animation:fadeIn .25s ease-out;">
-                            <div style="background:#F0F9FF;padding:.8rem .95rem;border-radius:8px;border:1px dashed rgba(46,139,139,.35);margin-bottom:.85rem;">
-                                <div style="font-size:.78rem;font-weight:700;color:var(--teal);display:flex;align-items:center;gap:.35rem;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                    Nouvelle comp&eacute;tence propos&eacute;e : <strong id="lbl-new-skill-name" style="color:var(--navy);"></strong>
-                                </div>
-                            </div>
-
+                        <div class="form-group">
                             <label for="competence-categorie" class="form-label">
                                 <span>Cat&eacute;gorie</span>
                                 <span class="form-hint">Optionnel</span>
@@ -165,7 +154,7 @@
                                 <option value="Blockchain" />
                             </datalist>
 
-                            <!-- Tags rapides conservés -->
+                            <!-- Tags rapides pour préremplir la catégorie en 1 clic -->
                             <div class="quick-tags" aria-label="Suggestions de catégories">
                                 <button type="button" class="quick-tag-btn" data-cat="Langage">Langage</button>
                                 <button type="button" class="quick-tag-btn" data-cat="Backend">Backend</button>
@@ -174,24 +163,19 @@
                                 <button type="button" class="quick-tag-btn" data-cat="Data & IA">Data & IA</button>
                                 <button type="button" class="quick-tag-btn" data-cat="Base de données">Base de données</button>
                             </div>
-
-                            <div style="display:flex;gap:.5rem;margin-top:1.1rem;">
-                                <button type="button" class="btn-submit-form" id="btn-submit-proposal" style="flex:1;">
-                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                                    </svg>
-                                    <span>Proposer et ajouter</span>
-                                </button>
-                                <button type="button" id="btn-cancel-proposal" style="padding:.5rem .85rem;background:#F1F5F9;border:1px solid var(--border);border-radius:8px;font-size:.82rem;font-weight:600;color:var(--text-mid);cursor:pointer;">
-                                    Annuler
-                                </button>
-                            </div>
                         </div>
+
+                        <button type="submit" class="btn-submit-form" id="btn-submit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            <span>Enregistrer la comp&eacute;tence</span>
+                        </button>
                     </form>
                 </div>
             </section>
 
-            <!-- COLONNE DROITE : LISTE ET TABLEAU DES COMPÉTENCES DE L'ÉTUDIANT -->
+            <!-- COLONNE DROITE : LISTE ET TABLEAU DES COMPÉTENCES -->
             <section class="box-card" aria-labelledby="table-card-title">
                 <div class="card-top-bar"></div>
                 <div class="card-header-styled">
@@ -201,10 +185,10 @@
                                 <path d="M9 11l3 3L22 4"/>
                                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                             </svg>
-                            Comp&eacute;tences dans ma liste
+                            Comp&eacute;tences existantes
                             <span class="badge-pill-count" id="competences-count">0</span>
                         </h3>
-                        <p>Comp&eacute;tences associ&eacute;es &agrave; votre profil &eacute;tudiant</p>
+                        <p>Donn&eacute;es r&eacute;cup&eacute;r&eacute;es en temps r&eacute;el depuis <code style="background:#EAF1F8;padding:2px 6px;border-radius:4px;color:var(--blue);font-size:.8rem;">/api/competences</code></p>
                     </div>
 
                     <div class="table-header-controls">
@@ -222,7 +206,7 @@
                             />
                         </div>
 
-                        <button type="button" class="btn-refresh" id="btn-refresh" title="Rafra&icirc;chir ma liste" aria-label="Rafraîchir">
+                        <button type="button" class="btn-refresh" id="btn-refresh" title="Rafra&icirc;chir la liste" aria-label="Rafraîchir">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M23 4v6h-6"/>
                                 <path d="M1 20v-6h6"/>
@@ -238,10 +222,10 @@
                         <table class="data-table" id="competences-table">
                             <thead>
                                 <tr>
+                                    <th style="width:70px;">ID</th>
                                     <th>Comp&eacute;tence</th>
                                     <th>Cat&eacute;gorie</th>
                                     <th style="width:130px;">Statut</th>
-                                    <th style="width:200px;">Utilisation</th>
                                     <th style="width:90px;text-align:center;">Action</th>
                                 </tr>
                             </thead>
@@ -258,9 +242,9 @@
                                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
                         </div>
-                        <h4 id="empty-state-title">Aucune comp&eacute;tence dans votre liste</h4>
+                        <h4 id="empty-state-title">Aucune comp&eacute;tence pour le moment</h4>
                         <p id="empty-state-text">
-                            Utilisez le champ &agrave; gauche pour rechercher et ajouter vos comp&eacute;tences.
+                            Le r&eacute;f&eacute;rentiel est vide. Renseignez le formulaire &agrave; gauche pour ajouter votre premi&egrave;re comp&eacute;tence.
                         </p>
                     </div>
                 </div>
@@ -286,11 +270,9 @@
             </div>
 
             <div class="footer-col">
-                <h5 class="footer-col-title">Navigation</h5>
+                <h5 class="footer-col-title">Administration</h5>
                 <ul class="footer-links">
-                    <li><a href="/dashboard-etudiant.html">Tableau de bord</a></li>
-                    <li><a href="/dashboard-etudiant.html?open=profil">Mon Profil</a></li>
-                    <li><a href="/competences.html">Mes comp&eacute;tences</a></li>
+                    <li><a href="/admin-competences.html">R&eacute;f&eacute;rentiel Comp&eacute;tences</a></li>
                 </ul>
             </div>
 
@@ -299,6 +281,7 @@
                 <ul class="footer-links">
                     <li><a href="/dashboard-etudiant.html" id="footer-link-etudiant">Espace &Eacute;tudiant</a></li>
                     <li><a href="/dashboard-recruteur.html" id="footer-link-recruteur">Espace Recruteur</a></li>
+                    <li><a href="/admin-competences.html" id="footer-link-admin">Espace Administrateur</a></li>
                 </ul>
             </div>
         </div>
@@ -308,19 +291,16 @@
         </div>
     </footer>
 
-    <!-- SCRIPT MES COMPÉTENCES -->
-    <script src="/js/competences.js"></script>
+    <script src="/js/admin-competences.js"></script>
     <script>
     (function() {
-        var user = MatchingCVSession.require('ETUDIANT');
-        if (!user) return;
-        var navName = document.getElementById('nav-user-name');
-        if (navName) navName.textContent = (user.prenom || '') + ' ' + (user.nom || '');
+        var user = MatchingCVSession.read();
+        if (user && user.role === 'ADMIN') {
+            var navName = document.getElementById('nav-user-name');
+            if (navName) navName.textContent = (user.prenom || '') + ' ' + (user.nom || '') + ' (Admin)';
+        }
         document.getElementById('nav-logout')?.addEventListener('click', function() {
             MatchingCVSession.logout();
-        });
-        document.getElementById('nav-user-name')?.addEventListener('click', function() {
-            window.location.href = '/dashboard-etudiant.html?open=profil';
         });
     })();
     </script>

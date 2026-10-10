@@ -6,6 +6,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -25,14 +27,48 @@ public class ExperienceProfessionnelleServiceImpl implements ExperienceProfessio
         this.experienceRepository = experienceRepository;
     }
 
+    /**
+     * Corrige au démarrage toute expérience historique dont la date de fin est antérieure à la date de début.
+     */
+    @PostConstruct
+    public void corrigerExperiencesHistoriques() {
+        try {
+            List<ExperienceProfessionnelle> all = experienceRepository.findAll();
+            for (ExperienceProfessionnelle exp : all) {
+                if (exp.getDateDebut() != null && exp.getDateFin() != null && exp.getDateFin().isBefore(exp.getDateDebut())) {
+                    LocalDate tmp = exp.getDateDebut();
+                    exp.setDateDebut(exp.getDateFin());
+                    exp.setDateFin(tmp);
+                    experienceRepository.save(exp);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ExperienceProfessionnelle> listerParEtudiant(Long etudiantId) {
-        return experienceRepository.findByEtudiantId(etudiantId);
+        List<ExperienceProfessionnelle> list = experienceRepository.findByEtudiantId(etudiantId);
+        for (ExperienceProfessionnelle exp : list) {
+            if (exp.getDateDebut() != null && exp.getDateFin() != null && exp.getDateFin().isBefore(exp.getDateDebut())) {
+                LocalDate tmp = exp.getDateDebut();
+                exp.setDateDebut(exp.getDateFin());
+                exp.setDateFin(tmp);
+                experienceRepository.save(exp);
+            }
+        }
+        return list;
     }
 
     @Override
     public ExperienceProfessionnelle creer(ExperienceProfessionnelle experience) {
+        if (experience.getDateDebut() == null) {
+            throw new IllegalArgumentException("La date de début est obligatoire.");
+        }
+        if (experience.getDateFin() != null && experience.getDateFin().isBefore(experience.getDateDebut())) {
+            throw new IllegalArgumentException("La date de fin ne peut pas être antérieure à la date de début.");
+        }
         return experienceRepository.save(experience);
     }
 

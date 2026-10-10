@@ -42,6 +42,11 @@ public class Competence {
     @Enumerated(EnumType.STRING)
     private StatutCompetence statut;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "proposee_par_id")
+    @JsonIgnore
+    private Utilisateur proposeePar;
+
     @JsonIgnore
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "competence_synonymes", joinColumns = @JoinColumn(name = "competence_id"))
@@ -49,16 +54,19 @@ public class Competence {
     private List<String> synonymes = new ArrayList<>();
 
     /**
-     * Normalise un nom de comp\u00e9tence :
+     * Normalise un nom de compétence :
      * - conversion en minuscules
-     * - suppression exclusive des espaces, tirets (-) et underscores (_)
-     * - conservation intacte de tous les autres caract\u00e8res (+, #, ., etc.)
+     * - suppression des accents éventuels
+     * - suppression des espaces, tirets (-), underscores (_) et points (.)
+     * - conservation intacte des symboles comme '+' ou '#' (ex: C++, C#)
      */
     public static String normaliserNom(String nom) {
         if (nom == null) {
             return null;
         }
-        return nom.toLowerCase().replaceAll("[\\s_\\-]+", "");
+        String sansAccents = java.text.Normalizer.normalize(nom, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return sansAccents.toLowerCase().replaceAll("[\\s_\\-\\.]+", "");
     }
 
     @PrePersist

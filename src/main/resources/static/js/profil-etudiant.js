@@ -159,22 +159,31 @@ function renderE() {
         el.innerHTML = '<span class="empty-hint">Aucune expérience renseignée pour le moment.</span>';
         return;
     }
-    el.innerHTML = S.experiences.map(exp => `
+    el.innerHTML = S.experiences.map(exp => {
+        let dDeb = exp.dateDebut;
+        let dFin = exp.dateFin;
+        if (dDeb && dFin && dFin < dDeb) {
+            const tmp = dDeb; dDeb = dFin; dFin = tmp;
+        }
+        const dateStr = dFin 
+            ? `${esc(fmt(dDeb))} &rarr; ${esc(fmt(dFin))}`
+            : `Depuis ${esc(fmt(dDeb))} <span class="badge-ec">En cours</span>`;
+
+        return `
         <div class="item-card">
             <div class="ic-title">${esc(exp.poste)}</div>
             <div class="ic-meta">
                 <strong>${esc(exp.entreprise)}</strong>
                 <span style="color:#CBD5E1">|</span>
-                ${esc(fmt(exp.dateDebut))} &rarr; ${esc(fmt(exp.dateFin))}
-                ${!exp.dateFin ? '<span class="badge-ec">En cours</span>' : ''}
+                ${dateStr}
             </div>
             <div style="font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;margin-top:.4rem;margin-bottom:.25rem;">Compétences appliquées :</div>
             ${exp.competences && exp.competences.length
                 ? '<div class="ic-tags">' + exp.competences.map(c => '<span class="ic-tag">' + esc(c.nom) + '</span>').join('') + '</div>'
                 : '<span class="empty-hint" style="font-size:.75rem;">Aucune compétence liée à cette expérience</span>'
             }
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 function renderMC() {
@@ -248,12 +257,22 @@ function renderME() {
         el.innerHTML = '<div class="empty-hint" style="padding:.75rem 0">Aucune expérience.</div>';
         return;
     }
-    el.innerHTML = S.experiences.map(exp => `
+    el.innerHTML = S.experiences.map(exp => {
+        let dDeb = exp.dateDebut;
+        let dFin = exp.dateFin;
+        if (dDeb && dFin && dFin < dDeb) {
+            const tmp = dDeb; dDeb = dFin; dFin = tmp;
+        }
+        const dateSub = dFin 
+            ? `${esc(fmt(dDeb))} &rarr; ${esc(fmt(dFin))}`
+            : `Depuis ${esc(fmt(dDeb))} (En cours)`;
+
+        return `
         <div class="edit-row" style="flex-direction:column;align-items:stretch;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;">
                 <div class="er-info">
                     <div class="er-title">${esc(exp.poste)} - <span style="color:#475569;font-weight:500">${esc(exp.entreprise)}</span></div>
-                    <div class="er-sub">${esc(fmt(exp.dateDebut))} &rarr; ${esc(fmt(exp.dateFin))}${!exp.dateFin ? ' (En cours)' : ''}</div>
+                    <div class="er-sub">${dateSub}</div>
                 </div>
                 <button class="btn-del" onclick="delE(${exp.id})" title="Supprimer cette expérience"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
             </div>
@@ -491,8 +510,15 @@ function resetPForm() {
 function resetEForm() {
     ['me-poste', 'me-entr', 'me-deb', 'me-fin', 'me-csearch'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.value = '';
+        if (el) {
+            el.value = '';
+            el.style.borderColor = '';
+            el.removeAttribute('min');
+            el.removeAttribute('max');
+        }
     });
+    const err = document.getElementById('me-date-err');
+    if (err) { err.textContent = ''; err.style.display = 'none'; }
     S.meSel.length = 0;
     renderMeChips();
 }
@@ -612,6 +638,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const meDeb = document.getElementById('me-deb');
+    const meFin = document.getElementById('me-fin');
+    const meDateErr = document.getElementById('me-date-err');
+
+    function validateMeDates() {
+        if (!meDeb || !meFin) return true;
+        const deb = meDeb.value;
+        const fin = meFin.value;
+
+        if (deb) meFin.min = deb;
+        else meFin.removeAttribute('min');
+
+        if (fin) meDeb.max = fin;
+        else meDeb.removeAttribute('max');
+
+        if (deb && fin && fin < deb) {
+            if (meDateErr) {
+                meDateErr.textContent = 'La date de fin ne peut pas être antérieure à la date de début.';
+                meDateErr.style.display = 'block';
+            }
+            meFin.style.borderColor = '#ef4444';
+            meDeb.style.borderColor = '#ef4444';
+            return false;
+        } else {
+            if (meDateErr) {
+                meDateErr.textContent = '';
+                meDateErr.style.display = 'none';
+            }
+            meFin.style.borderColor = '';
+            meDeb.style.borderColor = '';
+            return true;
+        }
+    }
+
+    meDeb?.addEventListener('change', validateMeDates);
+    meDeb?.addEventListener('input', validateMeDates);
+    meFin?.addEventListener('change', validateMeDates);
+    meFin?.addEventListener('input', validateMeDates);
+
     document.getElementById('me-save').addEventListener('click', async () => {
         if (!S.id) { alert$('a-exp', 'Sélectionnez d\'abord un étudiant.', 'info'); return; }
         const poste = document.getElementById('me-poste').value.trim();
@@ -621,6 +686,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!poste) { alert$('a-exp', 'Le poste est obligatoire.'); return; }
         if (!entr) { alert$('a-exp', 'Entreprise obligatoire.'); return; }
         if (!deb) { alert$('a-exp', 'Date début obligatoire.'); return; }
+        if (fin && fin < deb) {
+            alert$('a-exp', 'La date de fin ne peut pas être antérieure à la date de début.');
+            if (meDateErr) {
+                meDateErr.textContent = 'La date de fin ne peut pas être antérieure à la date de début.';
+                meDateErr.style.display = 'block';
+            }
+            if (meFin) meFin.focus();
+            return;
+        }
 
         try {
             const e = await api('/api/etudiants/' + S.id + '/experiences', {

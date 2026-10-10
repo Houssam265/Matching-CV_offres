@@ -1,7 +1,9 @@
 package com.gi3.matchingcv.service;
 
 import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
+import com.gi3.matchingcv.exception.CompetenceUtiliseeException;
 import com.gi3.matchingcv.model.Competence;
+import com.gi3.matchingcv.model.Utilisateur;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.repository.CompetenceRepository;
 import com.gi3.matchingcv.repository.OffreCompetenceRepository;
@@ -35,6 +37,12 @@ class CompetenceServiceTest {
 
     @Mock
     private OffreCompetenceRepository offreCompetenceRepository;
+
+    @Mock
+    private jakarta.persistence.EntityManager entityManager;
+
+    @Mock
+    private jakarta.persistence.Query nativeQuery;
 
     @InjectMocks
     private CompetenceServiceImpl competenceService;
@@ -114,6 +122,32 @@ class CompetenceServiceTest {
     }
 
     @Test
+    @DisplayName("creer() et proposer() doivent refuser 'spring.boot' avec un point lorsque 'Spring Boot' existe déjà")
+    void testCreerDoublonVariantePointDoitLeverException() {
+        assertThat(Competence.normaliserNom("spring.boot")).isEqualTo("springboot");
+        assertThat(Competence.normaliserNom("Spring Boot")).isEqualTo("springboot");
+
+        Competence existante = new Competence();
+        existante.setId(1L);
+        existante.setNom("Spring Boot");
+        existante.setNomNormalise("springboot");
+
+        when(competenceRepository.findByNomNormalise("springboot")).thenReturn(Optional.of(existante));
+
+        Competence nouvelle = new Competence();
+        nouvelle.setNom("spring.boot");
+        nouvelle.setCategorie("DevOps");
+
+        assertThatThrownBy(() -> competenceService.creer(nouvelle))
+                .isInstanceOf(com.gi3.matchingcv.exception.CompetenceDejaExistanteException.class)
+                .hasMessageContaining("Spring Boot");
+
+        assertThatThrownBy(() -> competenceService.proposer("spring.boot", "DevOps"))
+                .isInstanceOf(com.gi3.matchingcv.exception.CompetenceDejaExistanteException.class)
+                .hasMessageContaining("Spring Boot");
+    }
+
+    @Test
     @DisplayName("creer() doit accepter 'C++' et 'C#' comme deux compétences distinctes (non-régression)")
     void testCreerCPlusPlusEtCDieseAcceptesCommeDistincts() {
         // Vérification de la normalisation : les caractères '+' et '#' doivent rester intacts
@@ -172,16 +206,33 @@ class CompetenceServiceTest {
     }
 
     @Test
-    @DisplayName("supprimer() doit supprimer la compétence existante")
+    @DisplayName("supprimer() doit supprimer la compétence existante lorsqu'elle n'est pas utilisée")
     void testSupprimerExistant() {
         when(competenceRepository.findById(1L)).thenReturn(Optional.of(competence1));
+        when(entityManager.createNativeQuery(anyString())).thenReturn(nativeQuery);
+        when(nativeQuery.setParameter(anyString(), any())).thenReturn(nativeQuery);
+        when(nativeQuery.getSingleResult()).thenReturn(0L);
 
         competenceService.supprimer(1L);
 
         verify(competenceRepository, times(1)).findById(1L);
-        verify(profilCompetenceRepository, times(1)).deleteByCompetenceId(1L);
-        verify(offreCompetenceRepository, times(1)).deleteByCompetenceId(1L);
         verify(competenceRepository, times(1)).delete(competence1);
+    }
+
+    @Test
+    @DisplayName("supprimer() doit refuser et lever CompetenceUtiliseeException si la compétence est utilisée")
+    void testSupprimerRefuseeSiUtilisee() {
+        when(competenceRepository.findById(1L)).thenReturn(Optional.of(competence1));
+        when(entityManager.createNativeQuery(anyString())).thenReturn(nativeQuery);
+        when(nativeQuery.setParameter(anyString(), any())).thenReturn(nativeQuery);
+        when(nativeQuery.getSingleResult()).thenReturn(1L);
+
+        assertThatThrownBy(() -> competenceService.supprimer(1L))
+                .isInstanceOf(CompetenceUtiliseeException.class)
+                .hasMessageContaining("utilisée");
+
+        verify(competenceRepository, times(1)).findById(1L);
+        verify(competenceRepository, never()).delete(any());
     }
 
     @Test
@@ -241,6 +292,24 @@ class CompetenceServiceTest {
     }
 
     @Test
+    @DisplayName("proposer() avec variante point 'spring.boot' doit lever CompetenceDejaExistanteException si 'Spring Boot' existe déjà")
+    void testProposerDoublonPointLeverException() {
+        Competence existante = new Competence();
+        existante.setId(1L);
+        existante.setNom("Spring Boot");
+        existante.setNomNormalise("springboot");
+
+        when(competenceRepository.findByNomNormalise("springboot")).thenReturn(Optional.of(existante));
+
+        assertThatThrownBy(() -> competenceService.proposer("spring.boot", "DevOps"))
+                .isInstanceOf(CompetenceDejaExistanteException.class)
+                .hasMessageContaining("Spring Boot");
+
+        verify(competenceRepository, times(1)).findByNomNormalise("springboot");
+        verify(competenceRepository, never()).save(any());
+    }
+
+    @Test
     @DisplayName("proposer() doit normaliser le nom avant la vérification de doublon")
     void testProposerNormalisationNom() {
         when(competenceRepository.findByNomNormalise("kubernetes")).thenReturn(Optional.empty());
@@ -264,5 +333,83 @@ class CompetenceServiceTest {
         assertThat(proposee.getNom()).isEqualTo("Lua");
         assertThat(proposee.getCategorie()).isNull();
         assertThat(proposee.getStatut()).isEqualTo(StatutCompetence.EN_ATTENTE);
+    }
+
+    @Test
+    @DisplayName("suggererCompetences() : 'JS' suggère JavaScript, 'Golang' suggère Go, 'Postgres' suggère PostgreSQL")
+    void testSuggererCompetencesAvecSynonymes() {
+        Competence js = new Competence();
+        js.setId(10L);
+        js.setNom("JavaScript");
+        js.setNomNormalise("javascript");
+        js.setStatut(StatutCompetence.VALIDEE);
+        js.setSynonymes(List.of("JS", "ECMAScript"));
+
+        Competence go = new Competence();
+        go.setId(11L);
+        go.setNom("Go");
+        go.setNomNormalise("go");
+        go.setStatut(StatutCompetence.VALIDEE);
+        go.setSynonymes(List.of("Golang"));
+
+        Competence pg = new Competence();
+        pg.setId(12L);
+        pg.setNom("PostgreSQL");
+        pg.setNomNormalise("postgresql");
+        pg.setStatut(StatutCompetence.VALIDEE);
+        pg.setSynonymes(List.of("Postgres"));
+
+        when(competenceRepository.findAll()).thenReturn(List.of(js, go, pg));
+
+        List<Competence> suggestionsJS = competenceService.suggererCompetences("JS");
+        assertThat(suggestionsJS).extracting(Competence::getNom).containsExactly("JavaScript");
+
+        List<Competence> suggestionsGolang = competenceService.suggererCompetences("Golang");
+        assertThat(suggestionsGolang).extracting(Competence::getNom).containsExactly("Go");
+
+        List<Competence> suggestionsPostgres = competenceService.suggererCompetences("Postgres");
+        assertThat(suggestionsPostgres).extracting(Competence::getNom).containsExactly("PostgreSQL");
+    }
+
+    @Test
+    @DisplayName("suggererCompetences() : respecte les règles de visibilité (VALIDEE + ses propres EN_ATTENTE, jamais REJETEE)")
+    void testSuggererCompetencesVisibilite() {
+        com.gi3.matchingcv.model.Etudiant user1 = new com.gi3.matchingcv.model.Etudiant();
+        user1.setId(1L);
+
+        com.gi3.matchingcv.model.Etudiant user2 = new com.gi3.matchingcv.model.Etudiant();
+        user2.setId(2L);
+
+        Competence validee = new Competence();
+        validee.setId(1L);
+        validee.setNom("Docker");
+        validee.setNomNormalise("docker");
+        validee.setStatut(StatutCompetence.VALIDEE);
+
+        Competence propreEnAttente = new Competence();
+        propreEnAttente.setId(2L);
+        propreEnAttente.setNom("Docker Compose");
+        propreEnAttente.setNomNormalise("dockercompose");
+        propreEnAttente.setStatut(StatutCompetence.EN_ATTENTE);
+        propreEnAttente.setProposeePar(user1);
+
+        Competence autreEnAttente = new Competence();
+        autreEnAttente.setId(3L);
+        autreEnAttente.setNom("Docker Swarm");
+        autreEnAttente.setNomNormalise("dockerswarm");
+        autreEnAttente.setStatut(StatutCompetence.EN_ATTENTE);
+        autreEnAttente.setProposeePar(user2);
+
+        Competence rejetee = new Competence();
+        rejetee.setId(4L);
+        rejetee.setNom("Docker Bad");
+        rejetee.setNomNormalise("dockerbad");
+        rejetee.setStatut(StatutCompetence.REJETEE);
+
+        when(competenceRepository.findAll()).thenReturn(List.of(validee, propreEnAttente, autreEnAttente, rejetee));
+
+        List<Competence> suggestions = competenceService.suggererCompetences("docker", 1L);
+        assertThat(suggestions).extracting(Competence::getId)
+                .containsExactly(1L, 2L);
     }
 }

@@ -169,6 +169,13 @@ function renderDashboardSummary() {
                 `).join('')
                 : '<span class="r-chip-empty">Aucune compétence liée à cette expérience</span>';
 
+            let dDeb = exp.dateDebut;
+            let dFin = exp.dateFin;
+            if (dDeb && dFin && dFin < dDeb) {
+                const tmp = dDeb; dDeb = dFin; dFin = tmp;
+            }
+            const dateStr = dFin ? `${fmt(dDeb)} &rarr; ${fmt(dFin)}` : `Depuis ${fmt(dDeb)} <span class="badge-ec">En cours</span>`;
+
             return `
             <div class="sum-card-item">
                 <div class="sci-t">
@@ -176,7 +183,7 @@ function renderDashboardSummary() {
                     ${!exp.dateFin ? '<span class="badge-ec">En cours</span>' : ''}
                 </div>
                 <div class="sci-meta">
-                    <strong>${esc(exp.entreprise)}</strong> &bull; ${fmt(exp.dateDebut)} &rarr; ${fmt(exp.dateFin)}
+                    <strong>${esc(exp.entreprise)}</strong> &bull; ${dateStr}
                 </div>
                 <div class="relation-box">
                     <div class="relation-label">
@@ -278,10 +285,17 @@ function renderDrawer() {
                 `).join('')
                 : '<span class="din">Aucune compétence liée à cette expérience</span>';
 
+            let dDeb = exp.dateDebut;
+            let dFin = exp.dateFin;
+            if (dDeb && dFin && dFin < dDeb) {
+                const tmp = dDeb; dDeb = dFin; dFin = tmp;
+            }
+            const dateStr = dFin ? `Du ${fmt(dDeb)} au ${fmt(dFin)}` : `Depuis ${fmt(dDeb)} <span class="badge-ec">En cours</span>`;
+
             return `
             <div class="di" data-eid="${exp.id}">
                 <div class="dit">${esc(exp.poste)} &mdash; <span style="font-weight:600;color:var(--text-mid);">${esc(exp.entreprise)}</span></div>
-                <div class="dim">Du ${fmt(exp.dateDebut)} au ${fmt(exp.dateFin)} ${!exp.dateFin ? '<span class="badge-ec">En cours</span>' : ''}</div>
+                <div class="dim">${dateStr}</div>
                 <div class="dicl">Compétences appliquées :</div>
                 <div class="dics">${compChips}</div>
 
@@ -756,6 +770,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         fe.classList.toggle('show');
         btnAe.style.display = fe.classList.contains('show') ? 'none' : 'flex';
     });
+    const feDb = document.getElementById('fe-db');
+    const feFi = document.getElementById('fe-fi');
+    const feDateErr = document.getElementById('fe-date-err');
+
+    function resetFeDates() {
+        if (feDb) { feDb.value = ''; feDb.removeAttribute('max'); feDb.style.borderColor = ''; }
+        if (feFi) { feFi.value = ''; feFi.removeAttribute('min'); feFi.style.borderColor = ''; }
+        if (feDateErr) { feDateErr.textContent = ''; feDateErr.style.display = 'none'; }
+    }
+
+    function validateFeDates() {
+        if (!feDb || !feFi) return true;
+        const deb = feDb.value;
+        const fin = feFi.value;
+
+        if (deb) feFi.min = deb;
+        else feFi.removeAttribute('min');
+
+        if (fin) feDb.max = fin;
+        else feDb.removeAttribute('max');
+
+        if (deb && fin && fin < deb) {
+            if (feDateErr) {
+                feDateErr.textContent = 'La date de fin ne peut pas être antérieure à la date de début.';
+                feDateErr.style.display = 'block';
+            }
+            feFi.style.borderColor = '#ef4444';
+            feDb.style.borderColor = '#ef4444';
+            return false;
+        } else {
+            if (feDateErr) {
+                feDateErr.textContent = '';
+                feDateErr.style.display = 'none';
+            }
+            feFi.style.borderColor = '';
+            feDb.style.borderColor = '';
+            return true;
+        }
+    }
+
+    feDb?.addEventListener('change', validateFeDates);
+    feDb?.addEventListener('input', validateFeDates);
+    feFi?.addEventListener('change', validateFeDates);
+    feFi?.addEventListener('input', validateFeDates);
+
     document.getElementById('fe-ca')?.addEventListener('click', () => {
         fe.classList.remove('show');
         if (btnAe) btnAe.style.display = 'flex';
@@ -763,8 +822,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderFeChips();
         document.getElementById('fe-po').value = '';
         document.getElementById('fe-en').value = '';
-        document.getElementById('fe-db').value = '';
-        document.getElementById('fe-fi').value = '';
+        resetFeDates();
     });
 
     setupAutocomplete('fe-ci', 'fe-cd', () => new Set(S.feChips.map(c => c.competenceId).filter(Boolean)), item => {
@@ -786,6 +844,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!poste) { alert$('al-e', 'Le poste est obligatoire.'); return; }
         if (!entr) { alert$('al-e', 'L\'entreprise est obligatoire.'); return; }
         if (!deb) { alert$('al-e', 'La date de début est obligatoire.'); return; }
+        if (fin && fin < deb) {
+            alert$('al-e', 'La date de fin ne peut pas être antérieure à la date de début.');
+            if (feDateErr) {
+                feDateErr.textContent = 'La date de fin ne peut pas être antérieure à la date de début.';
+                feDateErr.style.display = 'block';
+            }
+            if (feFi) feFi.focus();
+            return;
+        }
 
         try {
             const created = await api(`/api/etudiants/${S.id}/experiences`, {
@@ -800,8 +867,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderFeChips();
             document.getElementById('fe-po').value = '';
             document.getElementById('fe-en').value = '';
-            document.getElementById('fe-db').value = '';
-            document.getElementById('fe-fi').value = '';
+            resetFeDates();
             renderDrawer();
             renderDashboardSummary();
             alert$('al-e', 'Expérience ajoutée avec succès !', 'ok');
