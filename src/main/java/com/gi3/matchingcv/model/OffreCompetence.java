@@ -30,6 +30,7 @@ public class OffreCompetence {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "offre_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Offre offre;
 
     @ManyToOne(fetch = FetchType.LAZY)

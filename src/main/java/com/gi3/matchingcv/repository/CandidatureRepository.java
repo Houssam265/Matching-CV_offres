@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface CandidatureRepository extends JpaRepository<Candidature, Long> {
 
+    boolean existsByOffreId(Long offreId);
+
     boolean existsByEtudiantIdAndOffreId(Long etudiantId, Long offreId);
 
     List<Candidature> findByOffreIdOrderByScoreDesc(Long offreId);

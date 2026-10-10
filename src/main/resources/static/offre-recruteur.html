@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Détail de l’offre — Matching CV-Offres</title>
+    <script src="/js/session.js"></script>
+    <script>MatchingCVSession.protect('RECRUTEUR');</script>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/recruteur.css">
+    <script src="/js/recruteur.js" defer></script>
+</head>
+<body data-page="detail">
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
+        <div class="nav-inner">
+            <a href="/dashboard-recruteur.html" class="nav-logo" aria-label="Accueil recruteur MatchingCV">
+                <span class="logo-mark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs>
+                    </svg>
+                </span>
+                <span class="logo-text">Matching<strong>CV</strong></span>
+            </a>
+            <ul class="nav-links" role="list">
+                <li><a href="/dashboard-recruteur.html" class="nav-link">Tableau de bord</a></li>
+                <li><a href="/mes-offres.html" class="nav-link">Mes offres</a></li>
+                <li><a href="/publier-offre.html" class="nav-link">Publier une offre</a></li>
+            </ul>
+            <div class="nav-cta">
+                <span id="nav-user-name" class="nav-user-label"></span>
+                <button class="btn-nav-outline" id="nav-logout" type="button" style="cursor:pointer;">Déconnexion</button>
+            </div>
+            <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <header class="recruit-hero">
+        <div class="recruit-hero-inner">
+            <div class="recruit-hero-text">
+                <div class="recruit-hero-badge">
+                    <a href="/mes-offres.html" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        Retour à mes offres
+                    </a>
+                </div>
+                <h1 id="page-title">Fiche descriptive <span>de l’offre</span></h1>
+                <p>Consultez les informations détaillées, les compétences associées et le vivier de candidats correspondants.</p>
+            </div>
+            <div class="recruit-hero-actions">
+                <a class="recruit-hero-btn secondary" href="/mes-offres.html">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Toutes mes offres
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="recruit-main">
+        <div id="recruit-error" class="recruit-error" role="alert" hidden></div>
+        
+        <div id="detail-content">Chargement des détails…</div>
+
+        <!-- CANDIDATES & MATCHING STATUS -->
+        <section class="recruit-card recruit-pipeline-card" style="margin-top: 2rem;">
+            <div class="recruit-pipeline-header">
+                <div>
+                    <h2 class="recruit-section-title" style="margin: 0 0 0.25rem;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        Candidats classés &amp; Scores de matching
+                    </h2>
+                    <p class="recruit-section-sub">Les candidats dont le CV correspond aux compétences requises seront ordonnés automatiquement par pertinence.</p>
+                </div>
+                <span class="recruit-pipeline-badge">Moteur de matching</span>
+            </div>
+
+            <div class="recruit-empty" style="margin-top: 1.25rem;">
+                <div class="recruit-empty-icon" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <div class="recruit-empty-title">Calcul de pertinence disponible</div>
+                <p>Le matching automatique calcule la proximité entre les compétences validées du profil étudiant et les compétences requises pour cette offre.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="/dashboard-recruteur.html" class="footer-logo">
+                    <span class="logo-mark">
+                        <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="14" cy="14" r="13" stroke="url(#lgf4)" stroke-width="2"/>
+                            <path d="M8 14l4 4 8-8" stroke="url(#lgf4)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs><linearGradient id="lgf4" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#4A78C4"/><stop offset="1" stop-color="#3AADAD"/></linearGradient></defs>
+                        </svg>
+                    </span>
+                    <span class="logo-text">Matching<strong>CV</strong></span>
+                </a>
+                <p class="footer-tagline">Espace Recruteur — Fiche détaillée et suivi du matching.</p>
+            </div>
+            <div class="footer-col">
+                <h5 class="footer-col-title">Navigation Recruteur</h5>
+                <ul class="footer-links">
+                    <li><a href="/dashboard-recruteur.html">Tableau de bord</a></li>
+                    <li><a href="/mes-offres.html">Mes offres publiées</a></li>
+                    <li><a href="/publier-offre.html">Publier une opportunité</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5 class="footer-col-title">Plateforme</h5>
+                <ul class="footer-links">
+                    <li><a href="/index.html">Accueil général</a></li>
+                    <li><a href="/login.html">Changer de compte</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Matching CV-Offres. Espace Recruteur dédié.</span>
+        </div>
+    </footer>
+</body>
+</html>

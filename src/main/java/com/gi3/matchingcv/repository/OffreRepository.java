@@ -11,4 +11,6 @@ import java.util.List;
 public interface OffreRepository extends JpaRepository<Offre, Long> {
 
     List<Offre> findByStatut(StatutOffre statut);
+
+    List<Offre> findByRecruteurIdOrderByDatePublicationDesc(Long recruteurId);
 }

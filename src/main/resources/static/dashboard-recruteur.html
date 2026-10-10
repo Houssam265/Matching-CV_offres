@@ -1,58 +1,22 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Tableau de bord recruteur — Matching CV-Offres" />
-    <title>Espace Recruteur &mdash; Matching CV-Offres</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tableau de bord Recruteur — Matching CV-Offres</title>
     <script src="/js/session.js"></script>
     <script>MatchingCVSession.protect('RECRUTEUR');</script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
-    <style>
-        .dash-hero {
-            background: var(--banner-gradient);
-            padding: 3rem 1.5rem; color: #fff; position: relative; overflow: hidden;
-        }
-        .dash-hero::before {
-            content:'';position:absolute;inset:0;pointer-events:none;
-            background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
-            background-size:48px 48px;
-        }
-        .dash-hero-inner { position:relative;z-index:1;max-width:var(--content-width);margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem; }
-        .dash-welcome { font-size:clamp(1.4rem,3vw,2rem);font-weight:800; }
-        .dash-welcome span { color:#B594FF; }
-        .dash-sub { font-size:.92rem;color:rgba(255,255,255,.75);margin-top:.4rem; }
-        .dash-badge { background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:.5rem 1rem;font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600; }
-        .dash-logout-btn { background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:.5rem 1.1rem;font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s; }
-        .dash-logout-btn:hover { background:rgba(255,255,255,.2); }
-        .dash-body { max-width:var(--content-width);margin:2rem auto 4rem;padding:0 1.5rem; }
-        .dash-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:2rem; }
-        .dash-card { background:#fff;border:1px solid var(--border-card);border-radius:var(--radius);padding:1.8rem;box-shadow:var(--shadow-sm);transition:box-shadow .25s; }
-        .dash-card:hover { box-shadow:var(--shadow-md); }
-        .dash-card-icon { width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem; }
-        .icon-purple { background:linear-gradient(135deg,rgba(123,79,204,.15),rgba(46,90,156,.1));color:#7B4FCC; }
-        .icon-blue { background:linear-gradient(135deg,rgba(46,90,156,.15),rgba(46,139,139,.1));color:var(--blue); }
-        .icon-teal { background:linear-gradient(135deg,rgba(46,139,139,.15),rgba(46,90,156,.1));color:var(--teal); }
-        .dash-card h3 { font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.4rem; }
-        .dash-card p { font-size:.86rem;color:var(--text-mid);line-height:1.6; }
-        .dash-card-link { display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;font-size:.84rem;font-weight:600;color:#7B4FCC;text-decoration:none;transition:color .2s; }
-        .dash-card-link:hover { color:var(--blue); }
-        .dash-section-title { font-size:1.2rem;font-weight:800;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem; }
-        .coming-soon-card { background:linear-gradient(135deg,#F9FBFE,#EAF1F8);border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;min-height:200px; }
-        .coming-soon-card .dash-card-icon { margin:0 auto 1rem; }
-        .coming-badge { background:var(--teal-pale);color:var(--teal);border:1px solid rgba(46,139,139,.25);padding:.2rem .7rem;border-radius:100px;font-size:.72rem;font-weight:700;display:inline-block;margin-top:.5rem; }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/recruteur.css">
+    <script src="/js/recruteur.js" defer></script>
 </head>
-<body>
-
-    <nav class="navbar" id="navbar" role="navigation">
+<body data-page="dashboard">
+    <!-- NAVIGATION BAR -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
         <div class="nav-inner">
-            <a href="/dashboard-recruteur.html" class="nav-logo">
+            <a href="/dashboard-recruteur.html" class="nav-logo" aria-label="Accueil recruteur MatchingCV">
                 <span class="logo-mark">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
                         <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                         <defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs>
@@ -61,114 +25,306 @@
                 <span class="logo-text">Matching<strong>CV</strong></span>
             </a>
             <ul class="nav-links" role="list">
-                <li><a href="/competences.html" class="nav-link">Comp&eacute;tences</a></li>
+                <li><a href="/dashboard-recruteur.html" class="nav-link active" aria-current="page">Tableau de bord</a></li>
+                <li><a href="/mes-offres.html" class="nav-link">Mes offres</a></li>
+                <li><a href="/publier-offre.html" class="nav-link">Publier une offre</a></li>
             </ul>
             <div class="nav-cta">
                 <span id="nav-user-name" class="nav-user-label"></span>
-                <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">D&eacute;connexion</button>
+                <button class="btn-nav-outline" id="nav-logout" type="button" style="cursor:pointer;">Déconnexion</button>
             </div>
             <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
         </div>
     </nav>
 
-    <div class="dash-hero">
-        <div class="dash-hero-inner">
+    <!-- HERO BANNER -->
+    <header class="recruit-hero">
+        <div class="recruit-hero-inner">
+            <div class="recruit-hero-text">
+                <div class="recruit-hero-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    Espace Recrutement &amp; Entreprise
+                </div>
+                <h1 id="page-title">Tableau de bord <span>Recruteur</span></h1>
+                <p>Pilotez vos offres d'emploi et stages, définissez vos critères de compétences et découvrez les profils candidats les plus pertinents.</p>
+            </div>
+            <div class="recruit-hero-actions">
+                <a class="recruit-hero-btn primary" href="/publier-offre.html">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Publier une offre
+                </a>
+                <a class="recruit-hero-btn secondary" href="/mes-offres.html">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    Gérer mes offres
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="recruit-main">
+        <div id="recruit-error" class="recruit-error" role="alert" hidden></div>
+
+        <!-- RECRUITER IDENTITY / COMPANY CARD -->
+        <section class="recruit-profile-card" aria-label="Informations du recruteur">
+            <div class="recruit-profile-left">
+                <div class="recruit-profile-avatar" id="recruiter-avatar" aria-hidden="true">🏢</div>
+                <div class="recruit-profile-info">
+                    <h2 id="recruiter-display-name">Bienvenue</h2>
+                    <div class="recruit-profile-enterprise" id="recruiter-display-enterprise">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <span>Espace Entreprise</span>
+                    </div>
+                    <div class="recruit-profile-tags">
+                        <span class="recruit-profile-pill">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            Compte vérifié
+                        </span>
+                        <span class="recruit-profile-pill">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            Matching par compétences
+                        </span>
+                    </div>
+                </div>
+            </div>
             <div>
-                <div class="dash-welcome">Bienvenue, <span id="user-prenom">Recruteur</span>&nbsp;! 🏢</div>
-                <div class="dash-sub">Votre espace recruteur — Matching CV-Offres</div>
+                <a class="recruit-btn primary" href="/publier-offre.html">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nouvelle opportunité
+                </a>
             </div>
-            <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                <span class="dash-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-                    Espace Recruteur
+        </section>
+
+        <!-- KPI METRICS GRID -->
+        <div class="recruit-grid" role="region" aria-label="Indicateurs clés">
+            <article class="recruit-stat-card">
+                <div class="recruit-stat-card-top">
+                    <div class="recruit-stat-icon-wrap active">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <span class="recruit-stat-badge online">
+                        <span class="pulse-dot"></span>
+                        En ligne
+                    </span>
+                </div>
+                <h2>Offres actives</h2>
+                <span id="active-count" class="recruit-count teal">—</span>
+                <p class="recruit-stat-desc">Diffusées et ouvertes aux candidatures</p>
+            </article>
+
+            <article class="recruit-stat-card">
+                <div class="recruit-stat-card-top">
+                    <div class="recruit-stat-icon-wrap closed">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                            <rect x="1" y="3" width="22" height="5"></rect>
+                            <line x1="10" y1="12" x2="14" y2="12"></line>
+                        </svg>
+                    </div>
+                    <span class="recruit-stat-badge archived">Archivées</span>
+                </div>
+                <h2>Offres clôturées</h2>
+                <span id="closed-count" class="recruit-count slate">—</span>
+                <p class="recruit-stat-desc">Retirées des recherches publiques</p>
+            </article>
+
+            <article class="recruit-stat-card">
+                <div class="recruit-stat-card-top">
+                    <div class="recruit-stat-icon-wrap action">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                    </div>
+                    <span class="recruit-stat-badge archived">Historique</span>
+                </div>
+                <h2>Total des offres</h2>
+                <span id="total-count" class="recruit-count">—</span>
+                <p class="recruit-stat-desc">Toutes vos publications d'offres</p>
+            </article>
+
+            <article class="recruit-stat-card">
+                <div class="recruit-stat-card-top">
+                    <div class="recruit-stat-icon-wrap active">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="12 8 8 12 12 16 16 12 12 8"></polygon>
+                        </svg>
+                    </div>
+                    <span class="recruit-stat-badge online">IA Ready</span>
+                </div>
+                <h2>Matching IA</h2>
+                <span class="recruit-count teal" style="font-size: 1.85rem;">Scoring Actif</span>
+                <p class="recruit-stat-desc">Calcul basé sur les compétences requises</p>
+            </article>
+        </div>
+
+        <!-- RECENT OFFERS SECTION -->
+        <section aria-labelledby="sec-offres-title">
+            <div class="recruit-section-head">
+                <div>
+                    <h2 class="recruit-section-title" id="sec-offres-title">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        Dernières offres publiées
+                    </h2>
+                    <p class="recruit-section-sub">Aperçu rapide de vos 5 publications les plus récentes.</p>
+                </div>
+                <a class="recruit-btn" href="/mes-offres.html">
+                    Voir toutes mes offres
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </div>
+            <div id="offres-list" aria-live="polite">Chargement…</div>
+        </section>
+
+        <!-- CANDIDATES & MATCHING SHOWCASE -->
+        <section class="recruit-pipeline-card" style="margin-top: 3rem;" aria-labelledby="sec-pipeline-title">
+            <div class="recruit-pipeline-header">
+                <div>
+                    <h2 class="recruit-section-title" id="sec-pipeline-title" style="margin: 0 0 0.25rem;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Candidatures reçues &amp; Vivier de talents
+                    </h2>
+                    <p class="recruit-section-sub">Le moteur de matching évalue en continu la correspondance des CVs avec vos exigences de compétences.</p>
+                </div>
+                <span class="recruit-pipeline-badge">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    Matching Intelligent
                 </span>
-                <button class="dash-logout-btn" id="logout-hero-btn">Se d&eacute;connecter</button>
             </div>
-        </div>
-    </div>
 
-    <main class="dash-body">
-        <div class="dash-grid">
-            <div class="dash-card">
-                <div class="dash-card-icon icon-purple">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+            <div class="recruit-pipeline-preview">
+                <div class="recruit-pipeline-feature">
+                    <div class="recruit-feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 14 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="recruit-feature-text">
+                        <h4>Priorité aux compétences requises</h4>
+                        <p>Les candidats disposant de compétences validées exigées obtiennent un score prioritaire dans le classement.</p>
+                    </div>
                 </div>
-                <h3>Publier une offre</h3>
-                <p>Cr&eacute;ez et publiez vos offres de stage ou d&rsquo;emploi pour attirer les meilleurs talents.</p>
-                <a href="#" class="dash-card-link">
-                    Cr&eacute;er une offre
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
-            </div>
 
-            <div class="dash-card">
-                <div class="dash-card-icon icon-blue">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div class="recruit-pipeline-feature">
+                    <div class="recruit-feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                    </div>
+                    <div class="recruit-feature-text">
+                        <h4>Bonus pour atouts complémentaires</h4>
+                        <p>Les atouts déclarés augmentent le score sans pénaliser les candidats qui ne les possèdent pas.</p>
+                    </div>
                 </div>
-                <h3>CVs Correspondants</h3>
-                <p>Parcourez les CVs class&eacute;s automatiquement par score de compatibilit&eacute; avec vos offres.</p>
-                <a href="#" class="dash-card-link">
-                    Voir les CV
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
-            </div>
 
-            <div class="dash-card">
-                <div class="dash-card-icon icon-teal">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <div class="recruit-pipeline-feature">
+                    <div class="recruit-feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <div class="recruit-feature-text">
+                        <h4>Profils certifiés &amp; vérifiés</h4>
+                        <p>Les compétences validées sont préalablement certifiées par l'équipe administrative de la plateforme.</p>
+                    </div>
                 </div>
-                <h3>R&eacute;f&eacute;rentiel Comp&eacute;tences</h3>
-                <p>Explorez le catalogue des comp&eacute;tences pour affiner vos crit&egrave;res de recherche.</p>
-                <a href="/competences.html" class="dash-card-link">
-                    Voir les comp&eacute;tences
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
             </div>
-        </div>
 
-        <div class="dash-section-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            Candidatures Re&ccedil;ues
-        </div>
-        <div class="dash-card coming-soon-card">
-            <div class="dash-card-icon icon-purple" style="margin:0 auto 1rem;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            <div class="recruit-empty" style="margin-top: 1.5rem;" aria-label="Emplacement des candidatures reçues">
+                <div class="recruit-empty-icon" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="recruit-empty-title">Aucune candidature pour le moment</div>
+                <p>Vos offres actives sont prêtes à être matchées. Dès que des candidats postuleront ou que le matching sera lancé, vous découvrirez leurs scores détaillés.</p>
+                <a class="recruit-btn primary" href="/publier-offre.html">Publier une nouvelle offre</a>
             </div>
-            <h3>Tableau de bord candidatures</h3>
-            <p>Visualisez et g&eacute;rez toutes les candidatures re&ccedil;ues class&eacute;es par score.</p>
-            <span class="coming-badge">Prochainement</span>
-        </div>
+        </section>
     </main>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const user = MatchingCVSession.require('RECRUTEUR');
-        if (!user) return;
-
-        const prenomEl = document.getElementById('user-prenom');
-        if (prenomEl) prenomEl.textContent = user.prenom || 'Recruteur';
-        const navName = document.getElementById('nav-user-name');
-        if (navName) navName.textContent = user.prenom + ' ' + user.nom;
-
-        function logout() {
-            MatchingCVSession.logout();
-        }
-        document.getElementById('nav-logout')?.addEventListener('click', logout);
-        document.getElementById('logout-hero-btn')?.addEventListener('click', logout);
-
-        const navbar = document.getElementById('navbar');
-        const burger = document.getElementById('nav-burger');
-        if (navbar) {
-            window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20), {passive:true});
-            if (burger) {
-                burger.addEventListener('click', () => {
-                    const isOpen = navbar.classList.toggle('menu-open');
-                    burger.classList.toggle('open', isOpen);
-                    burger.setAttribute('aria-expanded', String(isOpen));
-                });
-            }
-        }
-    });
-    </script>
+    <!-- FOOTER -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="/dashboard-recruteur.html" class="footer-logo">
+                    <span class="logo-mark">
+                        <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="14" cy="14" r="13" stroke="url(#lgf1)" stroke-width="2"/>
+                            <path d="M8 14l4 4 8-8" stroke="url(#lgf1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs><linearGradient id="lgf1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#4A78C4"/><stop offset="1" stop-color="#3AADAD"/></linearGradient></defs>
+                        </svg>
+                    </span>
+                    <span class="logo-text">Matching<strong>CV</strong></span>
+                </a>
+                <p class="footer-tagline">Espace Recruteur — Connectez les compétences clés de votre entreprise aux meilleurs profils étudiants.</p>
+            </div>
+            <div class="footer-col">
+                <h5 class="footer-col-title">Navigation Recruteur</h5>
+                <ul class="footer-links">
+                    <li><a href="/dashboard-recruteur.html">Tableau de bord</a></li>
+                    <li><a href="/mes-offres.html">Mes offres publiées</a></li>
+                    <li><a href="/publier-offre.html">Publier une opportunité</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5 class="footer-col-title">Plateforme</h5>
+                <ul class="footer-links">
+                    <li><a href="/index.html">Accueil général</a></li>
+                    <li><a href="/login.html">Changer de compte</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Matching CV-Offres. Espace Recruteur dédié.</span>
+        </div>
+    </footer>
 </body>
 </html>

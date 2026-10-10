@@ -22,5 +22,6 @@ public class Recruteur extends Utilisateur {
     private String secteurActivite;
 
     @OneToMany(mappedBy = "recruteur", fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Offre> offres = new ArrayList<>();
 }
