@@ -73,4 +73,22 @@ public interface CompetenceService {
     default Competence proposer(String nom, String categorie) {
         return proposer(nom, categorie, null);
     }
+
+    /**
+     * Recherche des suggestions de compétences pour l'autocomplétion (partagée).
+     * Cherche dans le nom normalisé et dans les synonymes.
+     * Règle de visibilité : VALIDEE + ses propres EN_ATTENTE (proposeePar = utilisateurId), jamais les REJETEE.
+     *
+     * @param query         le terme de recherche
+     * @param utilisateurId l'identifiant de l'utilisateur (optionnel, pour inclure ses compétences EN_ATTENTE)
+     * @return la liste des suggestions de compétences
+     */
+    List<Competence> suggererCompetences(String query, Long utilisateurId);
+
+    /**
+     * Surcharge rétrocompatible sans utilisateur spécifié.
+     */
+    default List<Competence> suggererCompetences(String query) {
+        return suggererCompetences(query, null);
+    }
 }

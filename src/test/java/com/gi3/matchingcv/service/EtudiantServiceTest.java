@@ -385,4 +385,23 @@ class EtudiantServiceTest {
                 .extracting(Competence::getId)
                 .containsExactly(1L, 5L);
     }
+
+    @Test
+    @DisplayName("suggererCompetences() : 'JS' suggère JavaScript via ses synonymes")
+    void testSuggererCompetencesAvecSynonymesJS() {
+        Competence js = new Competence();
+        js.setId(10L);
+        js.setNom("JavaScript");
+        js.setNomNormalise("javascript");
+        js.setStatut(StatutCompetence.VALIDEE);
+        js.setSynonymes(List.of("JS", "ECMAScript"));
+
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant1));
+        when(competenceRepository.findAll()).thenReturn(List.of(js));
+
+        List<Competence> suggestions = etudiantService.suggererCompetences(1L, "JS");
+
+        assertThat(suggestions).hasSize(1);
+        assertThat(suggestions.get(0).getNom()).isEqualTo("JavaScript");
+    }
 }

@@ -13,8 +13,11 @@ import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Implémentation du service métier pour la gestion des compétences.
@@ -137,5 +140,74 @@ public class CompetenceServiceImpl implements CompetenceService {
     @Override
     public Competence proposer(String nom, String categorie) {
         return proposer(nom, categorie, null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Competence> suggererCompetences(String query, Long utilisateurId) {
+        if (query == null || query.isBlank()) {
+            return Collections.emptyList();
+        }
+        String qNormalise = Competence.normaliserNom(query.trim());
+        if (qNormalise == null || qNormalise.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Competence> toutes = competenceRepository.findAll();
+        return toutes.stream()
+                .filter(c -> c.getStatut() != StatutCompetence.REJETEE)
+                .filter(c -> c.getStatut() == StatutCompetence.VALIDEE ||
+                        (c.getStatut() == StatutCompetence.EN_ATTENTE &&
+                         c.getProposeePar() != null &&
+                         utilisateurId != null &&
+                         c.getProposeePar().getId().equals(utilisateurId)))
+                .filter(c -> matchQuery(c, qNormalise))
+                .sorted(Comparator.comparingInt(c -> scoreMatch(c, qNormalise)))
+                .limit(8)
+                .collect(Collectors.toList());
+    }
+
+    public static boolean matchQuery(Competence c, String qNormalise) {
+        if (c.getNomNormalise() != null && c.getNomNormalise().contains(qNormalise)) {
+            return true;
+        }
+        if (c.getSynonymes() != null) {
+            for (String syn : c.getSynonymes()) {
+                if (syn != null) {
+                    String synNorm = Competence.normaliserNom(syn);
+                    if (synNorm != null && synNorm.contains(qNormalise)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static int scoreMatch(Competence c, String qNormalise) {
+        if (c.getNomNormalise() != null && c.getNomNormalise().equals(qNormalise)) {
+            return 0;
+        }
+        if (c.getSynonymes() != null) {
+            for (String syn : c.getSynonymes()) {
+                if (syn != null && qNormalise.equals(Competence.normaliserNom(syn))) {
+                    return 0;
+                }
+            }
+        }
+        if (c.getNomNormalise() != null && c.getNomNormalise().startsWith(qNormalise)) {
+            return 1;
+        }
+        if (c.getSynonymes() != null) {
+            for (String syn : c.getSynonymes()) {
+                if (syn != null) {
+                    String synNorm = Competence.normaliserNom(syn);
+                    if (synNorm != null && synNorm.startsWith(qNormalise)) {
+                        return 1;
+                    }
+                }
+            }
+        }
+        return 2;
     }
 }

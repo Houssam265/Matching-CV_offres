@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -193,6 +194,9 @@ public class EtudiantServiceImpl implements EtudiantService {
             return Collections.emptyList();
         }
         String qNormalise = Competence.normaliserNom(query.trim());
+        if (qNormalise == null || qNormalise.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         Set<Long> idsDansListe = etudiant.getCompetences().stream()
                 .map(Competence::getId)
@@ -206,7 +210,8 @@ public class EtudiantServiceImpl implements EtudiantService {
                         (c.getStatut() == StatutCompetence.EN_ATTENTE &&
                          c.getProposeePar() != null &&
                          c.getProposeePar().getId().equals(etudiantId)))
-                .filter(c -> c.getNomNormalise() != null && c.getNomNormalise().contains(qNormalise))
+                .filter(c -> CompetenceServiceImpl.matchQuery(c, qNormalise))
+                .sorted(Comparator.comparingInt(c -> CompetenceServiceImpl.scoreMatch(c, qNormalise)))
                 .limit(8)
                 .collect(Collectors.toList());
     }

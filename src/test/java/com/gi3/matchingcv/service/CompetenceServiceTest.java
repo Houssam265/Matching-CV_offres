@@ -3,6 +3,7 @@ package com.gi3.matchingcv.service;
 import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
 import com.gi3.matchingcv.exception.CompetenceUtiliseeException;
 import com.gi3.matchingcv.model.Competence;
+import com.gi3.matchingcv.model.Utilisateur;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.repository.CompetenceRepository;
 import com.gi3.matchingcv.repository.OffreCompetenceRepository;
@@ -332,5 +333,83 @@ class CompetenceServiceTest {
         assertThat(proposee.getNom()).isEqualTo("Lua");
         assertThat(proposee.getCategorie()).isNull();
         assertThat(proposee.getStatut()).isEqualTo(StatutCompetence.EN_ATTENTE);
+    }
+
+    @Test
+    @DisplayName("suggererCompetences() : 'JS' suggère JavaScript, 'Golang' suggère Go, 'Postgres' suggère PostgreSQL")
+    void testSuggererCompetencesAvecSynonymes() {
+        Competence js = new Competence();
+        js.setId(10L);
+        js.setNom("JavaScript");
+        js.setNomNormalise("javascript");
+        js.setStatut(StatutCompetence.VALIDEE);
+        js.setSynonymes(List.of("JS", "ECMAScript"));
+
+        Competence go = new Competence();
+        go.setId(11L);
+        go.setNom("Go");
+        go.setNomNormalise("go");
+        go.setStatut(StatutCompetence.VALIDEE);
+        go.setSynonymes(List.of("Golang"));
+
+        Competence pg = new Competence();
+        pg.setId(12L);
+        pg.setNom("PostgreSQL");
+        pg.setNomNormalise("postgresql");
+        pg.setStatut(StatutCompetence.VALIDEE);
+        pg.setSynonymes(List.of("Postgres"));
+
+        when(competenceRepository.findAll()).thenReturn(List.of(js, go, pg));
+
+        List<Competence> suggestionsJS = competenceService.suggererCompetences("JS");
+        assertThat(suggestionsJS).extracting(Competence::getNom).containsExactly("JavaScript");
+
+        List<Competence> suggestionsGolang = competenceService.suggererCompetences("Golang");
+        assertThat(suggestionsGolang).extracting(Competence::getNom).containsExactly("Go");
+
+        List<Competence> suggestionsPostgres = competenceService.suggererCompetences("Postgres");
+        assertThat(suggestionsPostgres).extracting(Competence::getNom).containsExactly("PostgreSQL");
+    }
+
+    @Test
+    @DisplayName("suggererCompetences() : respecte les règles de visibilité (VALIDEE + ses propres EN_ATTENTE, jamais REJETEE)")
+    void testSuggererCompetencesVisibilite() {
+        com.gi3.matchingcv.model.Etudiant user1 = new com.gi3.matchingcv.model.Etudiant();
+        user1.setId(1L);
+
+        com.gi3.matchingcv.model.Etudiant user2 = new com.gi3.matchingcv.model.Etudiant();
+        user2.setId(2L);
+
+        Competence validee = new Competence();
+        validee.setId(1L);
+        validee.setNom("Docker");
+        validee.setNomNormalise("docker");
+        validee.setStatut(StatutCompetence.VALIDEE);
+
+        Competence propreEnAttente = new Competence();
+        propreEnAttente.setId(2L);
+        propreEnAttente.setNom("Docker Compose");
+        propreEnAttente.setNomNormalise("dockercompose");
+        propreEnAttente.setStatut(StatutCompetence.EN_ATTENTE);
+        propreEnAttente.setProposeePar(user1);
+
+        Competence autreEnAttente = new Competence();
+        autreEnAttente.setId(3L);
+        autreEnAttente.setNom("Docker Swarm");
+        autreEnAttente.setNomNormalise("dockerswarm");
+        autreEnAttente.setStatut(StatutCompetence.EN_ATTENTE);
+        autreEnAttente.setProposeePar(user2);
+
+        Competence rejetee = new Competence();
+        rejetee.setId(4L);
+        rejetee.setNom("Docker Bad");
+        rejetee.setNomNormalise("dockerbad");
+        rejetee.setStatut(StatutCompetence.REJETEE);
+
+        when(competenceRepository.findAll()).thenReturn(List.of(validee, propreEnAttente, autreEnAttente, rejetee));
+
+        List<Competence> suggestions = competenceService.suggererCompetences("docker", 1L);
+        assertThat(suggestions).extracting(Competence::getId)
+                .containsExactly(1L, 2L);
     }
 }

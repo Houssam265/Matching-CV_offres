@@ -1,0 +1,383 @@
+nom;categorie;synonymes
+Java;Langage;
+JavaScript;Langage;JS|ECMAScript
+TypeScript;Langage;TS
+Python;Langage;
+C;Langage;
+C++;Langage;CPP
+C#;Langage;CSharp
+PHP;Langage;
+Ruby;Langage;
+Go;Langage;Golang
+Rust;Langage;
+Kotlin;Langage;
+Swift;Langage;
+Objective-C;Langage;
+Dart;Langage;
+Scala;Langage;
+Groovy;Langage;
+Perl;Langage;
+Lua;Langage;
+R;Langage;
+MATLAB;Langage;
+Julia;Langage;
+Haskell;Langage;
+Elixir;Langage;
+Erlang;Langage;
+Clojure;Langage;
+F#;Langage;FSharp
+OCaml;Langage;
+Lisp;Langage;Common Lisp
+Scheme;Langage;
+Racket;Langage;
+Prolog;Langage;
+Fortran;Langage;
+COBOL;Langage;
+Pascal;Langage;
+Delphi;Langage;
+Ada;Langage;
+Assembly;Langage;ASM|Assembleur
+Visual Basic;Langage;VB|VB.NET
+VBA;Langage;
+Bash;Langage;Shell|Shell Script
+PowerShell;Langage;
+SQL;Langage;
+PL/SQL;Langage;
+T-SQL;Langage;
+PL/pgSQL;Langage;
+HTML;Langage;HTML5
+CSS;Langage;CSS3
+SASS;Langage;SCSS
+LESS;Langage;
+XML;Langage;
+JSON;Langage;
+YAML;Langage;
+Markdown;Langage;
+LaTeX;Langage;
+GraphQL;Langage;
+Solidity;Langage;
+Vyper;Langage;
+Verilog;Langage;
+VHDL;Langage;
+SystemVerilog;Langage;
+CUDA;Langage;
+OpenCL;Langage;
+WebAssembly;Langage;WASM
+Crystal;Langage;
+Nim;Langage;
+Zig;Langage;
+Haxe;Langage;
+CoffeeScript;Langage;
+Elm;Langage;
+PureScript;Langage;
+Apex;Langage;
+ABAP;Langage;
+SAS;Langage;
+Stata;Langage;
+Smalltalk;Langage;
+Tcl;Langage;
+AWK;Langage;
+Scratch;Langage;
+Mojo;Langage;
+Gleam;Langage;
+Raku;Langage;
+ActionScript;Langage;
+Cypher;Langage;
+SPARQL;Langage;
+Regex;Langage;Expressions régulières|RegExp
+Spring Boot;Backend;
+Spring Framework;Backend;Spring
+Spring Security;Backend;
+Spring Data JPA;Backend;
+Hibernate;Backend;
+JPA;Backend;
+Jakarta EE;Backend;Java EE|J2EE
+Quarkus;Backend;
+Micronaut;Backend;
+Node.js;Backend;NodeJS|Node
+Express.js;Backend;Express|ExpressJS
+NestJS;Backend;
+Fastify;Backend;
+Django;Backend;
+Flask;Backend;
+FastAPI;Backend;
+Laravel;Backend;
+Symfony;Backend;
+CodeIgniter;Backend;
+Ruby on Rails;Backend;Rails|RoR
+ASP.NET;Backend;ASP.NET Core
+.NET;Backend;dotnet|.NET Core|.NET Framework
+Entity Framework;Backend;
+Gin;Backend;
+Actix;Backend;
+Phoenix;Backend;
+Play Framework;Backend;
+Ktor;Backend;
+Vert.x;Backend;
+Strapi;Backend;
+Socket.IO;Backend;
+gRPC;Backend;
+REST API;Backend;REST|RESTful|API REST
+WebSocket;Backend;
+Microservices;Backend;Architecture microservices
+JWT;Backend;JSON Web Token
+OAuth2;Backend;OAuth
+Keycloak;Backend;
+RabbitMQ;Backend;
+Apache Kafka;Backend;Kafka
+Celery;Backend;
+Maven;Backend;
+Gradle;Backend;
+Lombok;Backend;
+Swagger;Backend;OpenAPI
+React;Frontend;ReactJS|React.js
+Angular;Frontend;Angular 2+
+Vue.js;Frontend;Vue|VueJS
+Svelte;Frontend;
+Next.js;Frontend;NextJS
+Nuxt.js;Frontend;Nuxt
+Gatsby;Frontend;
+Remix;Frontend;
+Astro;Frontend;
+SolidJS;Frontend;
+Alpine.js;Frontend;
+jQuery;Frontend;
+Redux;Frontend;
+MobX;Frontend;
+RxJS;Frontend;
+Tailwind CSS;Frontend;Tailwind
+Bootstrap;Frontend;
+Material UI;Frontend;MUI
+Chakra UI;Frontend;
+Ant Design;Frontend;
+Webpack;Frontend;
+Vite;Frontend;
+Babel;Frontend;
+npm;Frontend;
+Yarn;Frontend;
+pnpm;Frontend;
+Three.js;Frontend;
+D3.js;Frontend;D3
+Chart.js;Frontend;
+Storybook;Frontend;
+Responsive Design;Frontend;Design responsive
+PWA;Frontend;Progressive Web App
+Electron;Frontend;
+Web Accessibility;Frontend;Accessibilité web|a11y
+Flutter;Mobile;
+React Native;Mobile;
+Android;Mobile;
+iOS;Mobile;
+SwiftUI;Mobile;
+Jetpack Compose;Mobile;
+Xamarin;Mobile;
+MAUI;Mobile;.NET MAUI
+Ionic;Mobile;
+Capacitor;Mobile;
+Cordova;Mobile;
+Expo;Mobile;
+Firebase;Mobile;
+Android Studio;Mobile;
+Xcode;Mobile;
+MySQL;Base de données;
+PostgreSQL;Base de données;Postgres
+SQLite;Base de données;
+MariaDB;Base de données;
+Oracle Database;Base de données;Oracle
+SQL Server;Base de données;MSSQL|Microsoft SQL Server
+MongoDB;Base de données;Mongo
+Redis;Base de données;
+Cassandra;Base de données;
+DynamoDB;Base de données;
+Elasticsearch;Base de données;
+Neo4j;Base de données;
+CouchDB;Base de données;
+Firestore;Base de données;Firebase Firestore
+InfluxDB;Base de données;
+Supabase;Base de données;
+H2 Database;Base de données;H2
+JDBC;Base de données;
+ORM;Base de données;
+Prisma;Base de données;
+TypeORM;Base de données;
+Sequelize;Base de données;
+SQLAlchemy;Base de données;
+Liquibase;Base de données;
+Flyway;Base de données;
+NoSQL;Base de données;
+Modélisation de données;Base de données;Data Modeling|Database Design
+phpMyAdmin;Base de données;
+MySQL Workbench;Base de données;
+Docker;DevOps & Cloud;
+Kubernetes;DevOps & Cloud;K8s
+Docker Compose;DevOps & Cloud;
+Helm;DevOps & Cloud;
+Terraform;DevOps & Cloud;
+Ansible;DevOps & Cloud;
+Jenkins;DevOps & Cloud;
+GitLab CI;DevOps & Cloud;GitLab CI/CD
+GitHub Actions;DevOps & Cloud;
+CI/CD;DevOps & Cloud;Intégration continue
+Git;DevOps & Cloud;
+GitHub;DevOps & Cloud;
+GitLab;DevOps & Cloud;
+Bitbucket;DevOps & Cloud;
+Linux;DevOps & Cloud;
+Nginx;DevOps & Cloud;
+Apache HTTP Server;DevOps & Cloud;Apache
+Tomcat;DevOps & Cloud;
+AWS;DevOps & Cloud;Amazon Web Services
+Azure;DevOps & Cloud;Microsoft Azure
+Google Cloud Platform;DevOps & Cloud;GCP|Google Cloud
+Heroku;DevOps & Cloud;
+Vercel;DevOps & Cloud;
+Netlify;DevOps & Cloud;
+DigitalOcean;DevOps & Cloud;
+OpenShift;DevOps & Cloud;
+Prometheus;DevOps & Cloud;
+Grafana;DevOps & Cloud;
+ELK Stack;DevOps & Cloud;Elastic Stack
+Nagios;DevOps & Cloud;
+Vagrant;DevOps & Cloud;
+Puppet;DevOps & Cloud;
+Serverless;DevOps & Cloud;
+AWS Lambda;DevOps & Cloud;
+Cloudflare;DevOps & Cloud;
+DevOps;DevOps & Cloud;
+Infrastructure as Code;DevOps & Cloud;IaC
+Monitoring;DevOps & Cloud;Supervision
+Pandas;Data & IA;
+NumPy;Data & IA;
+SciPy;Data & IA;
+Matplotlib;Data & IA;
+Seaborn;Data & IA;
+scikit-learn;Data & IA;sklearn
+TensorFlow;Data & IA;
+Keras;Data & IA;
+PyTorch;Data & IA;
+OpenCV;Data & IA;
+Hugging Face;Data & IA;Transformers
+LangChain;Data & IA;
+NLP;Data & IA;Natural Language Processing|TALN
+Computer Vision;Data & IA;Vision par ordinateur
+Machine Learning;Data & IA;ML|Apprentissage automatique
+Deep Learning;Data & IA;Apprentissage profond
+Data Science;Data & IA;
+Data Analysis;Data & IA;Analyse de données
+Data Engineering;Data & IA;
+ETL;Data & IA;
+Apache Spark;Data & IA;Spark|PySpark
+Hadoop;Data & IA;
+Apache Airflow;Data & IA;Airflow
+dbt;Data & IA;
+Power BI;Data & IA;
+Tableau;Data & IA;
+Excel;Data & IA;Microsoft Excel
+Jupyter Notebook;Data & IA;Jupyter
+Big Data;Data & IA;
+Data Warehouse;Data & IA;Entrepôt de données
+Data Visualization;Data & IA;Visualisation de données
+LLM;Data & IA;Large Language Models
+Prompt Engineering;Data & IA;
+RAG;Data & IA;Retrieval-Augmented Generation
+Statistiques;Data & IA;Statistics
+IA générative;Data & IA;Generative AI
+MLOps;Data & IA;
+Snowflake;Data & IA;
+BigQuery;Data & IA;
+Databricks;Data & IA;
+Business Intelligence;Data & IA;BI
+Cybersécurité;Sécurité;Cybersecurity
+Pentest;Sécurité;Penetration Testing|Test d'intrusion
+OWASP;Sécurité;
+Cryptographie;Sécurité;Cryptography
+Kali Linux;Sécurité;
+Wireshark;Sécurité;
+Nmap;Sécurité;
+Metasploit;Sécurité;
+SIEM;Sécurité;
+Burp Suite;Sécurité;
+Ethical Hacking;Sécurité;
+ISO 27001;Sécurité;
+SSL/TLS;Sécurité;
+Pare-feu;Sécurité;Firewall
+VPN;Sécurité;
+JUnit;Tests & Qualité;
+Mockito;Tests & Qualité;
+Selenium;Tests & Qualité;
+Cypress;Tests & Qualité;
+Jest;Tests & Qualité;
+Playwright;Tests & Qualité;
+Postman;Tests & Qualité;
+Pytest;Tests & Qualité;
+TDD;Tests & Qualité;Test-Driven Development
+Cucumber;Tests & Qualité;
+JMeter;Tests & Qualité;
+Tests unitaires;Tests & Qualité;Unit Testing
+Tests d'intégration;Tests & Qualité;Integration Testing
+SonarQube;Tests & Qualité;
+Code Review;Tests & Qualité;Revue de code
+Agile;Outils & Méthodes;
+Scrum;Outils & Méthodes;
+Kanban;Outils & Méthodes;
+Jira;Outils & Méthodes;
+Confluence;Outils & Méthodes;
+Trello;Outils & Méthodes;
+Notion;Outils & Méthodes;
+UML;Outils & Méthodes;
+Merise;Outils & Méthodes;
+Design Patterns;Outils & Méthodes;Patrons de conception
+Clean Code;Outils & Méthodes;
+SOLID;Outils & Méthodes;
+DDD;Outils & Méthodes;Domain-Driven Design
+Clean Architecture;Outils & Méthodes;
+MVC;Outils & Méthodes;
+POO;Outils & Méthodes;Programmation orientée objet|OOP
+Programmation fonctionnelle;Outils & Méthodes;Functional Programming
+Algorithmique;Outils & Méthodes;Algorithms
+Structures de données;Outils & Méthodes;Data Structures
+Visual Studio Code;Outils & Méthodes;VS Code
+IntelliJ IDEA;Outils & Méthodes;IntelliJ
+Eclipse;Outils & Méthodes;
+PyCharm;Outils & Méthodes;
+Odoo;Outils & Méthodes;
+SAP;Outils & Méthodes;
+Salesforce;Outils & Méthodes;
+ERP;Outils & Méthodes;
+CRM;Outils & Méthodes;
+WordPress;Outils & Méthodes;
+Shopify;Outils & Méthodes;
+Drupal;Outils & Méthodes;
+Joomla;Outils & Méthodes;
+Magento;Outils & Méthodes;
+PrestaShop;Outils & Méthodes;
+Gestion de projet;Outils & Méthodes;Project Management
+TCP/IP;Réseaux & Systèmes;
+Réseaux;Réseaux & Systèmes;Networking
+Cisco;Réseaux & Systèmes;
+Windows Server;Réseaux & Systèmes;
+Active Directory;Réseaux & Systèmes;
+VMware;Réseaux & Systèmes;
+VirtualBox;Réseaux & Systèmes;
+Virtualisation;Réseaux & Systèmes;
+Administration Linux;Réseaux & Systèmes;Linux Administration
+Systèmes embarqués;Réseaux & Systèmes;Embedded Systems
+Arduino;Réseaux & Systèmes;
+Raspberry Pi;Réseaux & Systèmes;
+IoT;Réseaux & Systèmes;Internet of Things
+MQTT;Réseaux & Systèmes;
+RTOS;Réseaux & Systèmes;
+UI/UX Design;Design & Création;UX|UI
+Figma;Design & Création;
+Adobe Photoshop;Design & Création;Photoshop
+Adobe Illustrator;Design & Création;Illustrator
+Canva;Design & Création;
+Unity;Design & Création;
+Unreal Engine;Design & Création;
+Godot;Design & Création;
+Blender;Design & Création;
+Blockchain;Blockchain;
+Ethereum;Blockchain;
+Web3.js;Blockchain;
+Hardhat;Blockchain;
+Smart Contracts;Blockchain;Contrats intelligents

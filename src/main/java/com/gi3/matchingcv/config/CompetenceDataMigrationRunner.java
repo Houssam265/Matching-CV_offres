@@ -120,5 +120,17 @@ public class CompetenceDataMigrationRunner implements CommandLineRunner {
                 }
             }
         }
+
+        // Harmonisation des anciennes catégories vers les catégories officielles du référentiel
+        entityManager.createNativeQuery(
+                "UPDATE competences SET categorie = 'Backend' WHERE categorie = 'Développement Backend'").executeUpdate();
+        entityManager.createNativeQuery(
+                "UPDATE competences SET categorie = 'Frontend' WHERE categorie = 'Développement Frontend'").executeUpdate();
+        entityManager.createNativeQuery(
+                "UPDATE competences SET categorie = 'Data & IA' WHERE categorie = 'Data & Intelligence Artificielle'").executeUpdate();
+        entityManager.createNativeQuery(
+                "UPDATE competences SET categorie = 'DevOps & Cloud' WHERE categorie = 'DevOps'").executeUpdate();
+        entityManager.createNativeQuery(
+                "UPDATE competences SET nom = 'Python', categorie = 'Langage' WHERE nom_normalise = 'python' AND (nom = 'python' OR categorie = 'Data & Intelligence Artificielle')").executeUpdate();
     }
 }
