@@ -1,6 +1,7 @@
 package com.gi3.matchingcv.service;
 
 import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
+import com.gi3.matchingcv.exception.CompetenceUtiliseeException;
 import com.gi3.matchingcv.model.Competence;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.repository.CompetenceRepository;
@@ -120,6 +121,32 @@ class CompetenceServiceTest {
     }
 
     @Test
+    @DisplayName("creer() et proposer() doivent refuser 'spring.boot' avec un point lorsque 'Spring Boot' existe déjà")
+    void testCreerDoublonVariantePointDoitLeverException() {
+        assertThat(Competence.normaliserNom("spring.boot")).isEqualTo("springboot");
+        assertThat(Competence.normaliserNom("Spring Boot")).isEqualTo("springboot");
+
+        Competence existante = new Competence();
+        existante.setId(1L);
+        existante.setNom("Spring Boot");
+        existante.setNomNormalise("springboot");
+
+        when(competenceRepository.findByNomNormalise("springboot")).thenReturn(Optional.of(existante));
+
+        Competence nouvelle = new Competence();
+        nouvelle.setNom("spring.boot");
+        nouvelle.setCategorie("DevOps");
+
+        assertThatThrownBy(() -> competenceService.creer(nouvelle))
+                .isInstanceOf(com.gi3.matchingcv.exception.CompetenceDejaExistanteException.class)
+                .hasMessageContaining("Spring Boot");
+
+        assertThatThrownBy(() -> competenceService.proposer("spring.boot", "DevOps"))
+                .isInstanceOf(com.gi3.matchingcv.exception.CompetenceDejaExistanteException.class)
+                .hasMessageContaining("Spring Boot");
+    }
+
+    @Test
     @DisplayName("creer() doit accepter 'C++' et 'C#' comme deux compétences distinctes (non-régression)")
     void testCreerCPlusPlusEtCDieseAcceptesCommeDistincts() {
         // Vérification de la normalisation : les caractères '+' et '#' doivent rester intacts
@@ -178,18 +205,33 @@ class CompetenceServiceTest {
     }
 
     @Test
-    @DisplayName("supprimer() doit supprimer la compétence existante")
+    @DisplayName("supprimer() doit supprimer la compétence existante lorsqu'elle n'est pas utilisée")
     void testSupprimerExistant() {
         when(competenceRepository.findById(1L)).thenReturn(Optional.of(competence1));
         when(entityManager.createNativeQuery(anyString())).thenReturn(nativeQuery);
         when(nativeQuery.setParameter(anyString(), any())).thenReturn(nativeQuery);
+        when(nativeQuery.getSingleResult()).thenReturn(0L);
 
         competenceService.supprimer(1L);
 
         verify(competenceRepository, times(1)).findById(1L);
-        verify(profilCompetenceRepository, times(1)).deleteByCompetenceId(1L);
-        verify(offreCompetenceRepository, times(1)).deleteByCompetenceId(1L);
         verify(competenceRepository, times(1)).delete(competence1);
+    }
+
+    @Test
+    @DisplayName("supprimer() doit refuser et lever CompetenceUtiliseeException si la compétence est utilisée")
+    void testSupprimerRefuseeSiUtilisee() {
+        when(competenceRepository.findById(1L)).thenReturn(Optional.of(competence1));
+        when(entityManager.createNativeQuery(anyString())).thenReturn(nativeQuery);
+        when(nativeQuery.setParameter(anyString(), any())).thenReturn(nativeQuery);
+        when(nativeQuery.getSingleResult()).thenReturn(1L);
+
+        assertThatThrownBy(() -> competenceService.supprimer(1L))
+                .isInstanceOf(CompetenceUtiliseeException.class)
+                .hasMessageContaining("utilisée");
+
+        verify(competenceRepository, times(1)).findById(1L);
+        verify(competenceRepository, never()).delete(any());
     }
 
     @Test
@@ -241,6 +283,24 @@ class CompetenceServiceTest {
         when(competenceRepository.findByNomNormalise("springboot")).thenReturn(Optional.of(existante));
 
         assertThatThrownBy(() -> competenceService.proposer("Spring-Boot", "Backend"))
+                .isInstanceOf(CompetenceDejaExistanteException.class)
+                .hasMessageContaining("Spring Boot");
+
+        verify(competenceRepository, times(1)).findByNomNormalise("springboot");
+        verify(competenceRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("proposer() avec variante point 'spring.boot' doit lever CompetenceDejaExistanteException si 'Spring Boot' existe déjà")
+    void testProposerDoublonPointLeverException() {
+        Competence existante = new Competence();
+        existante.setId(1L);
+        existante.setNom("Spring Boot");
+        existante.setNomNormalise("springboot");
+
+        when(competenceRepository.findByNomNormalise("springboot")).thenReturn(Optional.of(existante));
+
+        assertThatThrownBy(() -> competenceService.proposer("spring.boot", "DevOps"))
                 .isInstanceOf(CompetenceDejaExistanteException.class)
                 .hasMessageContaining("Spring Boot");
 

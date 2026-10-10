@@ -1,6 +1,7 @@
 package com.gi3.matchingcv.service;
 
 import com.gi3.matchingcv.model.Competence;
+import com.gi3.matchingcv.model.Utilisateur;
 
 import java.util.List;
 
@@ -37,6 +38,14 @@ public interface CompetenceService {
     Competence trouverParId(Long id);
 
     /**
+     * Recherche une compétence par son nom normalisé.
+     *
+     * @param nomNormalise nom normalisé
+     * @return Optional contenant la compétence si trouvée
+     */
+    java.util.Optional<Competence> trouverParNomNormalise(String nomNormalise);
+
+    /**
      * Supprime une compétence du référentiel par son identifiant.
      * Nettoie les associations préalablement si nécessaire.
      *
@@ -50,10 +59,18 @@ public interface CompetenceService {
      * Même normalisation et détection de doublon que creer(), mais la compétence
      * attend une validation par un administrateur avant d'être intégrée au référentiel.
      *
-     * @param nom      le nom de la compétence proposée
-     * @param categorie la catégorie (peut être null)
+     * @param nom         le nom de la compétence proposée
+     * @param categorie   la catégorie (peut être null)
+     * @param proposeePar l'étudiant/utilisateur qui propose la compétence (nullable)
      * @return la compétence créée avec le statut EN_ATTENTE
      * @throws com.gi3.matchingcv.exception.CompetenceDejaExistanteException si un doublon existe déjà
      */
-    Competence proposer(String nom, String categorie);
+    Competence proposer(String nom, String categorie, Utilisateur proposeePar);
+
+    /**
+     * Surcharge rétrocompatible sans utilisateur spécifié.
+     */
+    default Competence proposer(String nom, String categorie) {
+        return proposer(nom, categorie, null);
+    }
 }

@@ -6,7 +6,7 @@ window.MatchingCVSession = (() => {
     const dashboards = {
         ETUDIANT: '/dashboard-etudiant.html',
         RECRUTEUR: '/dashboard-recruteur.html',
-        ADMIN: '/competences.html'
+        ADMIN: '/admin-competences.html'
     };
 
     function read() {

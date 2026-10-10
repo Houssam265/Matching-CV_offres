@@ -1,6 +1,8 @@
 package com.gi3.matchingcv.controller;
 
 import com.gi3.matchingcv.dto.CompetenceAttachRequest;
+import com.gi3.matchingcv.dto.EtudiantCompetenceDTO;
+import com.gi3.matchingcv.exception.CompetenceDejaDansListeException;
 import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
 import com.gi3.matchingcv.exception.EmailDejaUtiliseException;
 import com.gi3.matchingcv.model.*;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Contrôleur REST exposant les points d'accès de gestion des étudiants et de leur profil.
@@ -139,39 +142,38 @@ public class EtudiantController {
     // -------------------------------------------------------------------------
 
     /**
-     * Retourne les compétences déclarées de l'étudiant.
+     * Retourne la liste personnelle des compétences de l'étudiant avec statistiques d'utilisation.
+     * // TODO sécurité : vérifier que {id} correspond à l'étudiant connecté (ou ADMIN).
      */
     @GetMapping("/{id}/competences")
     public ResponseEntity<?> listerCompetences(@PathVariable Long id) {
         try {
-            Etudiant etudiant = etudiantService.trouverParId(id);
-            return ResponseEntity.ok(etudiant.getCompetences());
+            List<EtudiantCompetenceDTO> dtos = etudiantService.listerCompetencesAvecStats(id);
+            return ResponseEntity.ok(dtos);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
         }
     }
 
     /**
-     * Attache une compétence au profil de l'étudiant.
+     * Ajoute une compétence à la liste personnelle de l'étudiant.
      * Accepte soit {"competenceId": 42} soit {"nouvelleCompetence": "Rust", "categorie": "Backend"}.
+     * // TODO sécurité : vérifier que {id} correspond à l'étudiant connecté (ou ADMIN).
      *
      * @param id      identifiant de l'étudiant
      * @param request corps de la requête
-     * @return 200 OK avec la compétence ajoutée, 409 CONFLICT si doublon proposé
+     * @return 200 OK avec la compétence ajoutée, 409 CONFLICT si déjà dans sa liste ou doublon
      */
     @PostMapping("/{id}/competences")
     public ResponseEntity<?> ajouterCompetence(@PathVariable Long id,
                                                @RequestBody CompetenceAttachRequest request) {
         try {
-            Etudiant etudiant = etudiantService.trouverParId(id);
-            Competence competence = resolveCompetence(request);
-            if (!etudiant.getCompetences().contains(competence)) {
-                etudiant.getCompetences().add(competence);
-                etudiantService.sauvegarder(etudiant);
-            }
+            Competence competence = etudiantService.ajouterCompetence(id, request);
             return ResponseEntity.ok(competence);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (CompetenceDejaDansListeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         } catch (CompetenceDejaExistanteException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
@@ -180,18 +182,37 @@ public class EtudiantController {
     }
 
     /**
-     * Retire une compétence du profil de l'étudiant.
+     * Retire une compétence de la liste personnelle de l'étudiant et la détache de ses projets/expériences.
+     * Ne supprime jamais la compétence du dictionnaire.
+     * // TODO sécurité : vérifier que {id} correspond à l'étudiant connecté (ou ADMIN).
      */
     @DeleteMapping("/{id}/competences/{competenceId}")
     public ResponseEntity<?> retirerCompetence(@PathVariable Long id,
                                                @PathVariable Long competenceId) {
         try {
-            Etudiant etudiant = etudiantService.trouverParId(id);
-            etudiant.getCompetences().removeIf(c -> c.getId().equals(competenceId));
-            etudiantService.sauvegarder(etudiant);
+            etudiantService.retirerCompetence(id, competenceId);
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Suggère des compétences pour l'autocomplétion (8 résultats max).
+     * // TODO sécurité : vérifier que {id} correspond à l'étudiant connecté (ou ADMIN).
+     */
+    @GetMapping("/{id}/competences/suggestions")
+    public ResponseEntity<?> suggererCompetences(@PathVariable Long id,
+                                                 @RequestParam(value = "q", required = false, defaultValue = "") String q) {
+        try {
+            List<Competence> suggestions = etudiantService.suggererCompetences(id, q);
+            return ResponseEntity.ok(suggestions);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
@@ -238,12 +259,20 @@ public class EtudiantController {
             List<Map<String, Object>> competencesRaw =
                     body.get("competences") instanceof List ? (List<Map<String, Object>>) body.get("competences") : null;
             if (competencesRaw != null) {
+                boolean etudiantModifie = false;
                 for (Map<String, Object> compRaw : competencesRaw) {
                     CompetenceAttachRequest req = mapToCompetenceAttachRequest(compRaw);
-                    Competence competence = resolveCompetence(req);
+                    Competence competence = resolveCompetence(req, etudiant);
                     if (!projet.getCompetences().contains(competence)) {
                         projet.getCompetences().add(competence);
                     }
+                    if (!etudiant.getCompetences().contains(competence)) {
+                        etudiant.getCompetences().add(competence);
+                        etudiantModifie = true;
+                    }
+                }
+                if (etudiantModifie) {
+                    etudiantService.sauvegarder(etudiant);
                 }
             }
 
@@ -334,12 +363,20 @@ public class EtudiantController {
             List<Map<String, Object>> competencesRaw =
                     body.get("competences") instanceof List ? (List<Map<String, Object>>) body.get("competences") : null;
             if (competencesRaw != null) {
+                boolean etudiantModifie = false;
                 for (Map<String, Object> compRaw : competencesRaw) {
                     CompetenceAttachRequest req = mapToCompetenceAttachRequest(compRaw);
-                    Competence competence = resolveCompetence(req);
+                    Competence competence = resolveCompetence(req, etudiant);
                     if (!experience.getCompetences().contains(competence)) {
                         experience.getCompetences().add(competence);
                     }
+                    if (!etudiant.getCompetences().contains(competence)) {
+                        etudiant.getCompetences().add(competence);
+                        etudiantModifie = true;
+                    }
+                }
+                if (etudiantModifie) {
+                    etudiantService.sauvegarder(etudiant);
                 }
             }
 
@@ -384,7 +421,7 @@ public class EtudiantController {
                     .findFirst()
                     .orElseThrow(() -> new EntityNotFoundException("Projet " + projetId + " introuvable pour l'étudiant " + id));
 
-            Competence competence = resolveCompetence(request);
+            Competence competence = resolveCompetence(request, etudiant);
             if (!projet.getCompetences().contains(competence)) {
                 projet.getCompetences().add(competence);
                 projetService.creer(projet);
@@ -436,7 +473,7 @@ public class EtudiantController {
                     .findFirst()
                     .orElseThrow(() -> new EntityNotFoundException("Expérience " + expId + " introuvable pour l'étudiant " + id));
 
-            Competence competence = resolveCompetence(request);
+            Competence competence = resolveCompetence(request, etudiant);
             if (!exp.getCompetences().contains(competence)) {
                 exp.getCompetences().add(competence);
                 experienceService.creer(exp);
@@ -481,14 +518,19 @@ public class EtudiantController {
     /**
      * Résout une compétence à partir d'une {@link CompetenceAttachRequest} :
      * - si {@code competenceId} est renseigné : recherche la compétence existante
-     * - sinon : propose une nouvelle compétence via CompetenceService.proposer()
+     * - sinon : recherche par nom normalisé existant ; si trouvée, la retourne ; sinon propose via CompetenceService.proposer()
      */
-    private Competence resolveCompetence(CompetenceAttachRequest request) {
+    private Competence resolveCompetence(CompetenceAttachRequest request, Etudiant etudiant) {
         if (request.getCompetenceId() != null) {
             return competenceService.trouverParId(request.getCompetenceId());
         }
         if (request.getNouvelleCompetence() != null && !request.getNouvelleCompetence().isBlank()) {
-            return competenceService.proposer(request.getNouvelleCompetence(), request.getCategorie());
+            String norm = Competence.normaliserNom(request.getNouvelleCompetence());
+            Optional<Competence> existante = competenceService.trouverParNomNormalise(norm);
+            if (existante.isPresent()) {
+                return existante.get();
+            }
+            return competenceService.proposer(request.getNouvelleCompetence().trim(), request.getCategorie(), etudiant);
         }
         throw new IllegalArgumentException(
             "Fournissez soit un 'competenceId' existant, soit un 'nouvelleCompetence' à proposer."

@@ -834,7 +834,8 @@ button, input, select, textarea { font-family: inherit; }
     border: 1px solid var(--border-card);
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
     transition: box-shadow var(--t) var(--ease), border-color var(--t) var(--ease);
 }
 .box-card:hover {
@@ -845,6 +846,8 @@ button, input, select, textarea { font-family: inherit; }
 .card-top-bar {
     height: 4px;
     background: linear-gradient(90deg, var(--blue) 0%, var(--teal) 100%);
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
 }
 .card-header-styled {
     padding: 1.4rem 1.6rem 1.1rem;
@@ -860,11 +863,15 @@ button, input, select, textarea { font-family: inherit; }
     font-size: .83rem; color: var(--text-mid); margin-top: .2rem;
 }
 
-.card-body-styled { padding: 1.6rem; }
+.card-body-styled {
+    padding: 1.6rem;
+    overflow: visible;
+}
+
 
 /* Form Elements */
-.app-form { display: flex; flex-direction: column; gap: 1.25rem; }
-.form-group { display: flex; flex-direction: column; gap: .45rem; }
+.app-form { display: flex; flex-direction: column; gap: 1.25rem; overflow: visible; }
+.form-group { display: flex; flex-direction: column; gap: .45rem; overflow: visible; }
 .form-label {
     font-size: .85rem; font-weight: 600; color: var(--navy);
     display: flex; justify-content: space-between; align-items: center;
@@ -1005,7 +1012,9 @@ button, input, select, textarea { font-family: inherit; }
     background: #fff;
 }
 .data-table {
-    width: 100%; min-width: 640px; border-collapse: collapse; text-align: left;
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
 }
 .data-table th {
     background: #F2F7FC;
@@ -1014,12 +1023,12 @@ button, input, select, textarea { font-family: inherit; }
     font-weight: 700;
     letter-spacing: .05em;
     text-transform: uppercase;
-    padding: .85rem 1.1rem;
+    padding: .8rem .95rem;
     border-bottom: 1.5px solid var(--border);
     white-space: nowrap;
 }
 .data-table td {
-    padding: .95rem 1.1rem;
+    padding: .85rem .95rem;
     font-size: .88rem;
     color: var(--text-dark);
     border-bottom: 1px solid #EEF4FA;
@@ -1182,6 +1191,130 @@ html {
     .table-responsive {
         overscroll-behavior-x: contain;
     }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPOSANTS MES COMPÉTENCES (ÉTUDIANT)
+═══════════════════════════════════════════════════════════ */
+.badge-status-rejetee {
+    background: #FEECEB;
+    color: #9C1F1F;
+    border: 1px solid #F9B8B5;
+}
+
+.badge-usage-none {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .25rem .65rem;
+    border-radius: 100px;
+    font-size: .75rem;
+    font-weight: 600;
+    background: #F1F5F9;
+    color: #64748B;
+    border: 1px solid #CBD5E1;
+}
+
+.usage-text {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--teal);
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+}
+
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+    z-index: 100;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 10px;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.2), 0 4px 12px rgba(15, 23, 42, 0.08);
+    z-index: 1050;
+    max-height: 280px;
+    overflow-y: auto;
+    display: none;
+    animation: fadeIn .18s ease-out;
+}
+
+.autocomplete-dropdown.open {
+    display: block;
+}
+
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .65rem .95rem;
+    font-size: .84rem;
+    cursor: pointer;
+    transition: background var(--t);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.active {
+    background: #F0F7FD;
+}
+
+.autocomplete-item-left {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    font-weight: 600;
+    color: var(--navy);
+}
+
+.autocomplete-item.propose {
+    background: #F8FAFC;
+    color: var(--teal);
+    font-weight: 700;
+    border-top: 1.5px solid var(--border);
+}
+
+.autocomplete-item.propose:hover,
+.autocomplete-item.propose.active {
+    background: #E8F5F5;
+    color: var(--navy);
+}
+
+.btn-action-retirer {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .75rem;
+    font-size: .78rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1.5px solid #FCA5A5;
+    background: #FEF2F2;
+    color: #DC2626;
+    cursor: pointer;
+    transition: all var(--t);
+}
+
+.btn-action-retirer:hover {
+    background: #DC2626;
+    color: #fff;
+    border-color: #DC2626;
+}
+
+.btn-action-retirer:disabled {
+    opacity: .5;
+    cursor: not-allowed;
 }
 
 @media (prefers-reduced-motion: reduce) {
