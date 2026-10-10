@@ -167,6 +167,76 @@ Chaque interface étend Spring Data JPA pour lire et enregistrer son type d'enti
 - `service/CompetenceServiceTest.java` : tests des règles métier du référentiel de compétences.
 - `service/EtudiantServiceTest.java` : tests des opérations métier sur les étudiants.
 
+## Module recruteur — phase 1
+
+Le parcours existant `register.html` / `login.html` conserve le rôle `RECRUTEUR`
+dans `matchingcv_user`. L'inscription recruteur utilise `POST /api/recruteurs`
+et la connexion réutilise `POST /api/auth/connexion`. L'entreprise et le secteur
+sont obligatoires. La branche étudiante du formulaire partagé est inchangée.
+
+Pages : `dashboard-recruteur.html`, `mes-offres.html`, `publier-offre.html`
+(ajouter `?id=…` pour modifier), `offre-recruteur.html?id=…`.
+
+Le corps de création/modification d'une offre est :
+
+```json
+{
+  "recruteurId": 1,
+  "titre": "Développeur Java",
+  "description": "Description du poste",
+  "domaine": "Informatique",
+  "localisation": "Rabat",
+  "typeContrat": "STAGE",
+  "competences": [{"competenceId": 10, "typeExigence": "REQUISE"}]
+}
+```
+
+| Action | Endpoint |
+| --- | --- |
+| Publier / modifier | `POST /api/offres`, `PUT /api/offres/{id}` |
+| Clôturer | `PATCH /api/offres/{id}/cloturer?recruteurId=…` |
+| Supprimer sans candidatures | `DELETE /api/offres/{id}?recruteurId=…` |
+| Toutes les offres du recruteur | `GET /api/recruteurs/{id}/offres` |
+| Profil recruteur | `GET /api/recruteurs/{id}` |
+| Suggestions (8 maximum) | `GET /api/recruteurs/{id}/competences/suggestions?q=…` |
+| Proposer/réutiliser une compétence | `POST /api/recruteurs/{id}/competences/propositions` avec `{"nom":"…"}` |
+
+Une suppression avec candidatures renvoie **409**, sans suppression des
+candidatures ; le recruteur utilise alors l'action Clôturer. La clôture est
+idempotente. Une compétence rejetée après publication reste visible et peut être
+conservée lors d'une modification ou remplacée ; aucun nouveau rattachement
+d'une compétence rejetée n'est accepté.
+
+**Contrat étudiant inchangé :** `GET /api/offres` liste les offres actives avec les
+filtres optionnels `domaine`, `localisation` (recherche partielle, sans distinction
+de casse) et `typeContrat` (`STAGE`, `CDI`, `CDD`, `ALTERNANCE`).
+`GET /api/offres/{id}` renvoie une offre active. Son propriétaire peut également
+consulter une offre clôturée en ajoutant `?recruteurId=…`.
+Chaque `OffreDto` contient exclusivement `id`, `titre`, `description`, `domaine`,
+`localisation`, `typeContrat`, `statut`, `datePublication`, `entreprise` et
+`competences[{competenceId,nom,statut,typeExigence}]`.
+
+Le moteur de matching n'est pas implémenté : il devra ignorer toute compétence
+non `VALIDEE`, ne jamais pénaliser un atout absent et laisser le score indisponible
+sans compétence requise validée. Le formulaire et le détail affichent déjà cet état.
+Les candidatures restent un emplacement réservé à la phase 2.
+
+**Sécurité différée conformément au périmètre :** les contrôles de propriété
+comparent l'offre au `recruteurId` fourni. Ce paramètre et le rôle du navigateur
+ne prouvent pas l'identité. Les `TODO sécurité` indiquent où brancher l'identité
+authentifiée et la vérification du rôle. Le module recruteur n'expose aucune
+suppression du dictionnaire ; l'endpoint existant du dictionnaire conserve son
+`TODO sécurité : réservé ADMIN`.
+
+Tests ciblés (sans base de données) :
+
+```sh
+mvn -Dtest=OffreServiceTest,RecruteurServiceTest,RecruteurOffreControllerTest test
+```
+
+Le test existant `MatchingCvOffresApplicationTests` nécessite le MySQL configuré
+dans `application.properties`.
+
 ## Documentation et fichiers générés
 
 - `DiagrammeClasses_MatchingCV.puml` et `docs/diagrams/DiagrammeClasses_MatchingCV.puml` : diagrammes PlantUML des classes et de leurs relations.

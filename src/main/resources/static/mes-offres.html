@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mes offres d'emploi &amp; stages — Matching CV-Offres</title>
+    <script src="/js/session.js"></script>
+    <script>MatchingCVSession.protect('RECRUTEUR');</script>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/recruteur.css">
+    <script src="/js/recruteur.js" defer></script>
+</head>
+<body data-page="offres">
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
+        <div class="nav-inner">
+            <a href="/dashboard-recruteur.html" class="nav-logo" aria-label="Accueil recruteur MatchingCV">
+                <span class="logo-mark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs>
+                    </svg>
+                </span>
+                <span class="logo-text">Matching<strong>CV</strong></span>
+            </a>
+            <ul class="nav-links" role="list">
+                <li><a href="/dashboard-recruteur.html" class="nav-link">Tableau de bord</a></li>
+                <li><a href="/mes-offres.html" class="nav-link active" aria-current="page">Mes offres</a></li>
+                <li><a href="/publier-offre.html" class="nav-link">Publier une offre</a></li>
+            </ul>
+            <div class="nav-cta">
+                <span id="nav-user-name" class="nav-user-label"></span>
+                <button class="btn-nav-outline" id="nav-logout" type="button" style="cursor:pointer;">Déconnexion</button>
+            </div>
+            <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <header class="recruit-hero">
+        <div class="recruit-hero-inner">
+            <div class="recruit-hero-text">
+                <div class="recruit-hero-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    Gestion des opportunités
+                </div>
+                <h1 id="page-title">Mes <span>offres publiées</span></h1>
+                <p>Consultez, filtrez et gérez vos publications d'offres actives ou clôturées.</p>
+            </div>
+            <div class="recruit-hero-actions">
+                <a class="recruit-hero-btn primary" href="/publier-offre.html">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Publier une nouvelle offre
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="recruit-main">
+        <div id="recruit-error" class="recruit-error" role="alert" hidden></div>
+
+        <!-- TOOLBAR & FILTERS -->
+        <div class="recruit-toolbar" role="search" aria-label="Filtres des offres">
+            <div class="recruit-filters" id="status-filters">
+                <button type="button" class="recruit-filter-btn active" data-filter="ALL">
+                    Toutes
+                    <span class="recruit-filter-count" id="count-all">0</span>
+                </button>
+                <button type="button" class="recruit-filter-btn" data-filter="ACTIVE">
+                    <span class="pulse-dot"></span>
+                    Actives
+                    <span class="recruit-filter-count" id="count-active">0</span>
+                </button>
+                <button type="button" class="recruit-filter-btn" data-filter="CLOTUREE">
+                    Clôturées
+                    <span class="recruit-filter-count" id="count-closed">0</span>
+                </button>
+            </div>
+
+            <div class="recruit-search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="search" id="offres-search" class="recruit-search-input" placeholder="Rechercher par titre, domaine, ville..." aria-label="Rechercher une offre">
+            </div>
+        </div>
+
+        <!-- OFFRES LIST -->
+        <div id="offres-list" aria-live="polite">Chargement…</div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="/dashboard-recruteur.html" class="footer-logo">
+                    <span class="logo-mark">
+                        <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="14" cy="14" r="13" stroke="url(#lgf2)" stroke-width="2"/>
+                            <path d="M8 14l4 4 8-8" stroke="url(#lgf2)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs><linearGradient id="lgf2" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#4A78C4"/><stop offset="1" stop-color="#3AADAD"/></linearGradient></defs>
+                        </svg>
+                    </span>
+                    <span class="logo-text">Matching<strong>CV</strong></span>
+                </a>
+                <p class="footer-tagline">Espace Recruteur — Gérez vos offres d'emploi et stages en toute simplicité.</p>
+            </div>
+            <div class="footer-col">
+                <h5 class="footer-col-title">Navigation Recruteur</h5>
+                <ul class="footer-links">
+                    <li><a href="/dashboard-recruteur.html">Tableau de bord</a></li>
+                    <li><a href="/mes-offres.html">Mes offres publiées</a></li>
+                    <li><a href="/publier-offre.html">Publier une opportunité</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5 class="footer-col-title">Plateforme</h5>
+                <ul class="footer-links">
+                    <li><a href="/index.html">Accueil général</a></li>
+                    <li><a href="/login.html">Changer de compte</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Matching CV-Offres. Espace Recruteur dédié.</span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Publier une offre — Matching CV-Offres</title>
+    <script src="/js/session.js"></script>
+    <script>MatchingCVSession.protect('RECRUTEUR');</script>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/recruteur.css">
+    <script src="/js/recruteur.js" defer></script>
+</head>
+<body data-page="form">
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
+        <div class="nav-inner">
+            <a href="/dashboard-recruteur.html" class="nav-logo" aria-label="Accueil recruteur MatchingCV">
+                <span class="logo-mark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs>
+                    </svg>
+                </span>
+                <span class="logo-text">Matching<strong>CV</strong></span>
+            </a>
+            <ul class="nav-links" role="list">
+                <li><a href="/dashboard-recruteur.html" class="nav-link">Tableau de bord</a></li>
+                <li><a href="/mes-offres.html" class="nav-link">Mes offres</a></li>
+                <li><a href="/publier-offre.html" class="nav-link active" aria-current="page">Publier une offre</a></li>
+            </ul>
+            <div class="nav-cta">
+                <span id="nav-user-name" class="nav-user-label"></span>
+                <button class="btn-nav-outline" id="nav-logout" type="button" style="cursor:pointer;">Déconnexion</button>
+            </div>
+            <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <header class="recruit-hero">
+        <div class="recruit-hero-inner">
+            <div class="recruit-hero-text">
+                <div class="recruit-hero-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Formulaire de publication
+                </div>
+                <h1 id="page-title">Publier une <span>nouvelle offre</span></h1>
+                <p>Définissez les missions du poste et spécifiez les compétences clés requises pour un matching précis et instantané.</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN FORM -->
+    <main class="recruit-main">
+        <div id="recruit-error" class="recruit-error" role="alert" hidden></div>
+
+        <form id="offre-form" class="recruit-form">
+            <fieldset id="offre-fields" disabled>
+                <!-- ÉTAPE 1 : INFOS POSTE -->
+                <div class="recruit-form-step-title">
+                    <span class="recruit-step-num" aria-hidden="true">1</span>
+                    Caractéristiques de l'opportunité
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="titre">Intitulé du poste ou stage *</label>
+                    <input id="titre" name="titre" required maxlength="255" placeholder="ex. Développeur Full-Stack Java / Angular, Data Analyst...">
+                </div>
+
+                <div class="recruit-grid" style="margin-bottom: 1.25rem;">
+                    <div>
+                        <label for="typeContrat">Type de contrat *</label>
+                        <select id="typeContrat" name="typeContrat" required>
+                            <option value="">Choisir un contrat</option>
+                            <option value="STAGE">Stage</option>
+                            <option value="CDI">CDI</option>
+                            <option value="CDD">CDD</option>
+                            <option value="ALTERNANCE">Alternance</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="domaine">Domaine d'activité *</label>
+                        <input id="domaine" name="domaine" required maxlength="255" placeholder="ex. Informatique, Finance, Marketing">
+                    </div>
+                    <div>
+                        <label for="localisation">Localisation géographique *</label>
+                        <input id="localisation" name="localisation" required maxlength="255" placeholder="ex. Casablanca, Rabat, Distanciel">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="description">Description détaillée du poste *</label>
+                    <textarea id="description" name="description" required maxlength="4000" rows="8" placeholder="Détaillez les missions, responsabilités quotidiennes, environnement technologique, équipe et profil candidat recherché..."></textarea>
+                </div>
+
+                <!-- ÉTAPE 2 : COMPÉTENCES -->
+                <div class="recruit-form-step-title">
+                    <span class="recruit-step-num" aria-hidden="true">2</span>
+                    Compétences &amp; Critères de matching
+                </div>
+
+                <fieldset>
+                    <legend>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        Compétences ciblées *
+                    </legend>
+                    <p class="recruit-muted">Ajoutez au moins <strong>une compétence requise</strong>. Les compétences classées comme <em>Atout</em> constituent des points bonus dans le score de matching sans jamais pénaliser les candidats.</p>
+
+                    <div style="margin-top: 1rem;">
+                        <label for="competence-search">Rechercher ou proposer une compétence</label>
+                        <div class="recruit-search-wrapper">
+                            <input id="competence-search" maxlength="255" autocomplete="off" placeholder="Tapez un mot-clé (ex. Spring Boot, React, SQL, Docker...)" aria-describedby="competence-help" aria-controls="competence-suggestions">
+                        </div>
+                        <p id="competence-help" class="recruit-muted" style="font-size: 0.8rem; margin-top: 0.4rem;">
+                            Cliquez sur une suggestion existante ou sur <strong>« + Proposer »</strong> si la compétence ne figure pas encore dans le référentiel. Les propositions restent en attente de validation administrative.
+                        </p>
+                        <div id="competence-suggestions" class="recruit-suggestions" aria-live="polite"></div>
+                    </div>
+
+                    <div id="competence-tags" class="recruit-tags"></div>
+
+                    <div id="score-warning" class="recruit-warning" role="alert">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;" aria-hidden="true">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <div>
+                            <strong>Attention :</strong> Le score automatique sera indisponible tant qu’aucune compétence requise n’est validée dans le référentiel. Vous pouvez tout de même publier votre offre avec vos compétences en attente de validation.
+                        </div>
+                    </div>
+                </fieldset>
+            </fieldset>
+
+            <div class="recruit-actions" style="margin-top: 2rem;">
+                <button id="offre-submit" class="recruit-btn primary" type="submit" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Publier l’offre
+                </button>
+                <a class="recruit-btn" href="/mes-offres.html">Annuler</a>
+            </div>
+        </form>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="/dashboard-recruteur.html" class="footer-logo">
+                    <span class="logo-mark">
+                        <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="14" cy="14" r="13" stroke="url(#lgf3)" stroke-width="2"/>
+                            <path d="M8 14l4 4 8-8" stroke="url(#lgf3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs><linearGradient id="lgf3" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#4A78C4"/><stop offset="1" stop-color="#3AADAD"/></linearGradient></defs>
+                        </svg>
+                    </span>
+                    <span class="logo-text">Matching<strong>CV</strong></span>
+                </a>
+                <p class="footer-tagline">Espace Recruteur — Publiez vos offres et optimisez le ciblage de compétences.</p>
+            </div>
+            <div class="footer-col">
+                <h5 class="footer-col-title">Navigation Recruteur</h5>
+                <ul class="footer-links">
+                    <li><a href="/dashboard-recruteur.html">Tableau de bord</a></li>
+                    <li><a href="/mes-offres.html">Mes offres publiées</a></li>
+                    <li><a href="/publier-offre.html">Publier une opportunité</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5 class="footer-col-title">Plateforme</h5>
+                <ul class="footer-links">
+                    <li><a href="/index.html">Accueil général</a></li>
+                    <li><a href="/login.html">Changer de compte</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Matching CV-Offres. Espace Recruteur dédié.</span>
+        </div>
+    </footer>
+</body>
+</html>

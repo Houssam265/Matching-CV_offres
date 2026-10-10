@@ -264,10 +264,16 @@ function initRegisterPage() {
 
         setSubmitting('btn-register', true);
 
+        if (role === 'RECRUTEUR' && (!nomEntreprise || !secteurActivite)) {
+            showAlert('register-alert', 'L’entreprise et le secteur sont obligatoires.', 'danger');
+            setSubmitting('btn-register', false);
+            return;
+        }
+
         const payload = { prenom, nom, email, motDePasse, role, nomEntreprise, secteurActivite, filiere, etablissement };
 
         try {
-            const res = await fetch('/api/auth/inscription', {
+            const res = await fetch(role === 'RECRUTEUR' ? '/api/recruteurs' : '/api/auth/inscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify(payload)
