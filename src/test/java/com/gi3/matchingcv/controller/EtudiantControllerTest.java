@@ -41,6 +41,9 @@ class EtudiantControllerTest {
     @MockBean
     private ExperienceProfessionnelleService experienceService;
 
+    @MockBean
+    private com.gi3.matchingcv.service.MatchingService matchingService;
+
     @Test
     @DisplayName("GET /api/etudiants/{id}/competences doit renvoyer 200 et les DTOs sans boucle JSON")
     void testListerCompetencesEtudiant() throws Exception {
@@ -64,4 +67,48 @@ class EtudiantControllerTest {
                 .andExpect(jsonPath("$[1].nbProjets", is(0)))
                 .andExpect(jsonPath("$[1].nbExperiences", is(0)));
     }
+
+    @Test
+    @DisplayName("GET /api/etudiants/{id}/offres-recommandees doit renvoyer 200 et la liste des offres recommandées")
+    void testRecommanderOffres() throws Exception {
+        com.gi3.matchingcv.dto.OffreRecommandeeDto reco = new com.gi3.matchingcv.dto.OffreRecommandeeDto(
+                10L, "Dev Java", "Desc", "IT", "Paris",
+                com.gi3.matchingcv.model.enums.TypeContrat.CDI,
+                com.gi3.matchingcv.model.enums.StatutOffre.ACTIVE,
+                null, "Tech Corp", 76.0, true, null, List.of()
+        );
+
+        when(matchingService.recommanderOffres(1L, null, null, null)).thenReturn(List.of(reco));
+
+        mockMvc.perform(get("/api/etudiants/1/offres-recommandees")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(10)))
+                .andExpect(jsonPath("$[0].titre", is("Dev Java")))
+                .andExpect(jsonPath("$[0].score", is(76.0)))
+                .andExpect(jsonPath("$[0].scoreDisponible", is(true)));
+    }
+
+    @Test
+    @DisplayName("GET /api/etudiants/{id}/offres/{offreId}/score doit renvoyer 200 et le détail du score")
+    void testCalculerScore() throws Exception {
+        com.gi3.matchingcv.dto.MatchingDetailDto detail = new com.gi3.matchingcv.dto.MatchingDetailDto(
+                1L, 10L, "Dev Java", "Tech Corp", 76.0, true, "OK",
+                68.0, 8.0, 80.0, 20.0, 2, 1, List.of()
+        );
+
+        when(matchingService.calculerScore(1L, 10L)).thenReturn(detail);
+
+        mockMvc.perform(get("/api/etudiants/1/offres/10/score")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.etudiantId", is(1)))
+                .andExpect(jsonPath("$.offreId", is(10)))
+                .andExpect(jsonPath("$.score", is(76.0)))
+                .andExpect(jsonPath("$.scoreDisponible", is(true)))
+                .andExpect(jsonPath("$.scoreRequises", is(68.0)))
+                .andExpect(jsonPath("$.scoreAtouts", is(8.0)));
+    }
 }
+

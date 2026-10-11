@@ -39,23 +39,21 @@ public class EtudiantController {
     private final CompetenceService competenceService;
     private final ProjetService projetService;
     private final ExperienceProfessionnelleService experienceService;
+    private final com.gi3.matchingcv.service.MatchingService matchingService;
 
     /**
-     * Injection par constructeur de l'interface EtudiantService (IoC / Découplage).
-     *
-     * @param etudiantService   l'interface de service des étudiants injectée par le conteneur Spring
-     * @param competenceService l'interface de service des compétences injectée par le conteneur Spring
-     * @param projetService     l'interface de service des projets
-     * @param experienceService l'interface de service des expériences
+     * Injection par constructeur de l'interface EtudiantService et MatchingService (IoC / Découplage).
      */
     public EtudiantController(EtudiantService etudiantService, 
                               CompetenceService competenceService,
                               ProjetService projetService,
-                              ExperienceProfessionnelleService experienceService) {
+                              ExperienceProfessionnelleService experienceService,
+                              com.gi3.matchingcv.service.MatchingService matchingService) {
         this.etudiantService = etudiantService;
         this.competenceService = competenceService;
         this.projetService = projetService;
         this.experienceService = experienceService;
+        this.matchingService = matchingService;
     }
 
     // -------------------------------------------------------------------------
@@ -553,4 +551,49 @@ public class EtudiantController {
         }
         return req;
     }
+
+    // -------------------------------------------------------------------------
+    // Matching & Recommandation d'offres
+    // -------------------------------------------------------------------------
+
+    /**
+     * Récupère la liste des offres recommandées pour un étudiant, triées par score décroissant.
+     * Filtres optionnels par domaine, localisation et type de contrat.
+     */
+    @GetMapping("/{id}/offres-recommandees")
+    public ResponseEntity<?> recommanderOffres(
+            @PathVariable Long id,
+            @RequestParam(required = false) String domaine,
+            @RequestParam(required = false) String localisation,
+            @RequestParam(required = false) com.gi3.matchingcv.model.enums.TypeContrat typeContrat
+    ) {
+        try {
+            List<com.gi3.matchingcv.dto.OffreRecommandeeDto> offres =
+                    matchingService.recommanderOffres(id, domaine, localisation, typeContrat);
+            return ResponseEntity.ok(offres);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors du calcul des recommandations : " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Récupère le détail du score de matching entre un étudiant et une offre spécifique.
+     */
+    @GetMapping({"/{id}/offres/{offreId}/score", "/{id}/score/{offreId}"})
+    public ResponseEntity<?> calculerScore(
+            @PathVariable Long id,
+            @PathVariable Long offreId
+    ) {
+        try {
+            com.gi3.matchingcv.dto.MatchingDetailDto detail = matchingService.calculerScore(id, offreId);
+            return ResponseEntity.ok(detail);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors du calcul du score : " + e.getMessage()));
+        }
+    }
 }
+

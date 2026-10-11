@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>Mes Candidatures — Matching CV-Offres</title>
+    <meta name="description" content="Suivez l'avancement de toutes vos candidatures et leur statut en temps réel."/>
+    <script src="/js/session.js"></script>
+    <script>MatchingCVSession.protect('ETUDIANT');</script>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <style>
+        body{background:var(--bg);color:var(--text-dark);font-family:var(--font-family);}
+
+        /* ── Hero ── */
+        .ch{background:var(--banner-gradient);padding:3rem 1.5rem 2.6rem;color:#fff;position:relative;overflow:hidden;}
+        .ch::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:48px 48px;}
+        .chi{position:relative;z-index:1;max-width:var(--content-width);margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;}
+        .ch-title{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;}
+        .ch-title span{color:#5FD88A;}
+        .ch-sub{font-size:.92rem;color:rgba(255,255,255,.75);margin-top:.35rem;}
+
+        /* ── Layout ── */
+        .main{max-width:var(--content-width);margin:2rem auto 5rem;padding:0 1.5rem;}
+
+        /* ── Filter bar ── */
+        .filter-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;background:#fff;border:1px solid var(--border);border-radius:14px;padding:1rem 1.4rem;margin-bottom:1.75rem;box-shadow:var(--shadow-sm);}
+        .filter-bar label{font-size:.78rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;}
+        .filter-btn{padding:.42rem 1.05rem;border-radius:100px;border:1.5px solid var(--border);background:#fff;font-size:.8rem;font-weight:600;font-family:inherit;cursor:pointer;color:var(--text-mid);transition:all .2s;}
+        .filter-btn:hover{border-color:var(--teal);color:var(--teal);}
+        .filter-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+        .filter-sep{flex:1;}
+        .cand-count{font-size:.82rem;font-weight:700;color:var(--teal);white-space:nowrap;}
+
+        /* ── Cards grid ── */
+        .cand-list{display:flex;flex-direction:column;gap:1rem;}
+
+        /* ── Single card ── */
+        .cand-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.4rem 1.6rem;box-shadow:var(--shadow-sm);display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start;transition:box-shadow .2s,transform .18s;}
+        .cand-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+        .cand-card.acc{border-left:4px solid #16A34A;}
+        .cand-card.ref{border-left:4px solid #DC2626;}
+        .cand-card.vue{border-left:4px solid #2E8B8B;}
+        .cand-card.env{border-left:4px solid #2E5A9C;}
+
+        .cand-header{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.6rem;}
+        .cand-logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,rgba(46,90,156,.12),rgba(46,139,139,.08));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;font-weight:800;color:var(--teal);}
+        .cand-title{font-size:1rem;font-weight:800;color:var(--navy-deep);margin-bottom:.2rem;}
+        .cand-company{font-size:.82rem;color:var(--text-mid);display:flex;align-items:center;gap:.35rem;}
+
+        .cand-meta{display:flex;flex-wrap:wrap;gap:.5rem;margin:.55rem 0;}
+        .meta-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .7rem;border-radius:100px;font-size:.74rem;font-weight:600;background:var(--teal-soft);color:var(--teal-dark);border:1px solid rgba(46,139,139,.2);}
+        .meta-pill.cloture{background:#FEE2E2;color:#DC2626;border-color:#FECACA;}
+
+        .cand-date{font-size:.76rem;color:var(--text-light);margin-top:.35rem;}
+
+        /* statut badge */
+        .statut-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:100px;font-size:.78rem;font-weight:700;white-space:nowrap;}
+        .statut-badge.ENVOYEE {background:#EFF6FF;color:#2563EB;border:1.5px solid #BFDBFE;}
+        .statut-badge.VUE     {background:var(--teal-pale);color:var(--teal-dark);border:1.5px solid rgba(46,139,139,.3);}
+        .statut-badge.ACCEPTEE{background:var(--green-pale);color:#15803D;border:1.5px solid #86EFAC;}
+        .statut-badge.REFUSEE {background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA;}
+
+        /* score orb */
+        .score-orb{width:56px;height:56px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;}
+        .score-orb.high{background:linear-gradient(135deg,#DCFCE7,#D1FAE5);color:#15803D;border:2px solid #86EFAC;}
+        .score-orb.med {background:linear-gradient(135deg,#FEF9C3,#FEF3C7);color:#92400E;border:2px solid #FCD34D;}
+        .score-orb.low {background:linear-gradient(135deg,#FEE2E2,#FEF2F2);color:#DC2626;border:2px solid #FECACA;}
+        .score-orb.na  {background:#F1F5F9;color:var(--text-light);border:2px solid var(--border);}
+        .score-orb .sv {font-size:.9rem;line-height:1;}
+        .score-orb .sl {font-size:.6rem;font-weight:600;opacity:.8;}
+
+        /* link button */
+        .btn-link-offre{display:inline-flex;align-items:center;gap:.4rem;margin-top:.75rem;padding:.44rem 1rem;border-radius:9px;background:var(--teal-soft);color:var(--teal);border:1px solid rgba(46,139,139,.28);font-size:.78rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .18s;}
+        .btn-link-offre:hover{background:var(--teal);color:#fff;}
+
+        /* empty state */
+        .empty-state{text-align:center;padding:4rem 2rem;background:#fff;border-radius:16px;border:1px solid var(--border);}
+        .empty-icon{width:56px;height:56px;border-radius:14px;background:var(--teal-soft);color:var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;}
+        .empty-state h3{font-size:1.05rem;font-weight:800;color:var(--navy-deep);margin-bottom:.5rem;}
+        .empty-state p{font-size:.87rem;color:var(--text-mid);}
+        .empty-state a{display:inline-flex;align-items:center;gap:.4rem;margin-top:1.2rem;padding:.6rem 1.4rem;border-radius:10px;background:var(--teal);color:#fff;text-decoration:none;font-size:.85rem;font-weight:700;transition:opacity .2s;}
+        .empty-state a:hover{opacity:.9;}
+
+        /* toast */
+        .toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.8rem 1.4rem;border-radius:12px;font-size:.84rem;font-weight:700;box-shadow:var(--shadow-lg);display:none;align-items:center;gap:.6rem;max-width:360px;}
+        .toast.ok {background:#DCFCE7;color:#15803D;border:1.5px solid #86EFAC;}
+        .toast.err{background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA;}
+        .toast.show{display:flex;}
+        @media(max-width:600px){.cand-card{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar" role="navigation">
+    <div class="nav-inner">
+        <a href="/dashboard-etudiant.html" class="nav-logo">
+            <span class="logo-mark"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/><path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs></svg></span>
+            <span class="logo-text">Matching<strong>CV</strong></span>
+        </a>
+        <ul class="nav-links" id="nav-links" role="list">
+            <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
+            <li><a href="/offres-recommandees.html" class="nav-link">Offres recommandées</a></li>
+            <li><a href="/mes-candidatures.html" class="nav-link active" aria-current="page">Mes Candidatures</a></li>
+            <li><a href="/competences.html" class="nav-link">Compétences</a></li>
+        </ul>
+        <div class="nav-cta">
+            <span id="nav-user-name" class="nav-user-label" style="cursor:pointer;" title="Tableau de bord"></span>
+            <button class="btn-nav-outline" id="nav-logout">Déconnexion</button>
+        </div>
+        <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="ch">
+    <div class="chi">
+        <div>
+            <div class="ch-title">Mes <span>Candidatures</span></div>
+            <div class="ch-sub">Suivez l'avancement de vos candidatures auprès des recruteurs.</div>
+        </div>
+        <a href="/offres-recommandees.html" class="btn-nav-outline" style="text-decoration:none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Explorer les offres
+        </a>
+    </div>
+</div>
+
+<main class="main">
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <label>Filtrer par statut :</label>
+        <button class="filter-btn active" id="filter-all" data-filter="ALL">Toutes</button>
+        <button class="filter-btn" id="filter-env" data-filter="ENVOYEE">&#128338; Envoyée</button>
+        <button class="filter-btn" id="filter-vue" data-filter="VUE">&#128065; Vue</button>
+        <button class="filter-btn" id="filter-acc" data-filter="ACCEPTEE">&#10003; Acceptée</button>
+        <button class="filter-btn" id="filter-ref" data-filter="REFUSEE">&#10007; Refusée</button>
+        <span class="filter-sep"></span>
+        <span class="cand-count" id="cand-count">Chargement...</span>
+    </div>
+
+    <!-- LIST -->
+    <div class="cand-list" id="cand-list"></div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<script src="/js/session.js"></script>
+<script src="/js/mes-candidatures.js"></script>
+</body>
+</html>

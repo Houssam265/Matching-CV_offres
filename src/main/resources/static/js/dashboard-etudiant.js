@@ -7,6 +7,7 @@ const S = {
     competences: [],
     projets: [],
     experiences: [],
+    candidaturesCount: 0,
     allComps: [],
     fpChips: [],
     feChips: []
@@ -85,6 +86,8 @@ function renderDashboardSummary() {
     document.getElementById('sc').textContent = S.competences.length;
     document.getElementById('sp').textContent = S.projets.length;
     document.getElementById('se').textContent = S.experiences.length;
+    const elCand = document.getElementById('s-cand');
+    if (elCand) elCand.textContent = S.candidaturesCount || 0;
 
     document.getElementById('sum-cnt-c').textContent = S.competences.length;
     document.getElementById('sum-cnt-p').textContent = S.projets.length;
@@ -613,12 +616,14 @@ async function loadAllData(id) {
     } catch (_) {}
 
     try {
-        const [projs, exps] = await Promise.all([
+        const [projs, exps, candCountRes] = await Promise.all([
             api(`/api/etudiants/${id}/projets`).catch(() => []),
-            api(`/api/etudiants/${id}/experiences`).catch(() => [])
+            api(`/api/etudiants/${id}/experiences`).catch(() => []),
+            api(`/api/etudiants/${id}/candidatures/count`).catch(() => ({ count: 0 }))
         ]);
         S.projets = projs;
         S.experiences = exps;
+        S.candidaturesCount = candCountRes && typeof candCountRes.count === 'number' ? candCountRes.count : 0;
         // Les compétences sont déduites automatiquement depuis projets + expériences
         computeCompetencesFromContext();
     } catch (_) {}
