@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>Offres Recommandées — Matching CV-Offres</title>
+    <script src="/js/session.js"></script>
+    <script>MatchingCVSession.protect('ETUDIANT');</script>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <style>
+        :root {
+            --card-shadow: var(--shadow-sm);
+            --card-shadow-hover: var(--shadow-md);
+        }
+        body {
+            background: var(--bg);
+            color: var(--text-dark);
+            font-family: var(--font-family);
+        }
+
+        /* Hero */
+        .reco-hero {
+            background: var(--banner-gradient);
+            padding: 3rem 1.5rem 2.8rem;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .reco-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        .reco-hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: var(--content-width);
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .reco-title {
+            font-size: clamp(1.4rem, 3vw, 2.1rem);
+            font-weight: 800;
+            line-height: 1.25;
+        }
+        .reco-title span { color: #5FD88A; }
+        .reco-sub {
+            font-size: .95rem;
+            color: rgba(255,255,255,.8);
+            margin-top: .4rem;
+            max-width: 680px;
+        }
+        .reco-badge {
+            background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 12px;
+            padding: .6rem 1.2rem;
+            font-size: .84rem;
+            color: #fff;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            backdrop-filter: blur(8px);
+        }
+
+        /* Container principal */
+        .reco-container {
+            max-width: var(--content-width);
+            margin: 2rem auto 5rem;
+            padding: 0 1.5rem;
+        }
+
+        /* Barre de filtres */
+        .filter-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.4rem 1.75rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1.2fr 1fr auto;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        @media (max-width: 900px) {
+            .filter-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 580px) {
+            .filter-grid { grid-template-columns: 1fr; }
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+        .filter-label {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--navy-deep);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .filter-input, .filter-select {
+            width: 100%;
+            padding: .65rem .9rem;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: .88rem;
+            background: #F8FAFC;
+            transition: all .2s;
+            box-sizing: border-box;
+        }
+        .filter-input:focus, .filter-select:focus {
+            outline: none;
+            background: #fff;
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(46,139,139,.12);
+        }
+        .filter-actions {
+            display: flex;
+            gap: .5rem;
+        }
+        .btn-filter {
+            background: linear-gradient(135deg, #1E3A5F, #2E8B8B);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: .68rem 1.25rem;
+            font-weight: 700;
+            font-size: .86rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            transition: all .2s;
+            white-space: nowrap;
+        }
+        .btn-filter:hover {
+            opacity: .93;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46,139,139,.25);
+        }
+        .btn-reset {
+            background: transparent;
+            color: var(--text-mid);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: .68rem .9rem;
+            font-weight: 600;
+            font-size: .86rem;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .btn-reset:hover {
+            border-color: var(--text-mid);
+            color: var(--navy-deep);
+            background: #F1F5F9;
+        }
+
+        /* Entête de résultats */
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: .75rem;
+        }
+        .results-count {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--navy-deep);
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .results-count-pill {
+            background: var(--teal-soft);
+            color: var(--teal-dark);
+            border: 1px solid rgba(46,139,139,.25);
+            font-size: .75rem;
+            padding: .15rem .6rem;
+            border-radius: 100px;
+        }
+        .reco-legend {
+            font-size: .78rem;
+            color: var(--text-mid);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+        }
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-high { background: #16A34A; }
+        .dot-med  { background: #2E5A9C; }
+        .dot-low  { background: #D97706; }
+        .dot-na   { background: #94A3B8; }
+
+        /* Grille des offres recommandées */
+        .reco-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+        @media (max-width: 420px) {
+            .reco-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Carte d'offre */
+        .reco-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: all .25s var(--ease);
+            overflow: hidden;
+        }
+        .reco-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(46,139,139,.35);
+        }
+        .reco-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .reco-card-info { flex: 1; min-width: 0; }
+        .reco-card-title {
+            font-size: 1.12rem;
+            font-weight: 800;
+            color: var(--navy-deep);
+            line-height: 1.35;
+            margin-bottom: .25rem;
+        }
+        .reco-card-company {
+            font-size: .86rem;
+            font-weight: 700;
+            color: var(--teal);
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+        }
+
+        /* Score Badge */
+        .score-circle {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 900;
+            box-shadow: 0 4px 12px rgba(0,0,0,.08);
+            text-align: center;
+            line-height: 1.05;
+        }
+        .score-val {
+            font-size: 1.15rem;
+            letter-spacing: -.02em;
+        }
+        .score-lbl {
+            font-size: .56rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            opacity: .85;
+            letter-spacing: .04em;
+        }
+        .score-circle.high {
+            background: linear-gradient(135deg, #DCFCE7, #BBF7D0);
+            color: #15803D;
+            border: 2px solid #86EFAC;
+        }
+        .score-circle.med {
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+            color: #1D4ED8;
+            border: 2px solid #93C5FD;
+        }
+        .score-circle.low {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #B45309;
+            border: 2px solid #FCD34D;
+        }
+        .score-circle.na {
+            background: #F1F5F9;
+            color: #64748B;
+            border: 1.5px dashed #CBD5E1;
+            font-size: .75rem;
+        }
+
+        .reco-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .45rem;
+            margin-bottom: 1rem;
+        }
+        .meta-pill {
+            background: #F1F5F9;
+            color: var(--navy-deep);
+            border: 1px solid var(--border);
+            padding: .25rem .65rem;
+            border-radius: 8px;
+            font-size: .75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+        }
+        .meta-pill.contrat {
+            background: rgba(46,90,156,.08);
+            color: var(--blue);
+            border-color: rgba(46,90,156,.2);
+        }
+        .meta-pill.domaine {
+            background: rgba(46,139,139,.08);
+            color: var(--teal-dark);
+            border-color: rgba(46,139,139,.2);
+        }
+
+        .reco-card-desc {
+            font-size: .84rem;
+            color: var(--text-mid);
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Aperçu des compétences */
+        .reco-skills-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: .85rem 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .skills-box-title {
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: .5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .skills-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .35rem;
+        }
+        .skill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .25rem;
+            padding: .2rem .6rem;
+            border-radius: 100px;
+            font-size: .73rem;
+            font-weight: 600;
+        }
+        .skill-badge.matched {
+            background: #DCFCE7;
+            color: #166534;
+            border: 1px solid #86EFAC;
+        }
+        .skill-badge.missing {
+            background: #F1F5F9;
+            color: #64748B;
+            border: 1px solid #E2E8F0;
+        }
+        .skill-badge.atout-matched {
+            background: #E0F2FE;
+            color: #075985;
+            border: 1px solid #7DD3FC;
+        }
+        .skill-badge.pending {
+            background: #FEF3C7;
+            color: #92400E;
+            border: 1px dashed #FCD34D;
+        }
+
+        .reco-card-foot {
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+        }
+        .reco-pub-date {
+            font-size: .74rem;
+            color: var(--text-light);
+        }
+        .btn-view-detail {
+            background: var(--teal-soft);
+            color: var(--teal-dark);
+            border: 1px solid rgba(46,139,139,.3);
+            border-radius: 10px;
+            padding: .5rem 1rem;
+            font-size: .82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            transition: all .2s;
+        }
+        .btn-view-detail:hover {
+            background: var(--teal);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(46,139,139,.25);
+        }
+
+        /* ════ MODAL / VOLET DÉTAIL D'OFFRE & EXPLICATION DU SCORE ════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(13,31,68,.6);
+            backdrop-filter: blur(6px);
+            z-index: 9000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-card {
+            background: #fff;
+            width: min(840px, 100%);
+            max-height: 90vh;
+            border-radius: 22px;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: scale(.96) translateY(12px);
+            transition: transform .3s var(--ease);
+        }
+        .modal-overlay.open .modal-card {
+            transform: scale(1) translateY(0);
+        }
+        .modal-header {
+            background: var(--banner-gradient);
+            padding: 1.6rem 2rem;
+            color: #fff;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-shrink: 0;
+        }
+        .modal-header-info { flex: 1; min-width: 0; }
+        .modal-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+        .modal-company {
+            font-size: .92rem;
+            color: #5FD88A;
+            font-weight: 700;
+            margin-top: .2rem;
+        }
+        .modal-close {
+            background: rgba(255,255,255,.15);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .2s;
+            line-height: 1;
+        }
+        .modal-close:hover { background: rgba(255,255,255,.28); }
+        .modal-body {
+            padding: 1.8rem 2rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Carte de synthèse de calcul */
+        .score-summary-banner {
+            background: linear-gradient(135deg, #F0FDF4 0%, #F0F9FF 100%);
+            border: 1.5px solid rgba(46,139,139,.25);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .ssb-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        .ssb-big-badge {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            box-shadow: 0 6px 18px rgba(0,0,0,.08);
+            flex-shrink: 0;
+        }
+        .ssb-big-val { font-size: 1.65rem; line-height: 1; }
+        .ssb-big-lbl { font-size: .62rem; text-transform: uppercase; font-weight: 800; opacity: .85; }
+
+        .ssb-stats {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+        .ssb-stats-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--navy-deep);
+        }
+        .ssb-stats-pills {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin-top: .2rem;
+        }
+        .ssb-pill {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: .3rem .75rem;
+            border-radius: 100px;
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--navy-deep);
+        }
+        .ssb-pill span { color: var(--teal); font-weight: 800; }
+
+        /* Explication pédagogique de la formule */
+        .formula-card {
+            background: #FAFBFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-size: .8rem;
+            color: var(--text-mid);
+            line-height: 1.55;
+            margin-bottom: 1.75rem;
+        }
+        .formula-card-title {
+            font-size: .78rem;
+            font-weight: 800;
+            color: var(--navy-deep);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-bottom: .4rem;
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+        }
+
+        /* Tableau détaillé des compétences */
+        .section-title {
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--navy-deep);
+            margin-bottom: .85rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: #fff;
+            margin-bottom: 1.75rem;
+        }
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .82rem;
+            text-align: left;
+        }
+        .comp-table th {
+            background: #F8FAFC;
+            padding: .85rem 1rem;
+            font-weight: 700;
+            color: var(--navy-deep);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: .7rem;
+            letter-spacing: .05em;
+        }
+        .comp-table td {
+            padding: .95rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .comp-table tr:last-child td { border-bottom: none; }
+        .comp-table tr:hover { background: #FAFDFE; }
+
+        .type-badge {
+            font-size: .68rem;
+            font-weight: 800;
+            padding: .18rem .55rem;
+            border-radius: 6px;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .type-badge.requise {
+            background: #FEF2F2;
+            color: #DC2626;
+            border: 1px solid #FECACA;
+        }
+        .type-badge.atout {
+            background: #EFF6FF;
+            color: #2563EB;
+            border: 1px solid #BFDBFE;
+        }
+
+        .provenance-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            font-size: .76rem;
+            font-weight: 600;
+            color: var(--navy-deep);
+        }
+        .niveau-pill {
+            display: inline-block;
+            background: #F1F5F9;
+            color: var(--navy-deep);
+            padding: .15rem .55rem;
+            border-radius: 100px;
+            font-weight: 800;
+            font-size: .75rem;
+        }
+        .comptee-badge {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: .2rem .6rem;
+            border-radius: 100px;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            white-space: nowrap;
+        }
+        .comptee-badge.yes {
+            background: #DCFCE7;
+            color: #15803D;
+        }
+        .comptee-badge.no {
+            background: #F1F5F9;
+            color: #64748B;
+        }
+        .comptee-badge.warn {
+            background: #FEF3C7;
+            color: #B45309;
+        }
+
+        /* Description de l'offre dans modal */
+        .modal-desc-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem 1.4rem;
+            font-size: .86rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        /* État vide / Chargement */
+        .empty-state {
+            text-align: center;
+            padding: 3.5rem 1.5rem;
+            background: #fff;
+            border: 1.5px dashed var(--border);
+            border-radius: 20px;
+            color: var(--text-mid);
+        }
+        .empty-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: rgba(46,139,139,.1);
+            color: var(--teal);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .empty-state h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--navy-deep);
+            margin-bottom: .35rem;
+        }
+        .empty-state p { font-size: .88rem; max-width: 480px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR COMMUNE ET HARMONISÉE -->
+<nav class="navbar" id="navbar" role="navigation">
+    <div class="nav-inner">
+        <a href="/dashboard-etudiant.html" class="nav-logo">
+            <span class="logo-mark"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/><path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs></svg></span>
+            <span class="logo-text">Matching<strong>CV</strong></span>
+        </a>
+        <ul class="nav-links" id="nav-links" role="list">
+            <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
+            <li><a href="/offres-recommandees.html" class="nav-link active" aria-current="page">Offres recommandées</a></li>
+            <li><a href="/mes-candidatures.html" class="nav-link">Mes Candidatures</a></li>
+            <li><a href="/dashboard-etudiant.html#dash-summary" class="nav-link" id="nav-link-profil" title="Consulter et modifier mon profil">Mon Profil</a></li>
+            <li><a href="/competences.html" class="nav-link">Compétences</a></li>
+        </ul>
+        <div class="nav-cta">
+            <span id="nav-user-name" class="nav-user-label" style="cursor:pointer;" title="Consulter mon profil"></span>
+            <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">Déconnexion</button>
+        </div>
+        <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+</nav>
+
+<!-- HERO HEADER -->
+<header class="reco-hero">
+    <div class="reco-hero-inner">
+        <div>
+            <h1 class="reco-title">Offres Recommandées <span>pour Vous</span> &#127919;</h1>
+            <p class="reco-sub">
+                Toutes les offres actives classées dynamiquement selon votre score de matching personnalisé.
+                Le calcul intègre en direct vos compétences, vos projets et la durée de vos expériences.
+            </p>
+        </div>
+        <div>
+            <span class="reco-badge">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                Matching en temps réel
+            </span>
+        </div>
+    </div>
+</header>
+
+<main class="reco-container">
+    <!-- BARRE DE FILTRES -->
+    <section class="filter-card">
+        <form id="filter-form" class="filter-grid" onsubmit="return false;">
+            <div class="filter-group">
+                <label for="filtre-domaine" class="filter-label">Domaine d'activité</label>
+                <input type="text" id="filtre-domaine" class="filter-input" placeholder="Ex : Informatique, Data, IA..."/>
+            </div>
+            <div class="filter-group">
+                <label for="filtre-localisation" class="filter-label">Localisation</label>
+                <input type="text" id="filtre-localisation" class="filter-input" placeholder="Ex : Casablanca, Paris, Remote..."/>
+            </div>
+            <div class="filter-group">
+                <label for="filtre-contrat" class="filter-label">Type de contrat</label>
+                <select id="filtre-contrat" class="filter-select">
+                    <option value="">Tous les contrats</option>
+                    <option value="STAGE">Stage</option>
+                    <option value="ALTERNANCE">Alternance</option>
+                    <option value="CDI">CDI</option>
+                    <option value="CDD">CDD</option>
+                    <option value="FREELANCE">Freelance</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="button" class="btn-filter" id="btn-appliquer-filtres">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    Filtrer
+                </button>
+                <button type="button" class="btn-reset" id="btn-reinitialiser-filtres" title="Réinitialiser les filtres">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- ENTÊTE DE RÉSULTATS & LÉGENDE -->
+    <div class="results-header">
+        <div class="results-count">
+            <span>Offres correspondantes</span>
+            <span class="results-count-pill" id="count-offres">Chargement...</span>
+        </div>
+        <div class="reco-legend">
+            <span class="legend-item"><span class="dot dot-high"></span> &ge; 70% Forte affinité</span>
+            <span class="legend-item"><span class="dot dot-med"></span> 50-69% Bonne affinité</span>
+            <span class="legend-item"><span class="dot dot-low"></span> &lt; 50% Partielle</span>
+            <span class="legend-item"><span class="dot dot-na"></span> Non disponible</span>
+        </div>
+    </div>
+
+    <!-- LISTE DES OFFRES RECOMMANDÉES -->
+    <div id="reco-grid" class="reco-grid">
+        <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+            <h3>Calcul des recommandations en cours...</h3>
+            <p>Veuillez patienter pendant l'évaluation de vos compétences par l'algorithme de matching.</p>
+        </div>
+    </div>
+</main>
+
+<!-- ════ MODAL / VOLET DÉTAILLÉ DU SCORE & OFFRE ════ -->
+<div class="modal-overlay" id="score-modal" role="dialog" aria-modal="true" aria-labelledby="modal-offre-titre">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-header-info">
+                <h2 class="modal-title" id="modal-offre-titre">Titre du poste</h2>
+                <div class="modal-company" id="modal-offre-entreprise">Entreprise</div>
+            </div>
+            <button class="modal-close" id="modal-close" title="Fermer la fenêtre">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Synthèse du score -->
+            <div class="score-summary-banner">
+                <div class="ssb-left">
+                    <div class="ssb-big-badge" id="modal-score-badge">
+                        <span class="ssb-big-val" id="modal-score-val">--%</span>
+                        <span class="ssb-big-lbl">Score</span>
+                    </div>
+                    <div class="ssb-stats">
+                        <div class="ssb-stats-title" id="modal-score-titre">Correspondance calculée</div>
+                        <div class="ssb-stats-pills">
+                            <span class="ssb-pill" id="pill-part-requises">Part Requises : <span id="val-part-requises">--</span></span>
+                            <span class="ssb-pill" id="pill-part-atouts">Part Atouts : <span id="val-part-atouts">--</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div id="modal-score-status-desc" style="font-size:.82rem;font-weight:700;color:var(--text-mid);max-width:280px;"></div>
+            </div>
+
+            <!-- Explication de la règle -->
+            <div class="formula-card">
+                <div class="formula-card-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    Méthode d'évaluation du score CV
+                </div>
+                <div>
+                    Le niveau de maîtrise <strong>N</strong> est déterminé selon la provenance la plus solide dans votre profil :
+                    <strong>Expérience</strong> (0,8 + 0,2 &times; min(1, mois/60)), <strong>Projet</strong> (0,7), ou <strong>Liste personnelle</strong> (0,4).
+                    Les compétences <strong>REQUISE</strong> constituent la base essentielle (pondérée à 80 ou 100), tandis que les <strong>ATOUT</strong>
+                    acquis ajoutent un bonus sans jamais pénaliser en cas d'absence. Seules les compétences <strong>VALIDÉES</strong> sont comptabilisées.
+                </div>
+            </div>
+
+            <!-- Tableau explicatif compétence par compétence -->
+            <div class="section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                Détail compétence par compétence
+            </div>
+            <div class="table-responsive">
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th>Compétence</th>
+                            <th>Exigence</th>
+                            <th>Provenance profil</th>
+                            <th>Niveau N</th>
+                            <th>Comptabilisée</th>
+                            <th>Explication</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-comp-tbody">
+                        <!-- Rempli en JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Description du poste -->
+            <div class="section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                Description du poste
+            </div>
+            <div class="modal-desc-box" id="modal-offre-description">
+                Description de l'offre...
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="reco-toast" role="alert" aria-live="polite" style="position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.8rem 1.4rem;border-radius:12px;font-size:.84rem;font-weight:700;box-shadow:0 20px 60px rgba(15,30,60,.16);display:none;align-items:center;gap:.6rem;max-width:360px;"></div>
+
+<script src="/js/offres-recommandees.js"></script>
+</body>
+</html>
