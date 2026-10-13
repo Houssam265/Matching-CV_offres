@@ -1276,3 +1276,316 @@
         padding: 0.75rem 0 1rem;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CANDIDATS & GESTION DES CANDIDATURES (PHASE 2)
+═══════════════════════════════════════════════════════════ */
+.candidat-card {
+    background: #FFFFFF;
+    border-radius: var(--rec-radius);
+    border: 1px solid var(--rec-border);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--rec-card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.candidat-card:hover {
+    box-shadow: var(--rec-card-hover);
+    border-color: #B4C7DD;
+    transform: translateY(-2px);
+}
+
+.candidat-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.candidat-info-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.candidat-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--rec-navy) 0%, var(--rec-blue) 100%);
+    color: white;
+    font-weight: 800;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(31, 56, 100, 0.2);
+    flex-shrink: 0;
+}
+
+.candidat-name {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--rec-navy);
+    margin: 0 0 0.25rem 0;
+}
+
+.candidat-academic {
+    font-size: 0.9rem;
+    color: #4A5B73;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.candidat-score-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: var(--rec-radius-pill);
+    font-weight: 800;
+    font-size: 0.95rem;
+    background: rgba(46, 139, 139, 0.12);
+    color: var(--rec-teal-dark);
+    border: 1px solid rgba(46, 139, 139, 0.25);
+}
+
+.candidat-score-pill.score-high {
+    background: #E6F7F0;
+    color: #047857;
+    border-color: #A7F3D0;
+}
+
+.candidat-score-pill.score-mid {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border-color: #BFDBFE;
+}
+
+.candidat-score-pill.score-low {
+    background: #FEF3C7;
+    color: #B45309;
+    border-color: #FDE68A;
+}
+
+.candidat-score-pill.score-none {
+    background: #F1F5F9;
+    color: #64748B;
+    border-color: #CBD5E1;
+}
+
+/* Statut badges */
+.statut-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: var(--rec-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.statut-badge.envoyee {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border: 1px solid #BFDBFE;
+}
+
+.statut-badge.vue {
+    background: #F0FDF4;
+    color: #0D9488;
+    border: 1px solid #99F6E4;
+}
+
+.statut-badge.acceptee {
+    background: #DCFCE7;
+    color: #15803D;
+    border: 1px solid #86EFAC;
+}
+
+.statut-badge.refusee {
+    background: #FEE2E2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+}
+
+/* Modal styles */
+.candidat-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 25, 51, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.candidat-modal-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.candidat-modal {
+    background: #FFFFFF;
+    border-radius: var(--rec-radius);
+    max-width: 860px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 60px rgba(11, 25, 51, 0.28);
+    transform: translateY(20px) scale(0.98);
+    transition: transform 0.25s ease;
+    overflow: hidden;
+}
+
+.candidat-modal-backdrop.active .candidat-modal {
+    transform: translateY(0) scale(1);
+}
+
+.candidat-modal-header {
+    background: linear-gradient(135deg, #0B1933 0%, #152A4E 100%);
+    color: #FFFFFF;
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.candidat-modal-header h2 {
+    color: #FFFFFF;
+    margin: 0 0 0.35rem 0;
+    font-size: 1.35rem;
+}
+
+.candidat-modal-close {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #FFFFFF;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.candidat-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.candidat-modal-body {
+    padding: 1.75rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.candidat-modal-footer {
+    padding: 1.25rem 1.75rem;
+    border-top: 1px solid var(--rec-border);
+    background: #F8FAFC;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Score diff banner */
+.score-diff-banner {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    color: #92400E;
+    border-radius: var(--rec-radius-sm);
+    padding: 0.9rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+/* Detail tabs / cards */
+.candidate-detail-block {
+    background: #F8FAFC;
+    border: 1px solid var(--rec-border);
+    border-radius: var(--rec-radius-sm);
+    padding: 1.25rem;
+}
+
+.candidate-detail-block-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--rec-navy);
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Breakdown table */
+.score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.score-table th {
+    background: #EDF2F7;
+    color: var(--rec-navy);
+    font-weight: 800;
+    text-align: left;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 2px solid var(--rec-border);
+}
+
+.score-table td {
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--rec-border);
+    vertical-align: middle;
+}
+
+.score-table tr:hover td {
+    background: rgba(240, 245, 251, 0.6);
+}
+
+/* Counted badge */
+.badge-comptabilisee {
+    background: #DCFCE7;
+    color: #15803D;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--rec-radius-pill);
+    font-size: 0.75rem;
+    display: inline-block;
+}
+
+.badge-ignoree {
+    background: #F1F5F9;
+    color: #64748B;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--rec-radius-pill);
+    font-size: 0.75rem;
+    display: inline-block;
+}
+
