@@ -200,4 +200,118 @@ class CandidatureServiceTest {
         assertThat(result.get(1).score()).isEqualTo(60.0);
         assertThat(result.get(2).score()).isNull();
     }
+
+    // ─── Espace Recruteur Phase 2 — Tests ─────────────────────
+
+    @Test
+    @DisplayName("listerCandidatsPourRecruteur : accès refusé (403) si l'offre appartient à un autre recruteur")
+    void listerCandidatsPourRecruteur_autreRecruteur_forbidden() {
+        when(offreRepository.findById(100L)).thenReturn(Optional.of(offre)); // recruteurId = 10L
+
+        assertThatThrownBy(() -> service.listerCandidatsPourRecruteur(100L, 999L, null))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .satisfies(ex -> {
+                    org.springframework.web.server.ResponseStatusException rse = (org.springframework.web.server.ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.FORBIDDEN);
+                });
+    }
+
+    @Test
+    @DisplayName("listerCandidatsPourRecruteur : email masqué si non ACCEPTEE, dévoilé si ACCEPTEE")
+    void listerCandidatsPourRecruteur_emailMasquage() {
+        etudiant.setEmail("alice@test.com");
+        when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
+
+        Candidature c1 = candidature(1L, StatutCandidature.ENVOYEE, 85.0);
+        Candidature c2 = candidature(2L, StatutCandidature.ACCEPTEE, 90.0);
+        when(candidatureRepository.findByOffreIdOrderByScoreDesc(100L)).thenReturn(List.of(c2, c1));
+
+        List<com.gi3.matchingcv.dto.CandidatOffreDto> list = service.listerCandidatsPourRecruteur(100L, 10L, null);
+
+        assertThat(list).hasSize(2);
+        // c2 est ACCEPTEE -> email visible
+        assertThat(list.get(0).statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(list.get(0).email()).isEqualTo("alice@test.com");
+        // c1 est ENVOYEE -> email masqué (null)
+        assertThat(list.get(1).statut()).isEqualTo(StatutCandidature.ENVOYEE);
+        assertThat(list.get(1).email()).isNull();
+    }
+
+    @Test
+    @DisplayName("obtenirDetailCandidat : passage automatique de ENVOYEE à VUE")
+    void obtenirDetailCandidat_autoTransitionVue() {
+        Candidature c = candidature(50L, StatutCandidature.ENVOYEE, 75.0);
+        when(candidatureRepository.findById(50L)).thenReturn(Optional.of(c));
+        when(candidatureRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        MatchingDetailDto matchingDetail = new MatchingDetailDto(
+                1L, 100L, "Dev Java", "TechCorp", 75.0, true, "Score OK",
+                60.0, 15.0, 80.0, 20.0, 2, 1, List.of()
+        );
+        when(matchingService.calculerScore(1L, 100L)).thenReturn(matchingDetail);
+
+        com.gi3.matchingcv.dto.CandidatDetailDto detail = service.obtenirDetailCandidat(50L, 10L);
+
+        assertThat(detail.statut()).isEqualTo(StatutCandidature.VUE);
+        assertThat(c.getStatut()).isEqualTo(StatutCandidature.VUE);
+        verify(candidatureRepository).save(c);
+    }
+
+    @Test
+    @DisplayName("obtenirDetailCandidat : accès refusé (403) si recruteur non propriétaire")
+    void obtenirDetailCandidat_autreRecruteur_forbidden() {
+        Candidature c = candidature(50L, StatutCandidature.ENVOYEE, 75.0);
+        when(candidatureRepository.findById(50L)).thenReturn(Optional.of(c));
+
+        assertThatThrownBy(() -> service.obtenirDetailCandidat(50L, 999L))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .satisfies(ex -> {
+                    org.springframework.web.server.ResponseStatusException rse = (org.springframework.web.server.ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.FORBIDDEN);
+                });
+    }
+
+    @Test
+    @DisplayName("obtenirDetailCandidat : détection d'écart de score si profil étudiant a évolué")
+    void obtenirDetailCandidat_scoreDiffDetecte() {
+        Candidature c = candidature(50L, StatutCandidature.VUE, 65.0);
+        when(candidatureRepository.findById(50L)).thenReturn(Optional.of(c));
+
+        MatchingDetailDto matchingDetail = new MatchingDetailDto(
+                1L, 100L, "Dev Java", "TechCorp", 82.5, true, "Score recalculé",
+                65.0, 17.5, 80.0, 20.0, 3, 1, List.of()
+        );
+        when(matchingService.calculerScore(1L, 100L)).thenReturn(matchingDetail);
+
+        com.gi3.matchingcv.dto.CandidatDetailDto detail = service.obtenirDetailCandidat(50L, 10L);
+
+        assertThat(detail.scoreCandidature()).isEqualTo(65.0);
+        assertThat(detail.scoreActuel()).isEqualTo(82.5);
+        assertThat(detail.scoreModifie()).isTrue();
+    }
+
+    @Test
+    @DisplayName("changerStatutPourRecruteur : rejet si recruteur non propriétaire")
+    void changerStatutPourRecruteur_autreRecruteur_forbidden() {
+        Candidature c = candidature(50L, StatutCandidature.VUE, 80.0);
+        when(candidatureRepository.findById(50L)).thenReturn(Optional.of(c));
+
+        assertThatThrownBy(() -> service.changerStatutPourRecruteur(50L, StatutCandidature.ACCEPTEE, 999L))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .satisfies(ex -> {
+                    org.springframework.web.server.ResponseStatusException rse = (org.springframework.web.server.ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.FORBIDDEN);
+                });
+    }
+
+    @Test
+    @DisplayName("changerStatutPourRecruteur : transitions interdites depuis ACCEPTEE/REFUSEE")
+    void changerStatutPourRecruteur_terminalForbidden() {
+        Candidature c = candidature(50L, StatutCandidature.ACCEPTEE, 80.0);
+        when(candidatureRepository.findById(50L)).thenReturn(Optional.of(c));
+
+        assertThatThrownBy(() -> service.changerStatutPourRecruteur(50L, StatutCandidature.REFUSEE, 10L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Transition refusée");
+    }
 }

@@ -1,6 +1,9 @@
 package com.gi3.matchingcv.service;
 
+import com.gi3.matchingcv.dto.CandidatDetailDto;
+import com.gi3.matchingcv.dto.CandidatOffreDto;
 import com.gi3.matchingcv.dto.CandidatureDto;
+import com.gi3.matchingcv.dto.RecruteurDashboardDto;
 import com.gi3.matchingcv.model.enums.StatutCandidature;
 
 import java.util.List;
@@ -60,4 +63,43 @@ public interface CandidatureService {
      * Nombre de candidatures d'un étudiant (pour le tableau de bord).
      */
     long compterParEtudiant(Long etudiantId);
+
+    /**
+     * Liste des candidats d'une offre pour son recruteur propriétaire, classée par score décroissant.
+     * L'email est masqué (null) tant que la candidature n'est pas ACCEPTEE.
+     *
+     * @param offreId       identifiant de l'offre
+     * @param recruteurId   identifiant du recruteur demandeur
+     * @param filtreStatut  filtre optionnel sur le statut de la candidature
+     * @throws org.springframework.web.server.ResponseStatusException 403 si l'offre appartient à un autre recruteur
+     */
+    List<CandidatOffreDto> listerCandidatsPourRecruteur(Long offreId, Long recruteurId, StatutCandidature filtreStatut);
+
+    default List<CandidatOffreDto> listerCandidatsPourRecruteur(Long offreId, Long recruteurId) {
+        return listerCandidatsPourRecruteur(offreId, recruteurId, null);
+    }
+
+    /**
+     * Consultation détaillée d'un candidat pour une offre du recruteur.
+     * Si la candidature était ENVOYEE, elle passe automatiquement à VUE.
+     * L'email est affiché uniquement si la candidature est ACCEPTEE.
+     *
+     * @param candidatureId identifiant de la candidature
+     * @param recruteurId   identifiant du recruteur demandeur
+     * @throws org.springframework.web.server.ResponseStatusException 403 si l'offre n'appartient pas au recruteur
+     */
+    CandidatDetailDto obtenirDetailCandidat(Long candidatureId, Long recruteurId);
+
+    /**
+     * Modification sécurisée du statut par le recruteur propriétaire de l'offre.
+     *
+     * @throws org.springframework.web.server.ResponseStatusException 403 si l'offre n'appartient pas au recruteur
+     * @throws IllegalStateException si la transition de statut est interdite
+     */
+    CandidatureDto changerStatutPourRecruteur(Long candidatureId, StatutCandidature nouveauStatut, Long recruteurId);
+
+    /**
+     * Données complètes du tableau de bord recruteur (offres, candidatures, répartition et récentes).
+     */
+    RecruteurDashboardDto obtenirDashboardRecruteur(Long recruteurId);
 }

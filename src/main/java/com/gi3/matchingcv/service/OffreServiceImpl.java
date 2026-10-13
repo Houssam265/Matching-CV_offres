@@ -121,6 +121,11 @@ public class OffreServiceImpl implements OffreService {
         Offre offre = recruteurId == null ? offre(id) : possedee(id, recruteurId);
         if (recruteurId == null && offre.getStatut() != StatutOffre.ACTIVE)
             throw new EntityNotFoundException("Offre introuvable.");
+        if (recruteurId != null) {
+            long total = candidatures.countByOffreId(offre.getId());
+            long aTraiter = candidatures.countByOffreIdAndStatut(offre.getId(), StatutCandidature.ENVOYEE);
+            return OffreDto.from(offre, total, aTraiter);
+        }
         return OffreDto.from(offre);
     }
 
@@ -128,7 +133,13 @@ public class OffreServiceImpl implements OffreService {
     @Transactional(readOnly = true)
     public List<OffreDto> listerParRecruteur(Long recruteurId) {
         recruteur(recruteurId);
-        return offres.findByRecruteurIdOrderByDatePublicationDesc(recruteurId).stream().map(OffreDto::from).toList();
+        return offres.findByRecruteurIdOrderByDatePublicationDesc(recruteurId).stream()
+                .map(o -> {
+                    long total = candidatures.countByOffreId(o.getId());
+                    long aTraiter = candidatures.countByOffreIdAndStatut(o.getId(), StatutCandidature.ENVOYEE);
+                    return OffreDto.from(o, total, aTraiter);
+                })
+                .toList();
     }
 
     @Override

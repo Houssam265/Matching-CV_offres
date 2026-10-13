@@ -208,10 +208,7 @@
                     </svg>
                 </a>
             </div>
-            <div id="offres-list" aria-live="polite">Chargement…</div>
-        </section>
-
-        <!-- CANDIDATES & MATCHING SHOWCASE -->
+            <div id="offres-list" aria-live="polite">Chargeme        <!-- CANDIDATES & APPLICATION METRICS (PHASE 2) -->
         <section class="recruit-pipeline-card" style="margin-top: 3rem;" aria-labelledby="sec-pipeline-title">
             <div class="recruit-pipeline-header">
                 <div>
@@ -224,7 +221,7 @@
                         </svg>
                         Candidatures reçues &amp; Vivier de talents
                     </h2>
-                    <p class="recruit-section-sub">Le moteur de matching évalue en continu la correspondance des CVs avec vos exigences de compétences.</p>
+                    <p class="recruit-section-sub">Vue globale du traitement de vos candidatures et candidats récents.</p>
                 </div>
                 <span class="recruit-pipeline-badge">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -234,58 +231,81 @@
                 </span>
             </div>
 
-            <div class="recruit-pipeline-preview">
-                <div class="recruit-pipeline-feature">
-                    <div class="recruit-feature-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 14 14"></polyline>
-                        </svg>
+            <!-- CANDIDATURE STATS GRID -->
+            <div class="recruit-grid" style="margin-top: 1.5rem;" role="region" aria-label="Statistiques des candidatures">
+                <article class="recruit-stat-card" style="background:#FFFFFF;">
+                    <div class="recruit-stat-card-top">
+                        <div class="recruit-stat-icon-wrap active">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                        </div>
+                        <span class="recruit-stat-badge online">Reçues</span>
                     </div>
-                    <div class="recruit-feature-text">
-                        <h4>Priorité aux compétences requises</h4>
-                        <p>Les candidats disposant de compétences validées exigées obtiennent un score prioritaire dans le classement.</p>
-                    </div>
-                </div>
+                    <h2>Total candidatures</h2>
+                    <span id="dash-cand-total" class="recruit-count teal">0</span>
+                    <p class="recruit-stat-desc">Toutes vos offres confondues</p>
+                </article>
 
-                <div class="recruit-pipeline-feature">
-                    <div class="recruit-feature-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
+                <article class="recruit-stat-card" style="background:#FFFFFF;">
+                    <div class="recruit-stat-card-top">
+                        <div class="recruit-stat-icon-wrap" style="background:rgba(46,90,156,0.12); color:var(--rec-blue);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <span class="recruit-stat-badge online" style="background:rgba(46,90,156,0.1); color:var(--rec-blue);">À traiter</span>
                     </div>
-                    <div class="recruit-feature-text">
-                        <h4>Bonus pour atouts complémentaires</h4>
-                        <p>Les atouts déclarés augmentent le score sans pénaliser les candidats qui ne les possèdent pas.</p>
-                    </div>
-                </div>
+                    <h2>Candidatures à traiter</h2>
+                    <span id="dash-cand-atraiter" class="recruit-count" style="color:var(--rec-blue);">0</span>
+                    <p class="recruit-stat-desc">Statut envoyé en attente de vue</p>
+                </article>
 
-                <div class="recruit-pipeline-feature">
-                    <div class="recruit-feature-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
+                <article class="recruit-stat-card" style="background:#FFFFFF;">
+                    <div class="recruit-stat-card-top">
+                        <div class="recruit-stat-icon-wrap" style="background:rgba(16,185,129,0.12); color:#059669;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <span class="recruit-stat-badge online" style="background:#DCFCE7; color:#15803D;">Retenues</span>
                     </div>
-                    <div class="recruit-feature-text">
-                        <h4>Profils certifiés &amp; vérifiés</h4>
-                        <p>Les compétences validées sont préalablement certifiées par l'équipe administrative de la plateforme.</p>
+                    <h2>Candidatures acceptées</h2>
+                    <span id="dash-cand-acceptees" class="recruit-count" style="color:#059669;">0</span>
+                    <p class="recruit-stat-desc">Coordonnées email débloquées</p>
+                </article>
+
+                <article class="recruit-stat-card" style="background:#FFFFFF;">
+                    <div class="recruit-stat-card-top">
+                        <div class="recruit-stat-icon-wrap" style="background:rgba(239,68,68,0.12); color:#DC2626;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                        </div>
+                        <span class="recruit-stat-badge archived" style="background:#FEE2E2; color:#B91C1C;">Refusées</span>
                     </div>
-                </div>
+                    <h2>Candidatures refusées</h2>
+                    <span id="dash-cand-refusees" class="recruit-count slate">0</span>
+                    <p class="recruit-stat-desc">Clôturées définitivement</p>
+                </article>
             </div>
 
-            <div class="recruit-empty" style="margin-top: 1.5rem;" aria-label="Emplacement des candidatures reçues">
-                <div class="recruit-empty-icon" aria-hidden="true">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            <!-- RECENT CANDIDATURES LIST -->
+            <div style="margin-top: 2rem;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--rec-navy); margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                </div>
-                <div class="recruit-empty-title">Aucune candidature pour le moment</div>
-                <p>Vos offres actives sont prêtes à être matchées. Dès que des candidats postuleront ou que le matching sera lancé, vous découvrirez leurs scores détaillés.</p>
-                <a class="recruit-btn primary" href="/publier-offre.html">Publier une nouvelle offre</a>
+                    Candidatures les plus récentes
+                </h3>
+                <div id="recent-candidatures-list" aria-live="polite">Chargement des candidatures…</div>
             </div>
         </section>
     </main>
