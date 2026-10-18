@@ -33,12 +33,22 @@ public class CandidatureServiceImpl implements CandidatureService {
     private final MatchingService       matchingService;
     private final ProjetRepository      projetRepository;
     private final ExperienceProfessionnelleRepository experienceRepository;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     public CandidatureServiceImpl(CandidatureRepository candidatureRepository,
                                   EtudiantRepository etudiantRepository,
                                   OffreRepository offreRepository,
                                   MatchingService matchingService) {
-        this(candidatureRepository, etudiantRepository, offreRepository, matchingService, null, null);
+        this(candidatureRepository, etudiantRepository, offreRepository, matchingService, null, null, null);
+    }
+
+    public CandidatureServiceImpl(CandidatureRepository candidatureRepository,
+                                  EtudiantRepository etudiantRepository,
+                                  OffreRepository offreRepository,
+                                  MatchingService matchingService,
+                                  ProjetRepository projetRepository,
+                                  ExperienceProfessionnelleRepository experienceRepository) {
+        this(candidatureRepository, etudiantRepository, offreRepository, matchingService, projetRepository, experienceRepository, null);
     }
 
     @Autowired
@@ -47,13 +57,15 @@ public class CandidatureServiceImpl implements CandidatureService {
                                   OffreRepository offreRepository,
                                   MatchingService matchingService,
                                   ProjetRepository projetRepository,
-                                  ExperienceProfessionnelleRepository experienceRepository) {
+                                  ExperienceProfessionnelleRepository experienceRepository,
+                                  org.springframework.context.ApplicationEventPublisher eventPublisher) {
         this.candidatureRepository = candidatureRepository;
         this.etudiantRepository    = etudiantRepository;
         this.offreRepository       = offreRepository;
         this.matchingService       = matchingService;
         this.projetRepository      = projetRepository;
         this.experienceRepository  = experienceRepository;
+        this.eventPublisher        = eventPublisher;
     }
 
     // ──────────────────────────────────────────────────────────
@@ -94,7 +106,22 @@ public class CandidatureServiceImpl implements CandidatureService {
         cand.setScore(score);
         cand.setStatut(StatutCandidature.ENVOYEE);
 
-        return CandidatureDto.from(candidatureRepository.save(cand));
+        Candidature saved = candidatureRepository.save(cand);
+
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new com.gi3.matchingcv.event.CandidatureCreeeEvent(
+                    saved.getId(),
+                    etudiant.getId(),
+                    offre.getId(),
+                    offre.getRecruteur() != null ? offre.getRecruteur().getId() : null,
+                    score,
+                    etudiant.getNom(),
+                    etudiant.getPrenom(),
+                    offre.getTitre()
+            ));
+        }
+
+        return CandidatureDto.from(saved);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -143,7 +170,21 @@ public class CandidatureServiceImpl implements CandidatureService {
         }
 
         cand.setStatut(nouveauStatut);
-        return CandidatureDto.from(candidatureRepository.save(cand));
+        Candidature saved = candidatureRepository.save(cand);
+
+        if (eventPublisher != null && actuel != nouveauStatut) {
+            eventPublisher.publishEvent(new com.gi3.matchingcv.event.CandidatureStatutChangeEvent(
+                    saved.getId(),
+                    saved.getEtudiant().getId(),
+                    saved.getOffre().getId(),
+                    actuel,
+                    nouveauStatut,
+                    saved.getOffre().getTitre(),
+                    null
+            ));
+        }
+
+        return CandidatureDto.from(saved);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -198,8 +239,20 @@ public class CandidatureServiceImpl implements CandidatureService {
 
         // Quand le recruteur ouvre le détail d'une candidature ENVOYEE, elle passe automatiquement à VUE.
         if (cand.getStatut() == StatutCandidature.ENVOYEE) {
+            StatutCandidature ancien = cand.getStatut();
             cand.setStatut(StatutCandidature.VUE);
             cand = candidatureRepository.save(cand);
+            if (eventPublisher != null) {
+                eventPublisher.publishEvent(new com.gi3.matchingcv.event.CandidatureStatutChangeEvent(
+                        cand.getId(),
+                        cand.getEtudiant().getId(),
+                        cand.getOffre().getId(),
+                        ancien,
+                        StatutCandidature.VUE,
+                        cand.getOffre().getTitre(),
+                        recruteurId
+                ));
+            }
         }
 
         Etudiant etudiant = cand.getEtudiant();

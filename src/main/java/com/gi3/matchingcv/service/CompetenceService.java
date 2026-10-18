@@ -91,4 +91,29 @@ public interface CompetenceService {
     default List<Competence> suggererCompetences(String query) {
         return suggererCompetences(query, null);
     }
+
+    /**
+     * Valide une compétence en attente (passe son statut à VALIDEE).
+     *
+     * @param id identifiant de la compétence
+     * @return la compétence mise à jour
+     */
+    Competence valider(Long id);
+
+    /**
+     * Rejette une compétence en attente (passe son statut à REJETEE).
+     *
+     * @param id identifiant de la compétence
+     * @return la compétence mise à jour
+     */
+    Competence rejeter(Long id);
+
+    /**
+     * Change le statut d'une compétence et notifie l'utilisateur proposant si transition depuis EN_ATTENTE.
+     *
+     * @param id identifiant de la compétence
+     * @param nouveauStatut nouveau statut (VALIDEE, REJETEE, etc.)
+     * @return la compétence mise à jour
+     */
+    Competence changerStatut(Long id, com.gi3.matchingcv.model.enums.StatutCompetence nouveauStatut);
 }

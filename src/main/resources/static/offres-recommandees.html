@@ -6,7 +6,12 @@
     <title>Offres Recommandées — Matching CV-Offres</title>
     <script src="/js/session.js"></script>
     <script>MatchingCVSession.protect('ETUDIANT');</script>
+    <!-- SockJS & STOMP pour les notifications en temps réel -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/notifications.css"/>
+    <link rel="stylesheet" href="/css/coach-cv.css"/>
     <style>
         :root {
             --card-shadow: var(--shadow-sm);
@@ -759,7 +764,7 @@
             <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
             <li><a href="/offres-recommandees.html" class="nav-link active" aria-current="page">Offres recommandées</a></li>
             <li><a href="/mes-candidatures.html" class="nav-link">Mes Candidatures</a></li>
-            <li><a href="/dashboard-etudiant.html#dash-summary" class="nav-link" id="nav-link-profil" title="Consulter et modifier mon profil">Mon Profil</a></li>
+            <li><a href="/dashboard-etudiant.html?open=profil" class="nav-link" id="nav-link-profil" title="Consulter et modifier mon profil">Mon Profil</a></li>
             <li><a href="/competences.html" class="nav-link">Compétences</a></li>
         </ul>
         <div class="nav-cta">
@@ -914,6 +919,19 @@
                 </table>
             </div>
 
+            <!-- BLOC COACH CV : COMMENT AMÉLIORER CE SCORE -->
+            <div class="coach-modal-block" id="modal-coach-block">
+                <div class="coach-modal-head">
+                    <div class="coach-modal-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        Comment améliorer ce score ? &mdash; Recommandations Coach CV
+                    </div>
+                </div>
+                <div id="modal-coach-list-container">
+                    <!-- Rempli dynamiquement par CoachCV.renderOfferModalBlock -->
+                </div>
+            </div>
+
             <!-- Description du poste -->
             <div class="section-title">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
@@ -928,6 +946,8 @@
 
 <div class="toast" id="reco-toast" role="alert" aria-live="polite" style="position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.8rem 1.4rem;border-radius:12px;font-size:.84rem;font-weight:700;box-shadow:0 20px 60px rgba(15,30,60,.16);display:none;align-items:center;gap:.6rem;max-width:360px;"></div>
 
+<script src="/js/coach-cv.js"></script>
 <script src="/js/offres-recommandees.js"></script>
+<script src="/js/notifications.js"></script>
 </body>
 </html>

@@ -368,6 +368,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </tr>
             `;
         }).join('');
+
+        // ── RENDU DU BLOC COACH CV : COMMENT AMÉLIORER CE SCORE ──
+        const coachContainer = document.getElementById('modal-coach-list-container');
+        if (coachContainer && window.CoachCV && user && offre) {
+            window.CoachCV.renderOfferModalBlock(coachContainer, user.id, offre.id);
+        }
     }
 
     // Fermeture du modal

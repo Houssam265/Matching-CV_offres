@@ -8,9 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/notifications.css" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
     <script src="/js/session.js"></script>
     <script>MatchingCVSession.protect('ETUDIANT');</script>
+    <!-- SockJS & STOMP pour les notifications en temps réel -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 </head>
 <body>
 
@@ -35,8 +39,10 @@
 
             <ul class="nav-links" id="nav-links" role="list">
                 <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
-                <li><a href="/dashboard-etudiant.html?open=profil" class="nav-link" id="nav-link-profil">Mon Profil</a></li>
-                <li><a href="/competences.html" class="nav-link active" id="nav-link-competences" aria-current="page">Mes comp&eacute;tences</a></li>
+                <li><a href="/offres-recommandees.html" class="nav-link">Offres recommandées</a></li>
+                <li><a href="/mes-candidatures.html" class="nav-link">Mes Candidatures</a></li>
+                <li><a href="/dashboard-etudiant.html?open=profil" class="nav-link" id="nav-link-profil" title="Consulter et modifier mon profil">Mon Profil</a></li>
+                <li><a href="/competences.html" class="nav-link active" id="nav-link-competences" aria-current="page">Compétences</a></li>
             </ul>
 
             <div class="nav-cta">
@@ -310,6 +316,7 @@
 
     <!-- SCRIPT MES COMPÉTENCES -->
     <script src="/js/competences.js"></script>
+    <script src="/js/notifications.js"></script>
     <script>
     (function() {
         var user = MatchingCVSession.require('ETUDIANT');

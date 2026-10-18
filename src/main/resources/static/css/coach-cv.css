@@ -1,0 +1,422 @@
+/* ==========================================================================
+   COACH CV — Design Système & Styles Ultra-Premium
+   Matching CV-Offres | GI3 ENSA Tétouan
+   ========================================================================== */
+
+/* ── Carte Coach Principale sur le Dashboard ── */
+.coach-summary-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid rgba(46, 139, 139, 0.22);
+    box-shadow: 0 10px 30px -5px rgba(31, 56, 100, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    padding: 1.75rem 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+.coach-summary-card:hover {
+    box-shadow: 0 16px 36px -6px rgba(31, 56, 100, 0.12);
+    border-color: rgba(46, 139, 139, 0.38);
+}
+.coach-summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #1F3864 0%, #2E8B8B 50%, #10B981 100%);
+}
+
+/* En-tête Coach */
+.coach-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.coach-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.coach-avatar-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(46, 139, 139, 0.15) 0%, rgba(31, 56, 100, 0.12) 100%);
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(46, 139, 139, 0.15);
+    flex-shrink: 0;
+}
+.coach-title-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.coach-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(46, 139, 139, 0.1);
+    color: var(--teal);
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    width: fit-content;
+}
+.coach-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--navy-deep);
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+.coach-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-mid);
+    margin: 0;
+}
+
+/* Indicateurs rapides (Score complétion & Gain max) */
+.coach-metrics {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+.coach-metric-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    padding: 0.6rem 1rem;
+    border-radius: 14px;
+}
+.coach-completion-circle {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--navy-deep);
+    background: conic-gradient(var(--teal) calc(var(--completion, 75) * 1%), #E2E8F0 0);
+}
+.coach-completion-circle::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: #FFFFFF;
+    border-radius: 50%;
+}
+.coach-completion-circle span {
+    position: relative;
+    z-index: 1;
+}
+
+.coach-metric-info {
+    display: flex;
+    flex-direction: column;
+}
+.coach-metric-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.coach-metric-val {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--navy-deep);
+}
+.coach-metric-val.gain {
+    color: #059669;
+}
+
+/* Grille des conseils */
+.coach-tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+}
+
+/* Carte de conseil individuelle */
+.coach-tip-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 16px;
+    padding: 1.25rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: all var(--t) var(--ease);
+    position: relative;
+    box-shadow: 0 2px 8px rgba(15, 30, 60, 0.03);
+}
+.coach-tip-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(46, 139, 139, 0.4);
+    box-shadow: 0 8px 24px rgba(31, 56, 100, 0.09);
+}
+
+.coach-tip-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+.coach-tip-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+}
+.coach-tip-type-badge.offre {
+    background: rgba(46, 90, 156, 0.1);
+    color: #1F3864;
+}
+.coach-tip-type-badge.valorisation {
+    background: rgba(46, 139, 139, 0.12);
+    color: #147070;
+}
+.coach-tip-type-badge.demande {
+    background: rgba(139, 92, 246, 0.12);
+    color: #6D28D9;
+}
+.coach-tip-type-badge.hygiene {
+    background: rgba(245, 158, 11, 0.12);
+    color: #B45309;
+}
+
+/* Badge gain points */
+.coach-gain-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: #FFFFFF;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 0.28rem 0.7rem;
+    border-radius: 9999px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    white-space: nowrap;
+}
+
+.coach-tip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.coach-tip-title {
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: var(--navy-deep);
+    margin: 0;
+    line-height: 1.35;
+}
+.coach-tip-desc {
+    font-size: 0.84rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.coach-tip-target {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--teal);
+    background: rgba(46, 139, 139, 0.08);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+/* Bouton action */
+.coach-tip-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.55rem 0.95rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    background: rgba(31, 56, 100, 0.05);
+    color: var(--navy-deep);
+    border: 1px solid rgba(31, 56, 100, 0.1);
+    transition: all var(--t) var(--ease);
+    cursor: pointer;
+}
+.coach-tip-action:hover {
+    background: var(--teal);
+    color: #FFFFFF;
+    border-color: var(--teal);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46, 139, 139, 0.25);
+}
+
+/* Pied de carte Coach (bouton voir tout) */
+.coach-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.coach-footer-note {
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+.coach-btn-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 1.15rem;
+    border-radius: 9999px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--teal);
+    background: rgba(46, 139, 139, 0.1);
+    border: 1px solid rgba(46, 139, 139, 0.2);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+}
+.coach-btn-view-all:hover {
+    background: var(--teal);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46, 139, 139, 0.3);
+}
+
+/* ── Bloc Coach dans le Modal Détail Offre ── */
+.coach-modal-block {
+    background: linear-gradient(135deg, rgba(240, 253, 250, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%);
+    border: 1.5px solid rgba(46, 139, 139, 0.3);
+    border-radius: 16px;
+    padding: 1.35rem 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 16px rgba(46, 139, 139, 0.08);
+}
+.coach-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.coach-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--navy-deep);
+}
+.coach-modal-title svg {
+    color: var(--teal);
+}
+.coach-modal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.coach-modal-item {
+    background: #FFFFFF;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 12px;
+    padding: 0.85rem 1.15rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 1px 4px rgba(15, 30, 60, 0.03);
+    transition: all var(--t) var(--ease);
+}
+.coach-modal-item:hover {
+    border-color: rgba(46, 139, 139, 0.4);
+    box-shadow: 0 4px 12px rgba(31, 56, 100, 0.06);
+}
+.coach-modal-item-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1 1 240px;
+}
+.coach-modal-item-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--navy-deep);
+}
+.coach-modal-item-desc {
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    line-height: 1.4;
+}
+.coach-modal-item-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+.coach-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.42rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: var(--teal);
+    color: #FFFFFF;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+    box-shadow: 0 2px 6px rgba(46, 139, 139, 0.25);
+}
+.coach-modal-btn:hover {
+    background: var(--navy-deep);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(31, 56, 100, 0.25);
+}
+
+/* Animation douce pour l'affichage des conseils */
+@keyframes coachFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.coach-tip-card, .coach-modal-item {
+    animation: coachFadeIn 0.3s ease-out;
+}

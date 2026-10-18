@@ -6,7 +6,12 @@
     <title>Tableau de bord Étudiant — Matching CV-Offres</title>
     <script src="/js/session.js"></script>
     <script>MatchingCVSession.protect('ETUDIANT');</script>
+    <!-- SockJS & STOMP pour les notifications en temps réel -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/notifications.css"/>
+    <link rel="stylesheet" href="/css/coach-cv.css"/>
     <style>
         :root{
             --card-shadow:var(--shadow-sm);
@@ -207,7 +212,7 @@
             <li><a href="/dashboard-etudiant.html" class="nav-link active" aria-current="page">Tableau de bord</a></li>
             <li><a href="/offres-recommandees.html" class="nav-link">Offres recommandées</a></li>
             <li><a href="/mes-candidatures.html" class="nav-link">Mes Candidatures</a></li>
-            <li><a href="#dash-summary" class="nav-link" id="nav-link-profil" title="Consulter et modifier mon profil">Mon Profil</a></li>
+            <li><a href="/dashboard-etudiant.html?open=profil" class="nav-link" id="nav-link-profil" title="Consulter et modifier mon profil">Mon Profil</a></li>
             <li><a href="/competences.html" class="nav-link">Compétences</a></li>
         </ul>
         <div class="nav-cta">
@@ -275,6 +280,9 @@
             Modifier mon profil &amp; liaisons
         </button>
     </div>
+
+    <!-- MODULE COACH CV (3 MEILLEURS CONSEILS CHIFFRÉS ET ACTIONS) -->
+    <div id="coach-cv-container"></div>
 
     <!-- ═══════════════ RÉSUMÉ STRUCTURÉ DU PROFIL & LIAISONS (AU COEUR DU DASHBOARD) ═══════════════ -->
     <section class="dash-summary" id="dash-summary">
@@ -504,6 +512,8 @@
 </div>
 </div>
 
+<script src="/js/coach-cv.js"></script>
 <script src="/js/dashboard-etudiant.js"></script>
+<script src="/js/notifications.js"></script>
 </body>
 </html>
