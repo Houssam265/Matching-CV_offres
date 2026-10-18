@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>Coach CV &mdash; Matching CV-Offres</title>
+    <meta name="description" content="Recommandations concrètes et chiffrées pour optimiser votre profil et vos scores de matching."/>
+    <script src="/js/session.js"></script>
+    <script>MatchingCVSession.protect('ETUDIANT');</script>
+    <!-- SockJS & STOMP pour les notifications en temps réel -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/notifications.css"/>
+    <link rel="stylesheet" href="/css/coach-cv.css"/>
+    <style>
+        body { background: var(--bg); color: var(--text-dark); font-family: var(--font-family); }
+        .coach-page-hero {
+            background: var(--banner-gradient);
+            padding: 3rem 1.5rem 2.8rem;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .coach-page-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        .coach-hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: var(--content-width);
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .coach-hero-title {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 800;
+        }
+        .coach-hero-title span { color: #5FD88A; }
+        .coach-hero-sub {
+            font-size: .92rem;
+            color: rgba(255,255,255,.75);
+            margin-top: .35rem;
+            max-width: 600px;
+        }
+        .coach-page-main {
+            max-width: var(--content-width);
+            margin: 2rem auto;
+            padding: 0 1.5rem 4rem;
+        }
+        .coach-filters-bar {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.75rem;
+            background: #FFFFFF;
+            padding: .6rem .85rem;
+            border-radius: 14px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 2px 8px rgba(15, 30, 60, 0.03);
+        }
+        .coach-filter-btn {
+            background: none;
+            border: 1px solid transparent;
+            padding: .4rem .85rem;
+            border-radius: 8px;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            cursor: pointer;
+            transition: all var(--t) var(--ease);
+        }
+        .coach-filter-btn:hover {
+            color: var(--navy-deep);
+            background: rgba(31, 56, 100, 0.05);
+        }
+        .coach-filter-btn.active {
+            background: var(--teal);
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR COMMUNE HARMONISÉE -->
+<nav class="navbar" id="navbar" role="navigation">
+    <div class="nav-inner">
+        <a href="/dashboard-etudiant.html" class="nav-logo">
+            <span class="logo-mark"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/><path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs></svg></span>
+            <span class="logo-text">Matching<strong>CV</strong></span>
+        </a>
+        <ul class="nav-links" id="nav-links" role="list">
+            <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
+            <li><a href="/offres-recommandees.html" class="nav-link">Offres recommandées</a></li>
+            <li><a href="/mes-candidatures.html" class="nav-link">Mes Candidatures</a></li>
+            <li><a href="/dashboard-etudiant.html?open=profil" class="nav-link" id="nav-link-profil" title="Consulter et modifier mon profil">Mon Profil</a></li>
+            <li><a href="/competences.html" class="nav-link">Compétences</a></li>
+        </ul>
+        <div class="nav-cta">
+            <span id="nav-user-name" class="nav-user-label" style="cursor:pointer;" title="Consulter mon profil"></span>
+            <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">Déconnexion</button>
+        </div>
+        <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+</nav>
+
+<!-- HERO HEADER -->
+<div class="coach-page-hero">
+    <div class="coach-hero-inner">
+        <div>
+            <div class="coach-hero-title">Coach <span>CV</span> &mdash; Stratégie d'Optimisation</div>
+            <div class="coach-hero-sub">Recommandations chiffrées calculées par règles mathématiques pour propulser vos correspondances et maximiser votre employabilité.</div>
+        </div>
+        <div>
+            <a href="/dashboard-etudiant.html" class="btn-nav-outline" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.3);">
+                &larr; Retour au Tableau de bord
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- CONTENU PRINCIPAL -->
+<main class="coach-page-main">
+    <!-- Conteneur Carte Coach Synthèse -->
+    <div id="coach-full-summary-container"></div>
+
+    <!-- Barre de filtrage -->
+    <div class="coach-filters-bar">
+        <span style="font-size:.78rem;font-weight:700;color:var(--text-mid);margin-right:.5rem;text-transform:uppercase;letter-spacing:.05em;">Filtrer :</span>
+        <button type="button" class="coach-filter-btn active" data-filter="ALL">Tous les conseils (<span id="cnt-all">0</span>)</button>
+        <button type="button" class="coach-filter-btn" data-filter="OFFRE_COMPETENCE">Par offre (<span id="cnt-offre">0</span>)</button>
+        <button type="button" class="coach-filter-btn" data-filter="VALORISATION">Valorisation (<span id="cnt-val">0</span>)</button>
+        <button type="button" class="coach-filter-btn" data-filter="COMPETENCE_DEMANDEE">Marché (<span id="cnt-demande">0</span>)</button>
+        <button type="button" class="coach-filter-btn" data-filter="HYGIENE_PROFIL">Hygiène profil (<span id="cnt-hygiene">0</span>)</button>
+    </div>
+
+    <!-- Grille complète des conseils filtrés -->
+    <div class="coach-tips-grid" id="coach-filtered-grid">
+        <div style="color:var(--text-mid);padding:2rem;text-align:center;">Chargement de vos conseils...</div>
+    </div>
+</main>
+
+<script src="/js/coach-cv.js"></script>
+<script src="/js/notifications.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = MatchingCVSession.require('ETUDIANT');
+    if (!user) return;
+
+    const navName = document.getElementById('nav-user-name');
+    if (navName) navName.textContent = (user.prenom || '') + ' ' + (user.nom || '');
+    document.getElementById('nav-logout')?.addEventListener('click', () => MatchingCVSession.logout());
+    document.getElementById('nav-user-name')?.addEventListener('click', () => {
+        window.location.href = '/dashboard-etudiant.html?open=profil';
+    });
+
+    // Chargement des données Coach
+    const resume = await CoachCV.loadOverview(user.id);
+    if (!resume) {
+        document.getElementById('coach-filtered-grid').innerHTML = '<div style="color:var(--text-mid);padding:2rem;">Impossible de charger les conseils.</div>';
+        return;
+    }
+
+    // Rendu de la carte principale
+    CoachCV.renderDashboardCard(document.getElementById('coach-full-summary-container'), resume);
+
+    const allTips = resume.tousConseils || [];
+
+    // Mettre à jour les compteurs
+    document.getElementById('cnt-all').textContent = allTips.length;
+    document.getElementById('cnt-offre').textContent = allTips.filter(t => t.type === 'OFFRE_COMPETENCE').length;
+    document.getElementById('cnt-val').textContent = allTips.filter(t => t.type === 'VALORISATION').length;
+    document.getElementById('cnt-demande').textContent = allTips.filter(t => t.type === 'COMPETENCE_DEMANDEE').length;
+    document.getElementById('cnt-hygiene').textContent = allTips.filter(t => t.type === 'HYGIENE_PROFIL').length;
+
+    // Rendu initial de la grille
+    renderFilteredGrid(allTips);
+
+    // Filtrage dynamique
+    document.querySelectorAll('.coach-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.coach-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filter = btn.dataset.filter;
+            if (filter === 'ALL') {
+                renderFilteredGrid(allTips);
+            } else {
+                renderFilteredGrid(allTips.filter(t => t.type === filter));
+            }
+        });
+    });
+
+    function renderFilteredGrid(tips) {
+        const grid = document.getElementById('coach-filtered-grid');
+        if (tips.length === 0) {
+            grid.innerHTML = '<div style="color:var(--text-mid);padding:2rem;text-align:center;grid-column:1/-1;">Aucun conseil dans cette catégorie.</div>';
+            return;
+        }
+
+        grid.innerHTML = tips.map(tip => {
+            let typeBadgeClass = 'offre';
+            let typeLabel = 'Offre ciblée';
+            if (tip.type === 'VALORISATION') { typeBadgeClass = 'valorisation'; typeLabel = 'Valorisation'; }
+            else if (tip.type === 'COMPETENCE_DEMANDEE') { typeBadgeClass = 'demande'; typeLabel = 'Marché'; }
+            else if (tip.type === 'HYGIENE_PROFIL') { typeBadgeClass = 'hygiene'; typeLabel = 'Hygiène'; }
+
+            const gainDisplay = (tip.gainPoints && tip.gainPoints > 0) ? `+${tip.gainPoints.toFixed(1)} pts` : 'Recommandé';
+            let targetPill = tip.offreTitre ? `<span class="coach-tip-target"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2"/></svg> ${tip.offreTitre}</span>` : '';
+
+            return `
+                <div class="coach-tip-card">
+                    <div>
+                        <div class="coach-tip-top">
+                            <span class="coach-tip-type-badge ${typeBadgeClass}">${typeLabel}</span>
+                            <span class="coach-gain-badge">${gainDisplay}</span>
+                        </div>
+                        <div class="coach-tip-content" style="margin-top:.75rem;">
+                            <h4 class="coach-tip-title">${tip.titre}</h4>
+                            <p class="coach-tip-desc">${tip.description}</p>
+                            ${targetPill}
+                        </div>
+                    </div>
+                    <div>
+                        <a href="${tip.actionUrl}" class="coach-tip-action">
+                            <span>${tip.actionLabel || 'Agir maintenant'}</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+});
+</script>
+</body>
+</html>

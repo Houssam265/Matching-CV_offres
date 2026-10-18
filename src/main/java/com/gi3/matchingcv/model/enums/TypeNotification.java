@@ -1,0 +1,12 @@
+package com.gi3.matchingcv.model.enums;
+
+public enum TypeNotification {
+    OFFRE_CORRESPONDANTE,
+    CANDIDATURE_VUE,
+    CANDIDATURE_ACCEPTEE,
+    CANDIDATURE_REFUSEE,
+    COMPETENCE_VALIDEE,
+    COMPETENCE_REJETEE,
+    NOUVELLE_CANDIDATURE,
+    COMPETENCE_A_MODERER
+}

@@ -31,6 +31,7 @@ public class CompetenceServiceImpl implements CompetenceService {
     private final ProfilCompetenceRepository profilCompetenceRepository;
     private final OffreCompetenceRepository offreCompetenceRepository;
     private final EntityManager entityManager;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     /**
      * Injection par constructeur (IoC) : la classe déclare explicitement ses dépendances,
@@ -42,10 +43,22 @@ public class CompetenceServiceImpl implements CompetenceService {
             OffreCompetenceRepository offreCompetenceRepository,
             EntityManager entityManager
     ) {
+        this(competenceRepository, profilCompetenceRepository, offreCompetenceRepository, entityManager, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public CompetenceServiceImpl(
+            CompetenceRepository competenceRepository,
+            ProfilCompetenceRepository profilCompetenceRepository,
+            OffreCompetenceRepository offreCompetenceRepository,
+            EntityManager entityManager,
+            org.springframework.context.ApplicationEventPublisher eventPublisher
+    ) {
         this.competenceRepository = competenceRepository;
         this.profilCompetenceRepository = profilCompetenceRepository;
         this.offreCompetenceRepository = offreCompetenceRepository;
         this.entityManager = entityManager;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -209,5 +222,37 @@ public class CompetenceServiceImpl implements CompetenceService {
             }
         }
         return 2;
+    }
+
+    @Override
+    public Competence valider(Long id) {
+        return changerStatut(id, StatutCompetence.VALIDEE);
+    }
+
+    @Override
+    public Competence rejeter(Long id) {
+        return changerStatut(id, StatutCompetence.REJETEE);
+    }
+
+    @Override
+    public Competence changerStatut(Long id, StatutCompetence nouveauStatut) {
+        Competence competence = trouverParId(id);
+        StatutCompetence ancien = competence.getStatut();
+        competence.setStatut(nouveauStatut);
+        Competence saved = competenceRepository.save(competence);
+
+        if (eventPublisher != null && ancien == StatutCompetence.EN_ATTENTE &&
+                (nouveauStatut == StatutCompetence.VALIDEE || nouveauStatut == StatutCompetence.REJETEE)) {
+            Long proposeeParId = (saved.getProposeePar() != null) ? saved.getProposeePar().getId() : null;
+            eventPublisher.publishEvent(new com.gi3.matchingcv.event.CompetenceStatutChangeEvent(
+                    saved.getId(),
+                    saved.getNom(),
+                    ancien,
+                    nouveauStatut,
+                    proposeeParId
+            ));
+        }
+
+        return saved;
     }
 }

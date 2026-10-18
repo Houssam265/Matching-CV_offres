@@ -12,6 +12,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import com.gi3.matchingcv.event.OffrePublieeEvent;
+import org.springframework.context.ApplicationEventPublisher;
+
 @Service
 @Transactional
 public class OffreServiceImpl implements OffreService {
@@ -19,11 +22,20 @@ public class OffreServiceImpl implements OffreService {
     private final RecruteurRepository recruteurs;
     private final CandidatureRepository candidatures;
     private final CompetenceService competences;
+    private final ApplicationEventPublisher eventPublisher;
 
     public OffreServiceImpl(OffreRepository offres, RecruteurRepository recruteurs,
                             CandidatureRepository candidatures, CompetenceService competences) {
+        this(offres, recruteurs, candidatures, competences, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public OffreServiceImpl(OffreRepository offres, RecruteurRepository recruteurs,
+                            CandidatureRepository candidatures, CompetenceService competences,
+                            ApplicationEventPublisher eventPublisher) {
         this.offres = offres; this.recruteurs = recruteurs;
         this.candidatures = candidatures; this.competences = competences;
+        this.eventPublisher = eventPublisher;
     }
 
     private Recruteur recruteur(Long id) {
@@ -50,7 +62,11 @@ public class OffreServiceImpl implements OffreService {
         offre.setRecruteur(recruteur(request.recruteurId()));
         appliquer(offre, request);
         offre.setDatePublication(LocalDateTime.now());
-        return OffreDto.from(offres.save(offre));
+        Offre saved = offres.save(offre);
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new OffrePublieeEvent(saved.getId(), saved.getRecruteur().getId(), saved.getTitre()));
+        }
+        return OffreDto.from(saved);
     }
 
     @Override

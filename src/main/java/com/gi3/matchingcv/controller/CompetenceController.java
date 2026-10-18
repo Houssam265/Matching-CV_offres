@@ -136,4 +136,36 @@ public class CompetenceController {
             return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors de la proposition : " + e.getMessage()));
         }
     }
+
+    /**
+     * Valide une compétence en attente (réservé ADMIN).
+     */
+    // TODO sécurité : réservé ADMIN
+    @PatchMapping("/{id}/valider")
+    public ResponseEntity<?> valider(@PathVariable Long id) {
+        try {
+            Competence validee = competenceService.valider(id);
+            return ResponseEntity.ok(validee);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors de la validation : " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Rejette une compétence en attente (réservé ADMIN).
+     */
+    // TODO sécurité : réservé ADMIN
+    @PatchMapping("/{id}/rejeter")
+    public ResponseEntity<?> rejeter(@PathVariable Long id) {
+        try {
+            Competence rejetee = competenceService.rejeter(id);
+            return ResponseEntity.ok(rejetee);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Erreur lors du rejet : " + e.getMessage()));
+        }
+    }
 }

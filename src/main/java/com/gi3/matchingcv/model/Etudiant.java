@@ -32,9 +32,7 @@ public class Etudiant extends Utilisateur {
     @OneToMany(mappedBy = "etudiant", fetch = FetchType.LAZY)
     private List<Candidature> candidatures = new ArrayList<>();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "etudiant", fetch = FetchType.LAZY)
-    private List<Notification> notifications = new ArrayList<>();
+
 
     /** Compétences déclarées directement par l'étudiant (sans niveau de maîtrise). */
     @ManyToMany(fetch = FetchType.LAZY)

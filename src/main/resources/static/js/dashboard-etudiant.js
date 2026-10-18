@@ -630,6 +630,16 @@ async function loadAllData(id) {
 
     renderDashboardSummary();
     renderDrawer();
+
+    // ── CHARGEMENT DU MODULE COACH CV ──
+    if (window.CoachCV) {
+        window.CoachCV.loadOverview(id).then(resume => {
+            const container = document.getElementById('coach-cv-container');
+            if (container && resume) {
+                window.CoachCV.renderDashboardCard(container, resume);
+            }
+        });
+    }
 }
 
 /* ─── INITIALISATION AU CHARGEMENT DE LA PAGE ─────────────── */
