@@ -37,6 +37,147 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20), {passive: true});
     }
 
+    // ── Cloche de notifications temps réel (Contrat socle NotificationBell) ──
+    if (window.NotificationBell) {
+        window.NotificationBell.init({ userId: user.id });
+
+        window.NotificationBell.onNotification(async (notification) => {
+            if (!notification) return;
+
+            // 1. Mise à jour instantanée sans rechargement à l'arrivée d'une NOUVELLE_CANDIDATURE
+            if (notification.type === 'NOUVELLE_CANDIDATURE') {
+                if (page === 'dashboard') {
+                    await refreshDashboardLive();
+                } else if (page === 'offres') {
+                    await loadList();
+                } else if (page === 'candidats') {
+                    const currentOffreId = new URLSearchParams(location.search).get('offre') || new URLSearchParams(location.search).get('offreId');
+                    if (currentOffreId && String(notification.offreId) === String(currentOffreId)) {
+                        if (typeof window.__refreshCandidatsLive === 'function') {
+                            await window.__refreshCandidatsLive(notification.candidatureId);
+                        }
+                    }
+                }
+            } else if (notification.type === 'COMPETENCE_VALIDEE' || notification.type === 'COMPETENCE_REJETEE') {
+                if (page === 'detail') {
+                    const currentOffreId = new URLSearchParams(location.search).get('id');
+                    if (notification.offreId && String(notification.offreId) === String(currentOffreId)) {
+                        window.location.reload();
+                    }
+                }
+            }
+        });
+    }
+
+    function pulseElement(el) {
+        if (!el) return;
+        el.classList.remove('counter-pop');
+        void el.offsetWidth;
+        el.classList.add('counter-pop');
+    }
+
+    async function findOffreIdForCompetence(competenceId) {
+        if (!competenceId) return null;
+        try {
+            const offres = await api(`${base}/offres`);
+            if (offres && offres.length > 0) {
+                for (const o of offres) {
+                    const comps = o.competences || [];
+                    if (comps.some(c => String(c.id || c.competenceId) === String(competenceId))) {
+                        return o.id;
+                    }
+                }
+                return offres[0].id;
+            }
+        } catch (_) {}
+        return null;
+    }
+
+    async function markNotificationAsReadForCandidature(candId) {
+        if (!candId) return;
+        try {
+            const res = await fetch(`/api/utilisateurs/${user.id}/notifications?nonLues=true&size=50`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!res.ok) return;
+            const pageData = await res.json();
+            const unreads = pageData.content || [];
+            const matches = unreads.filter(n => !n.lue && (
+                String(n.candidatureId) === String(candId) ||
+                (n.lien && (n.lien.includes(`candidature=${candId}`) || n.lien.includes(`candidatureId=${candId}`)))
+            ));
+            for (const notif of matches) {
+                await fetch(`/api/notifications/${notif.id}/lue`, {
+                    method: 'PATCH',
+                    headers: { 'Accept': 'application/json' }
+                });
+                notif.lue = true;
+                if (window.NotificationBell && typeof window.NotificationBell.markAsRead === 'function') {
+                    window.NotificationBell.markAsRead({ id: notif.id, lue: false, lien: null });
+                }
+            }
+        } catch (e) {
+            console.warn("Erreur marquage notification lue :", e);
+        }
+    }
+
+    // Interception des clics sur les notifications pour les redirections recruteur appropriées
+    document.addEventListener('click', async (e) => {
+        const item = e.target.closest('.notif-item, .notif-toast');
+        if (!item) return;
+
+        if (e.target.closest('.notif-toast-close') || e.target.closest('.notif-btn-readall') || e.target.closest('.notif-dropdown-footer')) {
+            return;
+        }
+
+        const notifId = item.dataset.id ? Number(item.dataset.id) : null;
+        if (!notifId) return;
+
+        e.stopPropagation();
+        e.preventDefault();
+
+        try {
+            const patchRes = await fetch(`/api/notifications/${notifId}/lue`, {
+                method: 'PATCH',
+                headers: { 'Accept': 'application/json' }
+            });
+            const notifDto = patchRes.ok ? await patchRes.json() : null;
+
+            if (window.NotificationBell && typeof window.NotificationBell.markAsRead === 'function') {
+                window.NotificationBell.markAsRead({ id: notifId, lue: true, lien: null });
+            }
+
+            if (!notifDto) return;
+
+            if (notifDto.type === 'NOUVELLE_CANDIDATURE') {
+                const targetOffre = notifDto.offreId;
+                const targetCand = notifDto.candidatureId;
+                if (targetOffre && targetCand) {
+                    window.location.href = `/candidats-offre.html?offre=${targetOffre}&candidature=${targetCand}`;
+                    return;
+                }
+            } else if (notifDto.type === 'COMPETENCE_VALIDEE' || notifDto.type === 'COMPETENCE_REJETEE') {
+                let targetOffre = notifDto.offreId;
+                if (!targetOffre && notifDto.competenceId) {
+                    targetOffre = await findOffreIdForCompetence(notifDto.competenceId);
+                }
+                if (targetOffre) {
+                    window.location.href = `/offre-recruteur.html?id=${targetOffre}`;
+                    return;
+                } else {
+                    window.location.href = '/mes-offres.html';
+                    return;
+                }
+            }
+
+            if (notifDto.lien) {
+                window.location.href = notifDto.lien;
+            }
+        } catch (err) {
+            console.error("Erreur traitement clic notification :", err);
+        }
+    }, true);
+
     async function api(url, method = 'GET', body) {
         const response = await fetch(url, {
             method,
@@ -118,7 +259,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${scoreAlert}
 
             <div class="recruit-actions">
-                <a class="recruit-btn primary" href="/candidats-offre.html?offreId=${o.id}">
+                <a class="recruit-btn primary" href="/candidats-offre.html?offre=${o.id}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                     Candidats (${o.nbCandidatures || 0})
                 </a>
@@ -208,78 +349,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (_) {}
 
             // Load recruiter dashboard metrics & recent candidatures (PHASE 2)
-            try {
-                const dash = await api(`/api/recruteurs/${user.id}/dashboard`);
-                if (dash) {
-                    const totalCandEl = document.getElementById('dash-cand-total');
-                    if (totalCandEl) totalCandEl.textContent = dash.candidaturesRecues;
-                    const aTraiterEl = document.getElementById('dash-cand-atraiter');
-                    if (aTraiterEl) aTraiterEl.textContent = dash.candidaturesATraiter;
-                    const accEl = document.getElementById('dash-cand-acceptees');
-                    if (accEl) accEl.textContent = (dash.repartitionStatuts && dash.repartitionStatuts.ACCEPTEE) || 0;
-                    const refEl = document.getElementById('dash-cand-refusees');
-                    if (refEl) refEl.textContent = (dash.repartitionStatuts && dash.repartitionStatuts.REFUSEE) || 0;
-
-                    const recentListEl = document.getElementById('recent-candidatures-list');
-                    if (recentListEl) {
-                        if (!dash.dernieresCandidatures || dash.dernieresCandidatures.length === 0) {
-                            recentListEl.innerHTML = `
-                            <div class="recruit-empty" style="padding:1.75rem 1rem;">
-                                <div class="recruit-empty-icon" aria-hidden="true">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                                </div>
-                                <div class="recruit-empty-title">Aucune candidature reçue pour le moment</div>
-                                <p style="font-size:0.88rem;">Vos offres sont en ligne. Dès que des étudiants postuleront, vous retrouverez leurs scores et candidatures ici.</p>
-                            </div>`;
-                        } else {
-                            recentListEl.innerHTML = `
-                            <div style="overflow-x:auto;">
-                                <table class="score-table" style="background:#FFFFFF; border-radius:12px; overflow:hidden; border:1px solid var(--rec-border);">
-                                    <thead>
-                                        <tr>
-                                            <th>Candidat</th>
-                                            <th>Offre</th>
-                                            <th>Score</th>
-                                            <th>Statut</th>
-                                            <th>Date</th>
-                                            <th style="text-align:right;">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${dash.dernieresCandidatures.map(c => `
-                                            <tr>
-                                                <td>
-                                                    <strong>${esc(c.prenom)} ${esc(c.nom)}</strong>
-                                                    <div style="font-size:0.78rem; color:#64748B;">${esc(c.filiere || '')} · ${esc(c.etablissement || '')}</div>
-                                                </td>
-                                                <td>
-                                                    <a href="/offre-recruteur.html?id=${c.offreId}" style="color:var(--rec-blue); font-weight:600; text-decoration:none;">${esc(c.offreTitre)}</a>
-                                                </td>
-                                                <td>
-                                                    <span class="candidat-score-pill ${c.score >= 70 ? 'score-high' : (c.score >= 40 ? 'score-mid' : 'score-low')}" style="padding:0.25rem 0.6rem; font-size:0.82rem;">
-                                                        ${c.score != null ? Math.round(c.score) + '%' : '—'}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span class="statut-badge ${String(c.statut).toLowerCase()}">${esc(c.statut)}</span>
-                                                </td>
-                                                <td style="color:#64748B; font-size:0.82rem;">${date(c.dateCandidature)}</td>
-                                                <td style="text-align:right;">
-                                                    <a class="recruit-btn" style="padding:0.35rem 0.75rem; font-size:0.8rem;" href="/candidats-offre.html?offreId=${c.offreId}&candidatureId=${c.candidatureId}">
-                                                        Consulter
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>`;
-                        }
-                    }
-                }
-            } catch (err) {
-                console.error("Erreur chargement dashboard recruteur :", err);
-            }
+            await renderDashboardMetrics(false);
         }
 
         if (page === 'offres') {
@@ -600,12 +670,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         <span class="candidat-score-pill ${c.score >= 70 ? 'score-high' : (c.score >= 40 ? 'score-mid' : 'score-low')}" style="padding:0.3rem 0.7rem; font-size:0.85rem;">
                                             ${c.score != null ? Math.round(c.score * 10) / 10 + '%' : 'N/A'}
                                         </span>
-                                        <a href="/candidats-offre.html?offreId=${id}&candidatureId=${c.candidatureId}" class="recruit-btn" style="padding:0.4rem 0.8rem; font-size:0.82rem;">Consulter</a>
+                                        <a href="/candidats-offre.html?offre=${id}&candidature=${c.candidatureId}" class="recruit-btn" style="padding:0.4rem 0.8rem; font-size:0.82rem;">Consulter</a>
                                     </div>
                                 </div>
                             `).join('')}
                         </div>
-                        ${totalCands > 3 ? `<p style="text-align:center; margin-top:1rem; font-size:0.88rem;" class="recruit-muted">Et ${totalCands - 3} autre(s) candidat(s)... <a href="/candidats-offre.html?offreId=${id}" style="color:var(--rec-blue);font-weight:700;">Voir la liste complète ordonnée par score</a></p>` : ''}
+                        ${totalCands > 3 ? `<p style="text-align:center; margin-top:1rem; font-size:0.88rem;" class="recruit-muted">Et ${totalCands - 3} autre(s) candidat(s)... <a href="/candidats-offre.html?offre=${id}" style="color:var(--rec-blue);font-weight:700;">Voir la liste complète ordonnée par score</a></p>` : ''}
                         `;
                     }
                 } catch (_) {}
@@ -789,8 +859,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function initCandidatsPage() {
         const urlParams = new URLSearchParams(location.search);
-        const offreId = urlParams.get('offreId');
-        const targetCandId = urlParams.get('candidatureId');
+        const offreId = urlParams.get('offre') || urlParams.get('offreId');
+        const targetCandId = urlParams.get('candidature') || urlParams.get('candidatureId');
 
         if (!offreId || !/^\d+$/.test(offreId)) {
             showError("Identifiant d’offre manquant ou invalide. Retournez à vos offres.");
@@ -879,14 +949,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         function renderCard(c) {
             const initials = esc(((c.prenom?.[0] || '') + (c.nom?.[0] || '')).toUpperCase());
             const isTerminal = c.statut === 'ACCEPTEE' || c.statut === 'REFUSEE';
+            const isTarget = targetCandId && String(c.candidatureId) === String(targetCandId);
+            const cardClasses = `candidat-card ${isTarget ? 'candidat-card-highlighted' : ''}`;
 
             return `
-            <article class="candidat-card" data-cand-id="${c.candidatureId}">
+            <article class="${cardClasses}" data-cand-id="${c.candidatureId}">
                 <div class="candidat-card-top">
                     <div class="candidat-info-group">
                         <div class="candidat-avatar">${initials}</div>
                         <div>
-                            <h3 class="candidat-name" style="margin:0 0 0.25rem;">${esc(c.prenom)} ${esc(c.nom)}</h3>
+                            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                                <h3 class="candidat-name" style="margin:0 0 0.25rem;">${esc(c.prenom)} ${esc(c.nom)}</h3>
+                                ${isTarget ? `
+                                <span class="statut-badge" style="background:#ECFDF5; color:#047857; border:1px solid #A7F3D0; font-weight:700; font-size:0.75rem;">
+                                    ★ Candidature ciblée
+                                </span>` : ''}
+                            </div>
                             <div class="candidat-academic">
                                 <span>${esc(c.filiere || 'Filière non renseignée')}</span>
                                 ${c.etablissement ? `<span>·</span><span>${esc(c.etablissement)}</span>` : ''}
@@ -1055,6 +1133,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.body.style.overflow = 'hidden';
             modalBody.innerHTML = '<div style="padding:2.5rem;text-align:center;" class="recruit-muted">Chargement du profil et de l\'explication du score…</div>';
             if (modalFooter) modalFooter.innerHTML = '';
+
+            // Marquer la notification correspondante comme lue (PATCH /api/notifications/{id}/lue)
+            await markNotificationAsReadForCandidature(candId);
 
             try {
                 // GET /api/candidatures/{id}?recruteurId=... fait passer automatiquement ENVOYEE à VUE
@@ -1336,9 +1417,118 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateCounts();
         renderCandidates();
 
-        // Ouvrir automatiquement la modal si demandée en paramètre d'URL
+        // Ouvrir automatiquement la modal si demandée en paramètre d'URL et défiler vers la carte
         if (targetCandId && /^\d+$/.test(targetCandId)) {
+            const cardEl = document.querySelector(`[data-cand-id="${targetCandId}"]`);
+            if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
             await openCandidateModal(targetCandId);
         }
+
+        // Enregistrer la fonction d'actualisation en direct si une candidature arrive
+        window.__refreshCandidatsLive = async (newCandId) => {
+            try {
+                allCandidats = await api(`/api/offres/${offreId}/candidats?${owned}`);
+                updateCounts();
+                renderCandidates();
+
+                if (newCandId) {
+                    const newCard = document.querySelector(`[data-cand-id="${newCandId}"]`);
+                    if (newCard) {
+                        newCard.classList.add('candidat-card-flash');
+                        newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            } catch (err) {
+                console.error("Erreur actualisation candidats live :", err);
+            }
+        };
+    }
+
+    async function renderDashboardMetrics(isLive = false) {
+        try {
+            const dash = await api(`/api/recruteurs/${user.id}/dashboard`);
+            if (dash) {
+                const totalCandEl = document.getElementById('dash-cand-total');
+                if (totalCandEl) {
+                    totalCandEl.textContent = dash.candidaturesRecues;
+                    if (isLive) pulseElement(totalCandEl);
+                }
+                const aTraiterEl = document.getElementById('dash-cand-atraiter');
+                if (aTraiterEl) {
+                    aTraiterEl.textContent = dash.candidaturesATraiter;
+                    if (isLive) pulseElement(aTraiterEl);
+                }
+                const accEl = document.getElementById('dash-cand-acceptees');
+                if (accEl) accEl.textContent = (dash.repartitionStatuts && dash.repartitionStatuts.ACCEPTEE) || 0;
+                const refEl = document.getElementById('dash-cand-refusees');
+                if (refEl) refEl.textContent = (dash.repartitionStatuts && dash.repartitionStatuts.REFUSEE) || 0;
+
+                const recentListEl = document.getElementById('recent-candidatures-list');
+                if (recentListEl) {
+                    if (!dash.dernieresCandidatures || dash.dernieresCandidatures.length === 0) {
+                        recentListEl.innerHTML = `
+                        <div class="recruit-empty" style="padding:1.75rem 1rem;">
+                            <div class="recruit-empty-icon" aria-hidden="true">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                            </div>
+                            <div class="recruit-empty-title">Aucune candidature reçue pour le moment</div>
+                            <p style="font-size:0.88rem;">Vos offres sont en ligne. Dès que des étudiants postuleront, vous retrouverez leurs scores et candidatures ici.</p>
+                        </div>`;
+                    } else {
+                        recentListEl.innerHTML = `
+                        <div style="overflow-x:auto;">
+                            <table class="score-table" style="background:#FFFFFF; border-radius:12px; overflow:hidden; border:1px solid var(--rec-border);">
+                                <thead>
+                                    <tr>
+                                        <th>Candidat</th>
+                                        <th>Offre</th>
+                                        <th>Score</th>
+                                        <th>Statut</th>
+                                        <th>Date</th>
+                                        <th style="text-align:right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${dash.dernieresCandidatures.map((c, idx) => `
+                                        <tr ${(isLive && idx === 0) ? 'class="tr-highlight"' : ''}>
+                                            <td>
+                                                <strong>${esc(c.prenom)} ${esc(c.nom)}</strong>
+                                                <div style="font-size:0.78rem; color:#64748B;">${esc(c.filiere || '')} · ${esc(c.etablissement || '')}</div>
+                                            </td>
+                                            <td>
+                                                <a href="/offre-recruteur.html?id=${c.offreId}" style="color:var(--rec-blue); font-weight:600; text-decoration:none;">${esc(c.offreTitre)}</a>
+                                            </td>
+                                            <td>
+                                                <span class="candidat-score-pill ${c.score >= 70 ? 'score-high' : (c.score >= 40 ? 'score-mid' : 'score-low')}" style="padding:0.25rem 0.6rem; font-size:0.82rem;">
+                                                    ${c.score != null ? Math.round(c.score) + '%' : '—'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="statut-badge ${String(c.statut).toLowerCase()}">${esc(c.statut)}</span>
+                                            </td>
+                                            <td style="color:#64748B; font-size:0.82rem;">${date(c.dateCandidature)}</td>
+                                            <td style="text-align:right;">
+                                                <a class="recruit-btn" style="padding:0.35rem 0.75rem; font-size:0.8rem;" href="/candidats-offre.html?offre=${c.offreId}&candidature=${c.candidatureId}">
+                                                    Consulter
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>`;
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("Erreur chargement dashboard recruteur :", err);
+        }
+    }
+
+    async function refreshDashboardLive() {
+        await renderDashboardMetrics(true);
+        await loadList();
     }
 });
