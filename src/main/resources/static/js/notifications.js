@@ -253,6 +253,10 @@ window.NotificationBell = (() => {
                 ? '0 non lue'
                 : (unreadCount === 1 ? '1 non lue' : `${unreadCount} non lues`);
         }
+
+        if (window.MatchingCVSidebar) {
+            window.MatchingCVSidebar.updateNotificationCount(unreadCount);
+        }
     }
 
     /**
