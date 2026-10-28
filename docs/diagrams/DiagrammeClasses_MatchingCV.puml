@@ -1,7 +1,7 @@
 @startuml DiagrammeClasses_MatchingCV
 ' ==============================================================================
 ' Diagramme de Classes - Plateforme Matching CV & Offres
-' Optimisé : Hiérarchie Top-to-Bottom, 0 croisement de lignes, Enums organisés
+' Optimisé : Hiérarchie Top-to-Bottom, Tracés orthogonaux propres, 0 croisement
 ' ==============================================================================
 
 top to bottom direction
@@ -13,25 +13,25 @@ skinparam roundcorner 8
 skinparam defaultFontName "Segoe UI", "Helvetica", Arial, sans-serif
 skinparam defaultFontSize 12
 
-' --- Palette de couleurs moderne et professionnelle ---
+' --- Palette de couleurs moderne ---
 skinparam class {
-    BackgroundColor #F8FAFC
-    BorderColor #334155
-    BorderThickness 1.2
-    ArrowColor #1E293B
-    ArrowThickness 1.1
+    BackgroundColor #FFFFFF
+    BorderColor #1E3A8A
+    BorderThickness 1.3
+    ArrowColor #334155
+    ArrowThickness 1.2
 }
 
 skinparam enum {
-    BackgroundColor #FFFBEB
+    BackgroundColor #FEF3C7
     BorderColor #D97706
     BorderThickness 1.2
 }
 
 skinparam package {
-    BackgroundColor #F1F5F9
+    BackgroundColor #F8FAFC
     BorderColor #94A3B8
-    BorderThickness 1
+    BorderThickness 1.2
     FontStyle bold
     FontColor #0F172A
 }
@@ -39,9 +39,9 @@ skinparam package {
 hide circle
 
 ' ==============================================================================
-' ENUMÉRATIONS
+' ÉNUMÉRATIONS DU DOMAINE
 ' ==============================================================================
-package "Énumérations" <<Rectangle>> {
+package "Énumérations du Domaine" <<Rectangle>> {
   enum Role {
     ETUDIANT
     RECRUTEUR
@@ -86,132 +86,164 @@ package "Énumérations" <<Rectangle>> {
 }
 
 ' ==============================================================================
-' ENTITÉS : NIVEAU 1 - GESTION DES UTILISATEURS
+' MODULE UTILISATEURS & AUTHENTIFICATION (NIVEAU 1)
 ' ==============================================================================
-package "Module Utilisateurs" <<Rectangle>> {
+package "Module Utilisateurs & Authentification" <<Rectangle>> {
   abstract class Utilisateur {
-    -id : Long
-    -nom : String
-    -prenom : String
-    -email : String
-    -motDePasse : String
-    -role : Role
-    -dateInscription : Date
+    - id : Long
+    - nom : String
+    - prenom : String
+    - email : String
+    - motDePasse : String
+    - role : Role
+    - dateInscription : LocalDateTime
+    + prePersist() : void
   }
 
   class Administrateur {
   }
 
   class Etudiant {
-    -cheminCV : String
+    - filiere : String
+    - etablissement : String
   }
 
   class Recruteur {
-    -nomEntreprise : String
-    -secteurActivite : String
+    - nomEntreprise : String
+    - secteurActivite : String
   }
 }
 
 ' ==============================================================================
-' ENTITÉS : NIVEAU 2 - OFFRES, CANDIDATURES & NOTIFICATIONS
+' MODULE PROFIL ÉTUDIANT (NIVEAU 2 GAUCHE)
 ' ==============================================================================
-package "Module Offres & Interactions" <<Rectangle>> {
-  class Offre {
-    -id : Long
-    -titre : String
-    -description : String
-    -domaine : String
-    -localisation : String
-    -typeContrat : TypeContrat
-    -statut : StatutOffre
-    -datePublication : Date
+package "Module Profil Étudiant" <<Rectangle>> {
+  class Projet {
+    - id : Long
+    - titre : String
+    - description : String
   }
 
+  class ExperienceProfessionnelle {
+    - id : Long
+    - poste : String
+    - entreprise : String
+    - dateDebut : LocalDate
+    - dateFin : LocalDate
+  }
+}
+
+' ==============================================================================
+' MODULE CANDIDATURES & NOTIFICATIONS (NIVEAU 2 CENTRE)
+' ==============================================================================
+package "Module Candidatures & Notifications" <<Rectangle>> {
   class Candidature {
-    -id : Long
-    -score : Double
-    -statut : StatutCandidature
-    -dateCandidature : Date
+    - id : Long
+    - score : Double
+    - statut : StatutCandidature
+    - dateCandidature : LocalDateTime
+    + prePersist() : void
   }
 
   class Notification {
-    -id : Long
-    -score : Double
-    -lue : Boolean
-    -dateEnvoi : Date
+    - id : Long
+    - score : Double
+    - lue : Boolean
+    - dateEnvoi : LocalDateTime
+    + prePersist() : void
   }
 }
 
 ' ==============================================================================
-' ENTITÉS : NIVEAU 3 - COMPÉTENCES & TABLES DE LIAISON
+' MODULE OFFRES RECRUTEUR (NIVEAU 2 DROITE)
 ' ==============================================================================
-package "Module Compétences & Matching" <<Rectangle>> {
+package "Module Offres Recruteur" <<Rectangle>> {
+  class Offre {
+    - id : Long
+    - titre : String
+    - description : String
+    - domaine : String
+    - localisation : String
+    - typeContrat : TypeContrat
+    - statut : StatutOffre
+    - datePublication : LocalDateTime
+    + prePersist() : void
+  }
+}
+
+' ==============================================================================
+' MODULE COMPÉTENCES & MATCHING ALGORITHMIQUE (NIVEAU 3)
+' ==============================================================================
+package "Module Compétences & Matching Algorithmique" <<Rectangle>> {
   class ProfilCompetence {
-    -id : Long
-    -provenance : Provenance
-    -dureeMois : Integer
-    -dateAjout : Date
+    - id : Long
+    - provenance : Provenance
+    - dureeMois : Integer
+    - dateAjout : LocalDateTime
   }
 
   class OffreCompetence {
-    -id : Long
-    -typeExigence : TypeExigence
+    - id : Long
+    - typeExigence : TypeExigence
   }
 
   class Competence {
-    -id : Long
-    -nom : String
-    -categorie : String
-    -synonymes : List<String>
-    -statut : StatutCompetence
+    - id : Long
+    - nom : String
+    - nomNormalise : String
+    - categorie : String
+    - statut : StatutCompetence
+    - synonymes : List<String>
+    + normaliserNom(nom : String) : String
   }
 }
 
 ' ==============================================================================
-' HÉRITAGE (Niveau 1)
+' HÉRITAGE UTILISATEUR
 ' ==============================================================================
 Utilisateur <|-- Administrateur
 Utilisateur <|-- Etudiant
 Utilisateur <|-- Recruteur
 
-' Alignement horizontal des utilisateurs
+' Alignements horizontaux propres pour stabiliser les colonnes
 Administrateur -[hidden]right- Etudiant
 Etudiant -[hidden]right- Recruteur
 
+Projet -[hidden]down- ExperienceProfessionnelle
+Candidature -[hidden]down- Notification
+
+ProfilCompetence -[hidden]right- Competence
+Competence -[hidden]right- OffreCompetence
+
 ' ==============================================================================
-' RELATIONS MÉTIER & INTERACTIONS (Niveau 1 -> 2 -> 3)
+' RELATIONS DOMAINE & INTERACTIONS
 ' ==============================================================================
 
-' Publication des offres
+' 1. Recruteur -> Offres
 Recruteur "1" --down-> "0..*" Offre : "publie >"
 
-' Candidatures & Notifications (entre Étudiant et Offre)
+' 2. Étudiant -> Profil (Compositions)
+Etudiant "1" *--down-> "0..*" Projet : "réalise >"
+Etudiant "1" *--down-> "0..*" ExperienceProfessionnelle : "effectue >"
+
+' 3. Candidatures & Notifications (Interactions Étudiant <-> Offre)
 Etudiant "1" --down-> "0..*" Candidature : "soumet >"
 Offre "1" --down-> "0..*" Candidature : "reçoit >"
 
 Etudiant "1" --down-> "0..*" Notification : "reçoit >"
-Offre "1" --down-> "0..*" Notification : "déclenche >"
+Offre "1" --down-> "0..*" Notification : "génère >"
 
-' Liaisons avec les Compétences
+' 4. Offre -> Compétences de l'offre (Composition)
+Offre "1" *--down-> "1..*" OffreCompetence : "exige >"
+OffreCompetence "0..*" --down-> "1" Competence : "cible <"
+
+' 5. Étudiant -> Compétences & Provenances
 Etudiant "1" --down-> "0..*" ProfilCompetence : "possède >"
-Offre "1" --down-> "0..*" OffreCompetence : "exige >"
+ProfilCompetence "0..*" --down-> "1" Competence : "qualifie <"
 
-Competence "1" --up-> "0..*" ProfilCompetence : "définit <"
-Competence "1" --up-> "0..*" OffreCompetence : "définit <"
-
-' Alignements invisibles pour équilibrer le graphe
-Candidature -[hidden]right- Notification
-ProfilCompetence -[hidden]right- OffreCompetence
-
-' ==============================================================================
-' DÉPENDANCES VERS LES ÉNUMÉRATIONS (Tracés discrets)
-' ==============================================================================
-Utilisateur ..> Role
-Offre ..> TypeContrat
-Offre ..> StatutOffre
-Candidature ..> StatutCandidature
-Competence ..> StatutCompetence
-ProfilCompetence ..> Provenance
-OffreCompetence ..> TypeExigence
+' 6. Compétences associées aux Projets et Expériences
+Projet "0..*" --down-> "0..*" Competence : "mobilise >"
+ExperienceProfessionnelle "0..*" --down-> "0..*" Competence : "applique >"
+Etudiant "0..*" --down-> "0..*" Competence : "déclare directement >"
 
 @enduml

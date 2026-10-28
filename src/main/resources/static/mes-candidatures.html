@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/notifications.css"/>
+    <link rel="stylesheet" href="/css/sidebar.css?v=2.0"/>
     <style>
         body{background:var(--bg);color:var(--text-dark);font-family:var(--font-family);}
 
@@ -93,29 +94,203 @@
         @media(max-width:600px){.cand-card{grid-template-columns:1fr;}}
     </style>
 </head>
-<body>
+<body class="has-sidebar">
 
-<!-- NAVBAR -->
-<nav class="navbar" id="navbar" role="navigation">
-    <div class="nav-inner">
-        <a href="/dashboard-etudiant.html" class="nav-logo">
-            <span class="logo-mark"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/><path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/></linearGradient></defs></svg></span>
-            <span class="logo-text">Matching<strong>CV</strong></span>
+<!-- BACKDROP OVERLAY SUR MOBILE -->
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+<!-- NAVIGATION LATÉRALE ULTRA-PREMIUM -->
+<aside class="app-sidebar" id="app-sidebar" aria-label="Navigation principale">
+    <!-- En-tête / Marque -->
+    <div class="sidebar-brand">
+        <a href="/dashboard-etudiant.html" class="sidebar-logo">
+            <span class="sidebar-logo-icon">
+                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="13" stroke="url(#sblg1)" stroke-width="2"/>
+                    <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#38BDF8"/>
+                            <stop offset="1" stop-color="#2E8B8B"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </span>
+            <div class="sidebar-logo-text">
+                <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
+                <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Étudiant</span>
+            </div>
         </a>
-        <ul class="nav-links" id="nav-links" role="list">
-            <li><a href="/dashboard-etudiant.html" class="nav-link">Tableau de bord</a></li>
-            <li><a href="/offres-recommandees.html" class="nav-link">Offres recommandées</a></li>
-            <li><a href="/mes-candidatures.html" class="nav-link active" aria-current="page">Mes Candidatures</a></li>
-            <li><a href="/dashboard-etudiant.html?open=profil" class="nav-link" id="nav-link-profil" title="Consulter et modifier mon profil">Mon Profil</a></li>
-            <li><a href="/competences.html" class="nav-link">Compétences</a></li>
-        </ul>
-        <div class="nav-cta">
-            <span id="nav-user-name" class="nav-user-label" style="cursor:pointer;" title="Tableau de bord"></span>
-            <button class="btn-nav-outline" id="nav-logout">Déconnexion</button>
+        <div style="display:flex;align-items:center;gap:.3rem;">
+            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Épingler la barre">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"></path></svg>
+            </button>
+            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu latéral">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
-        <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
-</nav>
+
+    <!-- Navigation List -->
+    <nav class="sidebar-nav">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Menu Principal</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item">
+                    <a href="/dashboard-etudiant.html" class="sidebar-link">
+                        <span class="sidebar-link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-label">Tableau de bord</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/offres-recommandees.html" class="sidebar-link">
+                        <span class="sidebar-link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-label">Offres recommandées</span>
+                        <span class="sidebar-badge-ia">Match IA</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/mes-candidatures.html" class="sidebar-link active" aria-current="page">
+                        <span class="sidebar-link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-label">Mes Candidatures</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/competences.html" class="sidebar-link">
+                        <span class="sidebar-link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-label">Compétences</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Outils &amp; Suivi</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item">
+                    <a href="/coach-cv.html" class="sidebar-link">
+                        <span class="sidebar-link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-label">Coach CV &amp; Score</span>
+                        <span class="sidebar-badge-new">Coach</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/dashboard-etudiant.html?open=profil" class="sidebar-link" id="nav-link-profil" title="Consulter et modifier mon profil">
+                        <span class="sidebar-link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-label">Mon Profil &amp; CV</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/notifications.html" class="sidebar-link">
+                        <span class="sidebar-link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                        </span>
+                        <span class="sidebar-link-label">Notifications</span>
+                        <span class="sidebar-badge-counter" id="sidebar-notif-pill" style="display:none;">0</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+        <div class="sidebar-user-card" id="sidebar-user-card" title="Ouvrir mon profil">
+            <div class="sidebar-user-left">
+                <div class="sidebar-avatar" id="sidebar-user-avatar">?</div>
+                <div class="sidebar-user-info">
+                    <span class="sidebar-user-name" id="sidebar-user-name">Chargement...</span>
+                    <span class="sidebar-user-role">Étudiant &bull; ENSA</span>
+                </div>
+            </div>
+            <button class="sidebar-btn-logout" id="sidebar-logout" title="Se déconnecter" aria-label="Se déconnecter">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+</aside>
+
+<!-- CONTENEUR PRINCIPAL DE L'APPLICATION -->
+<div class="app-main-layout">
+    <!-- TOPBAR ÉPURÉ & MODERNE -->
+    <header class="app-topbar">
+        <div class="topbar-left">
+            <button class="topbar-toggle" id="topbar-sidebar-toggle" aria-label="Ouvrir le menu latéral">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="topbar-breadcrumb">
+                <span class="topbar-bc-root">MatchingCV</span>
+                <span class="topbar-bc-sep">/</span>
+                <span class="topbar-bc-current">Mes Candidatures</span>
+            </div>
+            <div class="topbar-status-badge">
+                <span class="topbar-status-dot"></span>
+                <span>Suivi Candidatures &bull; Temps Réel</span>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <div class="nav-cta" id="topbar-nav-cta">
+                <span id="nav-user-name" style="display:none;"></span>
+                <button id="nav-logout" style="display:none;"></button>
+            </div>
+            <a href="/dashboard-etudiant.html" class="topbar-user-pill" id="topbar-user-pill" title="Tableau de bord" style="text-decoration:none;">
+                <div class="topbar-user-pill-avatar" id="topbar-user-avatar">?</div>
+                <span class="topbar-user-pill-name" id="topbar-user-name">Étudiant</span>
+            </a>
+            <a href="/offres-recommandees.html" class="topbar-btn-action">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Explorer les offres</span>
+            </a>
+        </div>
+    </header>
 
 <!-- HERO -->
 <div class="ch">
@@ -149,11 +324,13 @@
     <div class="cand-list" id="cand-list"></div>
 
 </main>
+</div> <!-- /.app-main-layout -->
 
 <!-- TOAST -->
 <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
 <script src="/js/session.js"></script>
+<script src="/js/sidebar.js?v=2.0"></script>
 <script src="/js/mes-candidatures.js"></script>
 <script src="/js/notifications.js"></script>
 </body>

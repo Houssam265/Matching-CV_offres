@@ -1589,3 +1589,63 @@
     display: inline-block;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICATIONS TEMPS RÉEL & MISES EN VALEUR
+═══════════════════════════════════════════════════════════ */
+@keyframes candCardPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(46, 139, 139, 0.45);
+        border-color: var(--rec-teal);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(46, 139, 139, 0.18);
+        border-color: var(--rec-teal);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(46, 139, 139, 0);
+        border-color: var(--rec-teal);
+    }
+}
+
+.candidat-card.candidat-card-highlighted {
+    border: 2px solid var(--rec-teal) !important;
+    background: linear-gradient(180deg, #F0FDF9 0%, #FFFFFF 100%) !important;
+    animation: candCardPulse 2s ease-in-out 3;
+}
+
+@keyframes candCardFlash {
+    0% {
+        background-color: rgba(46, 139, 139, 0.25);
+        transform: translateY(-2px);
+    }
+    100% {
+        background-color: #FFFFFF;
+        transform: translateY(0);
+    }
+}
+
+.candidat-card.candidat-card-flash {
+    animation: candCardFlash 1.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes liveCounterPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.25); color: var(--rec-teal); }
+    100% { transform: scale(1); }
+}
+
+.recruit-count.counter-pop {
+    display: inline-block;
+    animation: liveCounterPop 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes trHighlightFade {
+    0% { background: rgba(46, 139, 139, 0.22); }
+    100% { background: transparent; }
+}
+
+tr.tr-highlight td {
+    animation: trHighlightFade 2.5s ease-out;
+}
+
+

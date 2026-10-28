@@ -584,10 +584,13 @@ async function loadAllData(id) {
         const nom = e.nom || '';
         const init = ((prenom.charAt(0) || '') + (nom.charAt(0) || '')).toUpperCase() || '?';
 
-        // Hero & Navbar
+        // Hero & Navbar & Sidebar
         document.getElementById('user-prenom').textContent = prenom || 'Étudiant';
         const navU = document.getElementById('nav-user-name');
         if (navU) navU.textContent = prenom + ' ' + nom;
+        if (window.MatchingCVSidebar) {
+            MatchingCVSidebar.updateUserInfo(e);
+        }
 
         // Profil Card
         document.getElementById('pc-av').textContent = init;
@@ -677,6 +680,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('nav-user-name')?.addEventListener('click', () => {
         openDrawer();
+    });
+    document.getElementById('topbar-user-pill')?.addEventListener('click', () => {
+        openDrawer();
+    });
+    document.getElementById('sidebar-user-card')?.addEventListener('click', (e) => {
+        if (!e.target.closest('#sidebar-logout')) openDrawer();
     });
     document.getElementById('pc-av')?.addEventListener('click', () => {
         openDrawer();
