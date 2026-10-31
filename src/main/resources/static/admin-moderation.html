@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Modération des compétences — Espace Administrateur Matching CV-Offres" />
+    <title>Modération des Compétences — Admin · Matching CV-Offres</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+    <script src="/js/session.js"></script>
+    <!-- TODO sécurité : vérification du rôle ADMIN côté serveur -->
+    <script>MatchingCVSession.protect('ADMIN');</script>
+    <style>
+        /* ── Variables ── */
+        :root {
+            --admin-bg:     #0f1117;
+            --admin-surface: #1a1d27;
+            --admin-card:   #20243a;
+            --admin-border: rgba(255,255,255,.08);
+            --admin-accent: #6366f1;
+            --admin-accent2:#22d3ee;
+            --admin-green:  #22c55e;
+            --admin-red:    #ef4444;
+            --admin-amber:  #f59e0b;
+            --admin-text:   #e2e8f0;
+            --admin-muted:  #94a3b8;
+            --admin-badge-bg: rgba(99,102,241,.18);
+        }
+
+        body {
+            background: var(--admin-bg);
+            color: var(--admin-text);
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ── Navbar admin multi-onglets ── */
+        .admin-navbar {
+            background: rgba(26,29,39,.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--admin-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 1.5rem;
+        }
+        .admin-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 60px;
+        }
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            text-decoration: none;
+            color: var(--admin-text);
+            font-weight: 800;
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-right: .5rem;
+        }
+        .admin-logo-badge {
+            font-size: .65rem;
+            background: var(--admin-badge-bg);
+            color: var(--admin-accent);
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            border: 1px solid rgba(99,102,241,.3);
+        }
+        .admin-nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: .25rem;
+            flex: 1;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .admin-nav-links::-webkit-scrollbar { display: none; }
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .45rem .85rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--admin-muted);
+            font-size: .875rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: background .15s, color .15s;
+        }
+        .admin-nav-link:hover { background: rgba(255,255,255,.06); color: var(--admin-text); }
+        .admin-nav-link.active { background: var(--admin-badge-bg); color: var(--admin-accent); }
+        .admin-nav-link .badge {
+            background: var(--admin-red);
+            color: #fff;
+            font-size: .7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+        .admin-nav-right {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            flex-shrink: 0;
+        }
+        .admin-nav-user {
+            font-size: .85rem;
+            color: var(--admin-muted);
+        }
+        .btn-nav-logout {
+            background: rgba(239,68,68,.12);
+            color: var(--admin-red);
+            border: 1px solid rgba(239,68,68,.25);
+            padding: .35rem .85rem;
+            border-radius: 7px;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .btn-nav-logout:hover { background: rgba(239,68,68,.22); }
+
+        /* ── Page layout ── */
+        .admin-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+        .admin-page-header {
+            margin-bottom: 2rem;
+        }
+        .admin-page-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0 0 .3rem;
+            background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .admin-page-subtitle {
+            color: var(--admin-muted);
+            font-size: .9rem;
+            margin: 0;
+        }
+
+        /* ── Toolbar ── */
+        .mod-toolbar {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .mod-toolbar-count {
+            font-size: .85rem;
+            color: var(--admin-muted);
+            margin-left: auto;
+        }
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .5rem 1rem;
+            border-radius: 8px;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity .15s, transform .1s;
+        }
+        .btn-action:hover { opacity: .88; transform: translateY(-1px); }
+        .btn-action:active { transform: scale(.97); }
+        .btn-action:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+        .btn-green  { background: rgba(34,197,94,.15);  color: var(--admin-green); border: 1px solid rgba(34,197,94,.3); }
+        .btn-red    { background: rgba(239,68,68,.15);  color: var(--admin-red);   border: 1px solid rgba(239,68,68,.3); }
+        .btn-amber  { background: rgba(245,158,11,.15); color: var(--admin-amber); border: 1px solid rgba(245,158,11,.3); }
+        .btn-indigo { background: var(--admin-badge-bg); color: var(--admin-accent); border: 1px solid rgba(99,102,241,.3); }
+
+        /* ── Empty state ── */
+        .mod-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--admin-muted);
+        }
+        .mod-empty svg { margin-bottom: 1rem; opacity: .35; }
+        .mod-empty h3 { color: var(--admin-text); font-size: 1.1rem; margin: 0 0 .5rem; }
+
+        /* ── Cards ── */
+        .mod-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        .mod-card {
+            background: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .mod-card:hover {
+            border-color: rgba(99,102,241,.35);
+            box-shadow: 0 4px 24px rgba(0,0,0,.35);
+        }
+        .mod-card.selected {
+            border-color: var(--admin-accent);
+            box-shadow: 0 0 0 2px rgba(99,102,241,.18);
+        }
+        .mod-card-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .mod-card-check {
+            margin-top: 3px;
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+            accent-color: var(--admin-accent);
+            flex-shrink: 0;
+        }
+        .mod-card-body { flex: 1; min-width: 0; }
+        .mod-card-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--admin-text);
+            margin: 0 0 .2rem;
+        }
+        .mod-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-bottom: .6rem;
+        }
+        .meta-chip {
+            font-size: .75rem;
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .chip-categorie { background: rgba(99,102,241,.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,.25); }
+        .chip-auteur    { background: rgba(34,211,238,.1);  color: #67e8f9; border: 1px solid rgba(34,211,238,.2); }
+        .chip-date      { background: rgba(148,163,184,.1); color: var(--admin-muted); border: 1px solid rgba(148,163,184,.15); }
+        .chip-usage     { background: rgba(245,158,11,.1);  color: #fbbf24; border: 1px solid rgba(245,158,11,.2); }
+        .chip-doublon   { background: rgba(239,68,68,.12);  color: #fca5a5; border: 1px solid rgba(239,68,68,.25); font-size: .72rem; }
+
+        .mod-card-synonymes {
+            font-size: .8rem;
+            color: var(--admin-muted);
+            margin-bottom: .7rem;
+        }
+        .mod-card-synonymes span { font-style: italic; }
+
+        .mod-card-actions {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+        }
+
+        /* ── Modales ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.7);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal {
+            background: var(--admin-surface);
+            border: 1px solid var(--admin-border);
+            border-radius: 18px;
+            padding: 2rem;
+            width: min(520px, 94vw);
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(16px) scale(.97);
+            transition: transform .2s;
+        }
+        .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 1.25rem;
+            color: var(--admin-text);
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-label {
+            display: block;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--admin-muted);
+            margin-bottom: .35rem;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            background: rgba(255,255,255,.06);
+            border: 1px solid var(--admin-border);
+            border-radius: 9px;
+            color: var(--admin-text);
+            padding: .6rem .9rem;
+            font-size: .9rem;
+            font-family: inherit;
+            transition: border-color .15s;
+            box-sizing: border-box;
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--admin-accent);
+        }
+        .form-textarea { min-height: 80px; resize: vertical; }
+        .modal-actions {
+            display: flex;
+            gap: .75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        .btn-modal-cancel {
+            padding: .55rem 1.1rem;
+            border-radius: 8px;
+            border: 1px solid var(--admin-border);
+            background: transparent;
+            color: var(--admin-muted);
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-modal-ok {
+            padding: .55rem 1.4rem;
+            border-radius: 8px;
+            border: none;
+            font-size: .875rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-modal-ok.green { background: var(--admin-green); color: #fff; }
+        .btn-modal-ok.red   { background: var(--admin-red);   color: #fff; }
+
+        /* ── Toast ── */
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+        .toast {
+            padding: .75rem 1.25rem;
+            border-radius: 10px;
+            font-size: .875rem;
+            font-weight: 600;
+            max-width: 340px;
+            animation: toastIn .2s ease;
+        }
+        .toast.success { background: rgba(34,197,94,.2); color: var(--admin-green); border: 1px solid rgba(34,197,94,.3); }
+        .toast.error   { background: rgba(239,68,68,.2); color: var(--admin-red);   border: 1px solid rgba(239,68,68,.3); }
+        @keyframes toastIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* ── Spinner ── */
+        .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.2); border-top-color: var(--admin-accent); border-radius: 50%; animation: spin .7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-center { display: flex; justify-content: center; padding: 3rem 0; }
+
+        @media (max-width: 640px) {
+            .admin-page { padding: 1.5rem 1rem 3rem; }
+            .mod-toolbar { gap: .5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ADMIN ── -->
+<nav class="admin-navbar" id="admin-navbar" role="navigation" aria-label="Navigation admin">
+    <div class="admin-nav-inner">
+        <a href="/admin-dashboard.html" class="admin-logo" id="nav-logo">
+            <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+                <circle cx="14" cy="14" r="13" stroke="url(#nlg)" stroke-width="2"/>
+                <path d="M8 14l4 4 8-8" stroke="url(#nlg)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs><linearGradient id="nlg" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/>
+                </linearGradient></defs>
+            </svg>
+            <span>Matching<strong>CV</strong></span>
+            <span class="admin-logo-badge">ADMIN</span>
+        </a>
+
+        <ul class="admin-nav-links" role="list">
+            <li><a href="/admin-dashboard.html"   class="admin-nav-link" id="nav-dashboard">📊 Tableau de bord</a></li>
+            <li><a href="/admin-moderation.html"  class="admin-nav-link active" id="nav-moderation" aria-current="page">
+                🔍 Modération <span class="badge" id="nav-badge-moderation" style="display:none"></span></a></li>
+            <li><a href="/admin-competences.html" class="admin-nav-link" id="nav-referentiel">📚 Référentiel</a></li>
+            <li><a href="/admin-utilisateurs.html" class="admin-nav-link" id="nav-utilisateurs">👥 Utilisateurs</a></li>
+            <li><a href="/admin-offres.html"      class="admin-nav-link" id="nav-offres">💼 Offres</a></li>
+            <li><a href="/admin-stats.html"       class="admin-nav-link" id="nav-stats">📈 Statistiques</a></li>
+            <li><a href="/admin-journal.html"     class="admin-nav-link" id="nav-journal">📋 Journal</a></li>
+        </ul>
+
+        <div class="admin-nav-right">
+            <span class="admin-nav-user" id="nav-admin-name">Administrateur</span>
+            <button class="btn-nav-logout" id="nav-logout">Déconnexion</button>
+        </div>
+    </div>
+</nav>
+
+<!-- ── CONTENU ── -->
+<main class="admin-page">
+    <header class="admin-page-header">
+        <h1 class="admin-page-title">Modération des compétences</h1>
+        <p class="admin-page-subtitle">File des compétences proposées en attente de validation.</p>
+    </header>
+
+    <!-- Toolbar actions groupées -->
+    <div class="mod-toolbar" id="mod-toolbar">
+        <button class="btn-action btn-green"  id="btn-valider-groupe"  disabled>✓ Valider la sélection</button>
+        <button class="btn-action btn-red"    id="btn-rejeter-groupe"  disabled>✗ Rejeter la sélection</button>
+        <button class="btn-action btn-indigo" id="btn-tout-selectionner">Tout sélectionner</button>
+        <span class="mod-toolbar-count" id="toolbar-count"></span>
+    </div>
+
+    <!-- Zone principale -->
+    <section id="mod-zone">
+        <div class="loading-center"><div class="spinner"></div></div>
+    </section>
+</main>
+
+<!-- ── TOAST ── -->
+<div id="toast-container" aria-live="polite"></div>
+
+<!-- ── MODALE VALIDER ── -->
+<div class="modal-overlay" id="modal-valider" role="dialog" aria-modal="true" aria-labelledby="modal-valider-title">
+    <div class="modal">
+        <h2 class="modal-title" id="modal-valider-title">✓ Valider la compétence</h2>
+        <div class="form-group">
+            <label class="form-label" for="val-nom">Nom (modifiable)</label>
+            <input class="form-input" type="text" id="val-nom" autocomplete="off" />
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="val-categorie">Catégorie</label>
+            <input class="form-input" type="text" id="val-categorie" placeholder="ex: Langage, Framework, Base de données…" autocomplete="off" />
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="val-synonymes">Synonymes (séparés par des virgules)</label>
+            <input class="form-input" type="text" id="val-synonymes" placeholder="ex: JS, JavaScript ES6…" autocomplete="off" />
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="val-cancel">Annuler</button>
+            <button class="btn-modal-ok green" id="val-confirm">✓ Valider</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── MODALE REJETER ── -->
+<div class="modal-overlay" id="modal-rejeter" role="dialog" aria-modal="true" aria-labelledby="modal-rejeter-title">
+    <div class="modal">
+        <h2 class="modal-title" id="modal-rejeter-title">✗ Rejeter la compétence</h2>
+        <p style="color:var(--admin-muted); font-size:.9rem; margin-bottom:1rem;">
+            La compétence sera marquée <strong>REJETÉE</strong> et son auteur sera notifié.
+        </p>
+        <div class="form-group">
+            <label class="form-label" for="rej-motif">Motif (optionnel)</label>
+            <textarea class="form-textarea" id="rej-motif" placeholder="Expliquez pourquoi cette compétence est rejetée…"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="rej-cancel">Annuler</button>
+            <button class="btn-modal-ok red" id="rej-confirm">✗ Rejeter</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── MODALE FUSIONNER ── -->
+<div class="modal-overlay" id="modal-fusionner" role="dialog" aria-modal="true" aria-labelledby="modal-fusionner-title">
+    <div class="modal">
+        <h2 class="modal-title" id="modal-fusionner-title">⚡ Fusionner avec une compétence validée</h2>
+        <p style="color:var(--admin-muted); font-size:.875rem; margin-bottom:1rem;" id="fus-source-info"></p>
+        <div class="form-group">
+            <label class="form-label" for="fus-search">Rechercher la compétence cible (VALIDÉE)</label>
+            <input class="form-input" type="text" id="fus-search" placeholder="Tapez le nom…" autocomplete="off" />
+        </div>
+        <div id="fus-suggestions" style="display:none; margin-bottom:.75rem;"></div>
+        <div class="form-group">
+            <label class="form-label">Cible sélectionnée</label>
+            <div id="fus-cible-display" style="color:var(--admin-muted); font-size:.9rem; font-style:italic;">Aucune</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="fus-cancel">Annuler</button>
+            <button class="btn-modal-ok green" id="fus-confirm" disabled>⚡ Fusionner</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(() => {
+    // ── Session ──
+    const session = MatchingCVSession.getSession();
+    const adminId = session?.id ?? null;
+    if (session?.prenom) {
+        document.getElementById('nav-admin-name').textContent = session.prenom + ' ' + (session.nom ?? '');
+    }
+
+    document.getElementById('nav-logout').onclick = () => {
+        MatchingCVSession.clearSession();
+        location.href = '/connexion.html';
+    };
+
+    // ── API helpers ──
+    const apiHeaders = () => {
+        const h = { 'Content-Type': 'application/json' };
+        if (adminId) h['X-Admin-Id'] = String(adminId);
+        return h;
+    };
+
+    const api = (method, url, body) => fetch(url, {
+        method,
+        headers: apiHeaders(),
+        body: body != null ? JSON.stringify(body) : undefined
+    }).then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(d.message ?? 'Erreur')));
+
+    // ── Toast ──
+    const toast = (msg, type = 'success') => {
+        const el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.textContent = msg;
+        document.getElementById('toast-container').appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+    };
+
+    // ── État ──
+    let competences = [];
+    let selected = new Set();
+    let pendingId = null;
+    let fusCibleId = null;
+    let allValidees = [];
+
+    // ── Chargement ──
+    async function charger() {
+        document.getElementById('mod-zone').innerHTML =
+            '<div class="loading-center"><div class="spinner"></div></div>';
+        try {
+            competences = await api('GET', '/api/admin/competences/a-moderer');
+            selected.clear();
+            renderCards();
+            // Badge navbar
+            const badge = document.getElementById('nav-badge-moderation');
+            if (competences.length > 0) {
+                badge.textContent = competences.length;
+                badge.style.display = '';
+            } else {
+                badge.style.display = 'none';
+            }
+        } catch (e) {
+            document.getElementById('mod-zone').innerHTML =
+                `<div class="mod-empty"><p>Erreur de chargement : ${e}</p></div>`;
+        }
+    }
+
+    function renderCards() {
+        const zone = document.getElementById('mod-zone');
+        if (!competences.length) {
+            zone.innerHTML = `
+            <div class="mod-empty">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <h3>File vide — tout est modéré !</h3>
+                <p>Aucune compétence n'attend de validation pour le moment.</p>
+            </div>`;
+            updateToolbar();
+            return;
+        }
+        zone.innerHTML = `<div class="mod-grid" id="mod-grid"></div>`;
+        const grid = document.getElementById('mod-grid');
+        competences.forEach(c => grid.appendChild(buildCard(c)));
+        updateToolbar();
+    }
+
+    function buildCard(c) {
+        const el = document.createElement('article');
+        el.className = 'mod-card';
+        el.dataset.id = c.id;
+
+        const doublonsHtml = c.doublonsPotentiels?.length
+            ? c.doublonsPotentiels.map(d =>
+                `<span class="meta-chip chip-doublon" title="Doublon potentiel">⚠ ${esc(d)}</span>`).join('')
+            : '';
+
+        const synsText = c.synonymes?.length
+            ? `<div class="mod-card-synonymes">Synonymes : <span>${esc(c.synonymes.join(', '))}</span></div>`
+            : '';
+
+        const dateStr = c.dateProposition ? new Date(c.dateProposition).toLocaleDateString('fr-FR') : '—';
+        const usageStr = c.usages > 0 ? `${c.usages} utilisation${c.usages > 1 ? 's' : ''}` : 'Non utilisée';
+
+        el.innerHTML = `
+        <div class="mod-card-top">
+            <input type="checkbox" class="mod-card-check" aria-label="Sélectionner ${esc(c.nom)}" data-id="${c.id}" />
+            <div class="mod-card-body">
+                <h3 class="mod-card-name">${esc(c.nom)}</h3>
+                <div class="mod-card-meta">
+                    ${c.categorie ? `<span class="meta-chip chip-categorie">${esc(c.categorie)}</span>` : ''}
+                    ${c.proposeeParNom ? `<span class="meta-chip chip-auteur">✎ ${esc(c.proposeeParNom)}</span>` : ''}
+                    <span class="meta-chip chip-date">📅 ${dateStr}</span>
+                    <span class="meta-chip chip-usage">📊 ${usageStr}</span>
+                    ${doublonsHtml}
+                </div>
+                ${synsText}
+                <div class="mod-card-actions">
+                    <button class="btn-action btn-green" data-action="valider" data-id="${c.id}">✓ Valider</button>
+                    <button class="btn-action btn-red"   data-action="rejeter" data-id="${c.id}">✗ Rejeter</button>
+                    <button class="btn-action btn-amber" data-action="fusionner" data-id="${c.id}">⚡ Fusionner</button>
+                </div>
+            </div>
+        </div>`;
+
+        // Checkbox
+        el.querySelector('.mod-card-check').addEventListener('change', e => {
+            if (e.target.checked) { selected.add(c.id); el.classList.add('selected'); }
+            else { selected.delete(c.id); el.classList.remove('selected'); }
+            updateToolbar();
+        });
+
+        // Boutons d'action inline
+        el.querySelectorAll('[data-action]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                const id = parseInt(btn.dataset.id, 10);
+                const comp = competences.find(x => x.id === id);
+                if (action === 'valider')   openModalValider(comp);
+                if (action === 'rejeter')   openModalRejeter(id);
+                if (action === 'fusionner') openModalFusionner(comp);
+            });
+        });
+
+        return el;
+    }
+
+    function esc(s) {
+        if (s == null) return '';
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function updateToolbar() {
+        const n = selected.size;
+        document.getElementById('btn-valider-groupe').disabled = n === 0;
+        document.getElementById('btn-rejeter-groupe').disabled = n === 0;
+        document.getElementById('toolbar-count').textContent =
+            n > 0 ? `${n} sélectionnée${n > 1 ? 's' : ''}` : `${competences.length} en attente`;
+    }
+
+    // ── Tout sélectionner ──
+    document.getElementById('btn-tout-selectionner').onclick = () => {
+        const all = competences.map(c => c.id);
+        const allSelected = all.every(id => selected.has(id));
+        document.querySelectorAll('.mod-card-check').forEach(cb => {
+            cb.checked = !allSelected;
+            const id = parseInt(cb.dataset.id, 10);
+            const card = cb.closest('.mod-card');
+            if (!allSelected) { selected.add(id); card.classList.add('selected'); }
+            else { selected.delete(id); card.classList.remove('selected'); }
+        });
+        updateToolbar();
+    };
+
+    // ── Actions groupées ──
+    document.getElementById('btn-valider-groupe').onclick = async () => {
+        if (!selected.size) return;
+        if (!confirm(`Valider ${selected.size} compétence(s) ?`)) return;
+        try {
+            await api('POST', '/api/admin/competences/valider-groupes', { ids: [...selected] });
+            toast(`${selected.size} compétence(s) validée(s).`);
+            charger();
+        } catch (e) { toast('Erreur : ' + e, 'error'); }
+    };
+
+    document.getElementById('btn-rejeter-groupe').onclick = () => {
+        if (!selected.size) return;
+        pendingId = [...selected]; // array
+        document.getElementById('rej-motif').value = '';
+        openModal('modal-rejeter');
+    };
+
+    // ── Modale Valider ──
+    let valCompId = null;
+
+    function openModalValider(comp) {
+        valCompId = comp.id;
+        document.getElementById('val-nom').value = comp.nom ?? '';
+        document.getElementById('val-categorie').value = comp.categorie ?? '';
+        document.getElementById('val-synonymes').value = comp.synonymes?.join(', ') ?? '';
+        openModal('modal-valider');
+    }
+
+    document.getElementById('val-cancel').onclick = () => closeModal('modal-valider');
+    document.getElementById('val-confirm').onclick = async () => {
+        const nom  = document.getElementById('val-nom').value.trim();
+        const cat  = document.getElementById('val-categorie').value.trim();
+        const syns = document.getElementById('val-synonymes').value.split(',').map(s => s.trim()).filter(Boolean);
+        try {
+            await api('PATCH', `/api/admin/competences/${valCompId}/valider`, { nom, categorie: cat, synonymes: syns });
+            closeModal('modal-valider');
+            toast('Compétence validée.');
+            charger();
+        } catch (e) { toast('Erreur : ' + e, 'error'); }
+    };
+
+    // ── Modale Rejeter ──
+    function openModalRejeter(id) {
+        pendingId = id;
+        document.getElementById('rej-motif').value = '';
+        openModal('modal-rejeter');
+    }
+
+    document.getElementById('rej-cancel').onclick = () => closeModal('modal-rejeter');
+    document.getElementById('rej-confirm').onclick = async () => {
+        const motif = document.getElementById('rej-motif').value.trim();
+        try {
+            if (Array.isArray(pendingId)) {
+                await api('POST', '/api/admin/competences/rejeter-groupes', { ids: pendingId, motif });
+                toast(`${pendingId.length} compétence(s) rejetée(s).`);
+            } else {
+                await api('PATCH', `/api/admin/competences/${pendingId}/rejeter`, { motif });
+                toast('Compétence rejetée.');
+            }
+            closeModal('modal-rejeter');
+            charger();
+        } catch (e) { toast('Erreur : ' + e, 'error'); }
+    };
+
+    // ── Modale Fusionner ──
+    let fusSrcId = null;
+
+    async function openModalFusionner(comp) {
+        fusSrcId = comp.id;
+        fusCibleId = null;
+        document.getElementById('fus-source-info').textContent =
+            `Compétence source : « ${comp.nom} » (sera supprimée après fusion).`;
+        document.getElementById('fus-search').value = '';
+        document.getElementById('fus-cible-display').textContent = 'Aucune';
+        document.getElementById('fus-suggestions').style.display = 'none';
+        document.getElementById('fus-confirm').disabled = true;
+        // Charger les compétences validées pour la recherche
+        if (!allValidees.length) {
+            try {
+                const resp = await fetch('/api/competences');
+                const all  = await resp.json();
+                allValidees = all.filter(c => c.statut === 'VALIDEE');
+            } catch {}
+        }
+        openModal('modal-fusionner');
+    }
+
+    // Recherche côté client
+    document.getElementById('fus-search').addEventListener('input', () => {
+        const q = document.getElementById('fus-search').value.toLowerCase().trim();
+        if (!q) { document.getElementById('fus-suggestions').style.display = 'none'; return; }
+        const matches = allValidees.filter(c =>
+            c.nom?.toLowerCase().includes(q) && c.id !== fusSrcId).slice(0, 6);
+        const box = document.getElementById('fus-suggestions');
+        if (!matches.length) { box.style.display = 'none'; return; }
+        box.style.display = '';
+        box.innerHTML = matches.map(c => `
+            <button type="button" class="btn-action btn-indigo" style="width:100%;justify-content:flex-start;margin-bottom:.3rem;"
+                data-cible-id="${c.id}" data-cible-nom="${esc(c.nom)}">${esc(c.nom)}${c.categorie ? ` · <em>${esc(c.categorie)}</em>` : ''}
+            </button>`).join('');
+        box.querySelectorAll('[data-cible-id]').forEach(btn => {
+            btn.onclick = () => {
+                fusCibleId = parseInt(btn.dataset.cibleId, 10);
+                document.getElementById('fus-cible-display').textContent = '« ' + btn.dataset.cibleNom + ' »';
+                document.getElementById('fus-confirm').disabled = false;
+                box.style.display = 'none';
+                document.getElementById('fus-search').value = '';
+            };
+        });
+    });
+
+    document.getElementById('fus-cancel').onclick = () => closeModal('modal-fusionner');
+    document.getElementById('fus-confirm').onclick = async () => {
+        if (!fusCibleId) return;
+        try {
+            await api('POST', '/api/admin/competences/fusionner', { sourceId: fusSrcId, cibleId: fusCibleId });
+            closeModal('modal-fusionner');
+            toast('Fusion effectuée avec succès.');
+            allValidees = []; // reset cache
+            charger();
+        } catch (e) { toast('Erreur : ' + e, 'error'); }
+    };
+
+    // ── Helpers modal ──
+    function openModal(id) {
+        document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+    }
+
+    // Fermeture sur clic fond
+    document.querySelectorAll('.modal-overlay').forEach(o => {
+        o.addEventListener('click', e => {
+            if (e.target === o) o.classList.remove('open');
+        });
+    });
+
+    // ── Init ──
+    charger();
+})();
+</script>
+</body>
+</html>

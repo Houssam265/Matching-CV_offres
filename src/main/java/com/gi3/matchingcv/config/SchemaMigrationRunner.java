@@ -35,6 +35,20 @@ public class SchemaMigrationRunner implements ApplicationRunner {
             "ALTER TABLE notifications MODIFY COLUMN etudiant_id BIGINT NULL"
         );
 
+        // 3. Mettre actif = true pour tous les utilisateurs existants où la valeur est NULL ou false (0)
+        //    (la colonne actif vient d'être ajoutée par Hibernate ddl-auto=update,
+        //     MySQL peut avoir mis 0 ou NULL selon la version)
+        try {
+            int updated = jdbc.update(
+                "UPDATE utilisateurs SET actif = 1 WHERE actif IS NULL OR actif = 0"
+            );
+            if (updated > 0) {
+                log.info("[SchemaMigration] {} utilisateur(s) mis à actif=true (colonne actif corrigée).", updated);
+            }
+        } catch (Exception e) {
+            log.debug("[SchemaMigration] Migration actif : {}", e.getMessage());
+        }
+
         log.info("[SchemaMigration] Migration des colonnes legacy terminée.");
     }
 

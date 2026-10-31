@@ -16,17 +16,16 @@
 <body>
 
     <!-- NAVBAR ADMIN -->
-    <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
-        <div class="nav-inner">
-            <a href="/admin-competences.html" class="nav-logo" id="nav-logo">
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation admin" style="padding:0 1.5rem;">
+        <div class="nav-inner" style="max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:1rem;height:60px;">
+            <a href="/admin-dashboard.html" class="nav-logo" id="nav-logo">
                 <span class="logo-mark">
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="14" cy="14" r="13" stroke="url(#lg1)" stroke-width="2"/>
                         <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                         <defs>
                             <linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#2E5A9C"/>
-                                <stop offset="1" stop-color="#2E8B8B"/>
+                                <stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/>
                             </linearGradient>
                         </defs>
                     </svg>
@@ -34,18 +33,20 @@
                 <span class="logo-text">Matching<strong>CV</strong> <span style="font-size:.7rem;background:rgba(46,90,156,.15);padding:2px 6px;border-radius:4px;color:var(--navy);font-weight:700;">ADMIN</span></span>
             </a>
 
-            <ul class="nav-links" id="nav-links" role="list">
-                <li><a href="/admin-competences.html" class="nav-link active" id="nav-link-admin-competences" aria-current="page">R&eacute;f&eacute;rentiel Comp&eacute;tences</a></li>
+            <ul class="nav-links" id="nav-links" role="list" style="overflow-x:auto;scrollbar-width:none;flex:1;gap:.25rem;">
+                <li><a href="/admin-dashboard.html"   class="nav-link" id="nav-dashboard">📊 Tableau de bord</a></li>
+                <li><a href="/admin-moderation.html"  class="nav-link" id="nav-moderation">🔍 Modération</a></li>
+                <li><a href="/admin-competences.html" class="nav-link active" id="nav-referentiel" aria-current="page">📚 Référentiel</a></li>
+                <li><a href="/admin-utilisateurs.html" class="nav-link" id="nav-utilisateurs">👥 Utilisateurs</a></li>
+                <li><a href="/admin-offres.html"      class="nav-link" id="nav-offres">💼 Offres</a></li>
+                <li><a href="/admin-stats.html"       class="nav-link" id="nav-stats">📈 Statistiques</a></li>
+                <li><a href="/admin-journal.html"     class="nav-link" id="nav-journal">📋 Journal</a></li>
             </ul>
 
             <div class="nav-cta">
                 <span id="nav-user-name" class="nav-user-label" style="cursor:default;" title="Administrateur">Administrateur</span>
                 <button class="btn-nav-outline" id="nav-logout" style="cursor:pointer;">D&eacute;connexion</button>
             </div>
-
-            <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false">
-                <span></span><span></span><span></span>
-            </button>
         </div>
     </nav>
 

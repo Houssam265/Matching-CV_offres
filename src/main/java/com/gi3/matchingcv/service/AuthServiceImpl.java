@@ -102,6 +102,11 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Identifiants incorrects. Vérifiez votre email et mot de passe.");
         }
 
+        // Vérification du compte actif (suspension admin)
+        if (!utilisateur.isActif()) {
+            throw new IllegalArgumentException("Compte désactivé. Contactez l'administrateur.");
+        }
+
         return new AuthResponse(
                 utilisateur.getId(),
                 utilisateur.getPrenom(),

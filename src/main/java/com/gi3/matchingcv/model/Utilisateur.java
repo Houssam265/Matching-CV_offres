@@ -40,6 +40,13 @@ public abstract class Utilisateur {
 
     private LocalDateTime dateInscription;
 
+    /**
+     * Indique si le compte est actif. Un compte suspendu (actif=false) ne peut plus
+     * se connecter et ses offres sont masquées. Jamais de suppression physique.
+     */
+    @Column(nullable = false, columnDefinition = "BIT(1) DEFAULT 1")
+    private boolean actif = true;
+
     @PrePersist
     public void prePersist() {
         if (dateInscription == null) {

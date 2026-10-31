@@ -16,4 +16,6 @@ public interface CompetenceRepository extends JpaRepository<Competence, Long> {
     Optional<Competence> findByNomNormalise(String nomNormalise);
 
     List<Competence> findByStatut(StatutCompetence statut);
+
+    long countByProposeePar_IdAndStatut(Long utilisateurId, StatutCompetence statut);
 }
