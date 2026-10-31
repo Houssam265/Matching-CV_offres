@@ -5,6 +5,7 @@ import com.gi3.matchingcv.model.enums.StatutOffre;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -13,4 +14,6 @@ public interface OffreRepository extends JpaRepository<Offre, Long> {
     List<Offre> findByStatut(StatutOffre statut);
 
     List<Offre> findByRecruteurIdOrderByDatePublicationDesc(Long recruteurId);
+
+    List<Offre> findByStatutAndDateLimiteBefore(StatutOffre statut, LocalDateTime dateLimite);
 }

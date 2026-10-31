@@ -32,6 +32,7 @@
                 <li><a href="/dashboard-recruteur.html" class="nav-link">Tableau de bord</a></li>
                 <li><a href="/mes-offres.html" class="nav-link active" aria-current="page">Mes offres</a></li>
                 <li><a href="/publier-offre.html" class="nav-link">Publier une offre</a></li>
+                <li><a href="/mon-entreprise.html" class="nav-link">Mon entreprise</a></li>
             </ul>
             <div class="nav-cta">
                 <span id="nav-user-name" class="nav-user-label"></span>
@@ -101,43 +102,107 @@
         </section>
 
         <!-- TOOLBAR & FILTERS -->
-        <div class="recruit-toolbar" role="search" aria-label="Filtres des candidats">
-            <div class="recruit-filters" id="candidat-filters">
-                <button type="button" class="recruit-filter-btn active" data-filter="ALL">
-                    Tous les candidats
-                    <span class="recruit-filter-count" id="count-candidats-all">0</span>
-                </button>
-                <button type="button" class="recruit-filter-btn" data-filter="ENVOYEE">
-                    <span class="pulse-dot"></span>
-                    À traiter
-                    <span class="recruit-filter-count" id="count-candidats-envoyee">0</span>
-                </button>
-                <button type="button" class="recruit-filter-btn" data-filter="VUE">
-                    Consultées
-                    <span class="recruit-filter-count" id="count-candidats-vue">0</span>
-                </button>
-                <button type="button" class="recruit-filter-btn" data-filter="ACCEPTEE">
-                    Acceptées
-                    <span class="recruit-filter-count" id="count-candidats-acceptee">0</span>
-                </button>
-                <button type="button" class="recruit-filter-btn" data-filter="REFUSEE">
-                    Refusées
-                    <span class="recruit-filter-count" id="count-candidats-refusee">0</span>
-                </button>
+        <div class="recruit-toolbar" role="search" aria-label="Filtres des candidats" style="flex-direction:column; align-items:stretch; gap:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+                <div class="recruit-filters" id="candidat-filters">
+                    <button type="button" class="recruit-filter-btn active" data-filter="ALL">
+                        Tous les candidats
+                        <span class="recruit-filter-count" id="count-candidats-all">0</span>
+                    </button>
+                    <button type="button" class="recruit-filter-btn" data-filter="ENVOYEE">
+                        <span class="pulse-dot"></span>
+                        À traiter
+                        <span class="recruit-filter-count" id="count-candidats-envoyee">0</span>
+                    </button>
+                    <button type="button" class="recruit-filter-btn" data-filter="VUE">
+                        Consultées
+                        <span class="recruit-filter-count" id="count-candidats-vue">0</span>
+                    </button>
+                    <button type="button" class="recruit-filter-btn" data-filter="ACCEPTEE">
+                        Acceptées
+                        <span class="recruit-filter-count" id="count-candidats-acceptee">0</span>
+                    </button>
+                    <button type="button" class="recruit-filter-btn" data-filter="REFUSEE">
+                        Refusées
+                        <span class="recruit-filter-count" id="count-candidats-refusee">0</span>
+                    </button>
+                </div>
+
+                <div class="recruit-search-box" style="min-width:280px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="search" id="candidats-search" class="recruit-search-input" placeholder="Filtrer par nom, filière, établissement..." aria-label="Filtrer les candidats">
+                </div>
             </div>
 
-            <div class="recruit-search-box">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="search" id="candidats-search" class="recruit-search-input" placeholder="Filtrer par nom, filière, établissement..." aria-label="Filtrer les candidats">
+            <!-- FILTRES AVANCÉS & EXPORT CSV -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-top:0.75rem; border-top:1px solid var(--rec-border);">
+                <div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
+                    <button type="button" id="btn-toggle-favoris" class="recruit-btn" style="padding:0.4rem 0.85rem; font-size:0.85rem; border-radius:var(--rec-radius-pill);">
+                        <span style="color:#F59E0B; font-size:1rem;">★</span>
+                        <span>Favoris uniquement</span>
+                    </button>
+
+                    <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--rec-navy);">
+                        <label for="filter-score-min" style="font-weight:700;">Score min :</label>
+                        <input type="range" id="filter-score-min" min="0" max="100" value="0" step="5" style="width:110px; cursor:pointer;" aria-label="Score minimum">
+                        <span id="filter-score-min-val" style="font-weight:800; color:var(--rec-blue); min-width:34px;">0%</span>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--rec-navy);">
+                        <label for="filter-tri" style="font-weight:700;">Trier par :</label>
+                        <select id="filter-tri" style="padding:0.35rem 0.65rem; border-radius:8px; border:1px solid var(--rec-border); background:#FFFFFF; font-size:0.85rem; font-weight:600; color:var(--rec-navy); cursor:pointer;">
+                            <option value="score">Score de matching (décroissant)</option>
+                            <option value="date">Date de candidature (récent)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="button" id="btn-export-csv" class="recruit-btn" style="padding:0.45rem 1rem; font-size:0.85rem; gap:0.5rem;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Exporter la sélection en CSV
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- CANDIDATES LIST CONTAINER -->
         <div id="candidats-list" aria-live="polite">Chargement des candidats…</div>
     </main>
+
+    <!-- MODAL DÉCISION STATUT AVEC MESSAGE OPTIONNEL -->
+    <div id="decision-modal-backdrop" class="candidat-modal-backdrop" aria-hidden="true" style="z-index: 1050;">
+        <div class="candidat-modal" style="max-width: 520px;" role="dialog" aria-modal="true" aria-labelledby="decision-modal-title">
+            <div class="candidat-modal-header">
+                <div>
+                    <h2 id="decision-modal-title" style="margin:0; font-size:1.2rem;">Confirmer la décision</h2>
+                    <div id="decision-modal-subtitle" style="font-size:0.88rem; opacity:0.9;">Candidat</div>
+                </div>
+                <button type="button" id="decision-modal-close" class="candidat-modal-close" aria-label="Fermer la boîte de dialogue">✕</button>
+            </div>
+            <div class="candidat-modal-body" style="padding: 1.5rem;">
+                <p id="decision-modal-prompt" style="font-size:0.92rem; color:var(--rec-navy); margin-bottom:1rem;"></p>
+                <label for="decision-message" style="display:block; font-weight:700; font-size:0.88rem; margin-bottom:0.4rem; color:var(--rec-navy);">
+                    Message personnalisé pour l'étudiant (optionnel) :
+                </label>
+                <textarea id="decision-message" rows="4" style="width:100%; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:0.75rem; font-family:inherit; font-size:0.88rem; resize:vertical;" placeholder="Ce message sera visible par l'étudiant dans son espace 'Mes candidatures'..."></textarea>
+                <p class="recruit-muted" style="font-size:0.78rem; margin-top:0.4rem;">
+                    💡 Laissez vide pour une décision standard sans message complémentaire.
+                </p>
+            </div>
+            <div class="candidat-modal-footer" style="padding: 1rem 1.5rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+                <button type="button" class="recruit-btn" id="decision-modal-cancel">Annuler</button>
+                <button type="button" class="recruit-btn primary" id="decision-modal-confirm">Valider la décision</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL DETAIL CANDIDAT -->
     <div id="candidat-modal-backdrop" class="candidat-modal-backdrop" aria-hidden="true">

@@ -3,6 +3,7 @@ package com.gi3.matchingcv.service;
 import com.gi3.matchingcv.dto.CandidatDetailDto;
 import com.gi3.matchingcv.dto.CandidatOffreDto;
 import com.gi3.matchingcv.dto.CandidatureDto;
+import com.gi3.matchingcv.dto.OffreStatistiquesDto;
 import com.gi3.matchingcv.dto.RecruteurDashboardDto;
 import com.gi3.matchingcv.model.enums.StatutCandidature;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
  *
  * Règles métier garanties par l'implémentation :
  * - Une seule candidature par couple (étudiant, offre).
- * - On ne peut postuler qu'à une offre ACTIVE.
+ * - On ne peut postuler qu'à une offre ACTIVE et non échue (date limite respectée).
  * - Transitions de statut autorisées :
  *     ENVOYEE → VUE | ACCEPTEE | REFUSEE
  *     VUE     → ACCEPTEE | REFUSEE
@@ -33,7 +34,7 @@ public interface CandidatureService {
      * @param offreId    identifiant de l'offre
      * @return le DTO de la candidature créée
      * @throws jakarta.persistence.EntityNotFoundException si l'étudiant ou l'offre est introuvable
-     * @throws IllegalStateException si l'offre n'est pas ACTIVE ou si la candidature existe déjà
+     * @throws IllegalStateException si l'offre n'est pas ACTIVE, si la date limite est dépassée ou si la candidature existe déjà
      */
     CandidatureDto postuler(Long etudiantId, Long offreId);
 
@@ -65,41 +66,58 @@ public interface CandidatureService {
     long compterParEtudiant(Long etudiantId);
 
     /**
-     * Liste des candidats d'une offre pour son recruteur propriétaire, classée par score décroissant.
+     * Liste filtrée et triée des candidats d'une offre pour son recruteur propriétaire.
      * L'email est masqué (null) tant que la candidature n'est pas ACCEPTEE.
-     *
-     * @param offreId       identifiant de l'offre
-     * @param recruteurId   identifiant du recruteur demandeur
-     * @param filtreStatut  filtre optionnel sur le statut de la candidature
-     * @throws org.springframework.web.server.ResponseStatusException 403 si l'offre appartient à un autre recruteur
      */
-    List<CandidatOffreDto> listerCandidatsPourRecruteur(Long offreId, Long recruteurId, StatutCandidature filtreStatut);
+    List<CandidatOffreDto> listerCandidatsPourRecruteur(
+            Long offreId, Long recruteurId,
+            StatutCandidature filtreStatut,
+            Boolean favorisOnly,
+            Double scoreMin,
+            String tri
+    );
+
+    default List<CandidatOffreDto> listerCandidatsPourRecruteur(Long offreId, Long recruteurId, StatutCandidature filtreStatut) {
+        return listerCandidatsPourRecruteur(offreId, recruteurId, filtreStatut, false, null, "score");
+    }
 
     default List<CandidatOffreDto> listerCandidatsPourRecruteur(Long offreId, Long recruteurId) {
-        return listerCandidatsPourRecruteur(offreId, recruteurId, null);
+        return listerCandidatsPourRecruteur(offreId, recruteurId, null, false, null, "score");
     }
 
     /**
      * Consultation détaillée d'un candidat pour une offre du recruteur.
      * Si la candidature était ENVOYEE, elle passe automatiquement à VUE.
      * L'email est affiché uniquement si la candidature est ACCEPTEE.
-     *
-     * @param candidatureId identifiant de la candidature
-     * @param recruteurId   identifiant du recruteur demandeur
-     * @throws org.springframework.web.server.ResponseStatusException 403 si l'offre n'appartient pas au recruteur
      */
     CandidatDetailDto obtenirDetailCandidat(Long candidatureId, Long recruteurId);
 
     /**
-     * Modification sécurisée du statut par le recruteur propriétaire de l'offre.
-     *
-     * @throws org.springframework.web.server.ResponseStatusException 403 si l'offre n'appartient pas au recruteur
-     * @throws IllegalStateException si la transition de statut est interdite
+     * Modification sécurisée du statut par le recruteur propriétaire de l'offre, avec message optionnel.
      */
-    CandidatureDto changerStatutPourRecruteur(Long candidatureId, StatutCandidature nouveauStatut, Long recruteurId);
+    CandidatureDto changerStatutPourRecruteur(Long candidatureId, StatutCandidature nouveauStatut, Long recruteurId, String message);
+
+    default CandidatureDto changerStatutPourRecruteur(Long candidatureId, StatutCandidature nouveauStatut, Long recruteurId) {
+        return changerStatutPourRecruteur(candidatureId, nouveauStatut, recruteurId, null);
+    }
 
     /**
-     * Données complètes du tableau de bord recruteur (offres, candidatures, répartition et récentes).
+     * Bascule l'état favori (étoile) d'une candidature pour le recruteur propriétaire.
+     */
+    CandidatureDto basculerFavori(Long candidatureId, Long recruteurId);
+
+    /**
+     * Enregistre une note interne privée par candidature, visible uniquement du recruteur propriétaire.
+     */
+    CandidatureDto definirNoteInterne(Long candidatureId, Long recruteurId, String note);
+
+    /**
+     * Statistiques d'une offre (entonnoir, score moyen, tranches, délai moyen).
+     */
+    OffreStatistiquesDto obtenirStatistiquesOffre(Long offreId, Long recruteurId);
+
+    /**
+     * Données complètes du tableau de bord recruteur (offres, candidatures, répartition, récentes, 7j/30j, top compétences, offres inactives 14j).
      */
     RecruteurDashboardDto obtenirDashboardRecruteur(Long recruteurId);
 }

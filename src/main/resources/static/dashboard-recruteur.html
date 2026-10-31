@@ -32,6 +32,7 @@
                 <li><a href="/dashboard-recruteur.html" class="nav-link active" aria-current="page">Tableau de bord</a></li>
                 <li><a href="/mes-offres.html" class="nav-link">Mes offres</a></li>
                 <li><a href="/publier-offre.html" class="nav-link">Publier une offre</a></li>
+                <li><a href="/mon-entreprise.html" class="nav-link">Mon entreprise</a></li>
             </ul>
             <div class="nav-cta">
                 <span id="nav-user-name" class="nav-user-label"></span>
@@ -179,14 +180,18 @@
                     <div class="recruit-stat-icon-wrap active">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="10"></circle>
-                            <polygon points="12 8 8 12 12 16 16 12 12 8"></polygon>
+                            <polyline points="12 6 12 12 14 14"></polyline>
                         </svg>
                     </div>
-                    <span class="recruit-stat-badge online">IA Ready</span>
+                    <span class="recruit-stat-badge online" style="background:#EEF2FF; color:#4338CA; border:1px solid #C7D2FE;">Calcul pondéré (non IA)</span>
                 </div>
-                <h2>Matching IA</h2>
-                <span class="recruit-count teal" style="font-size: 1.85rem;">Scoring Actif</span>
-                <p class="recruit-stat-desc">Calcul basé sur les compétences requises</p>
+                <h2>Matching par compétences</h2>
+                <span class="recruit-count teal" style="font-size: 1.45rem;">Pondération objective</span>
+                <p class="recruit-stat-desc" style="font-size: 0.76rem; line-height: 1.35; margin-top: 0.35rem; color: #475569;">
+                    <strong>Requises :</strong> pénalisantes si absentes.<br>
+                    <strong>Atouts :</strong> points bonus.<br>
+                    <strong>Niveaux :</strong> Expérience 0.8–1.0 · Projet 0.7 · Déclaratif 0.4 · Absent 0.0.
+                </p>
             </article>
         </div>
 
@@ -212,7 +217,10 @@
                     </svg>
                 </a>
             </div>
-            <div id="offres-list" aria-live="polite">Chargeme        <!-- CANDIDATES & APPLICATION METRICS (PHASE 2) -->
+            <div id="offres-list" aria-live="polite">Chargement des offres…</div>
+        </section>
+
+        <!-- CANDIDATES & APPLICATION METRICS (PHASE 2 & 3) -->
         <section class="recruit-pipeline-card" style="margin-top: 3rem;" aria-labelledby="sec-pipeline-title">
             <div class="recruit-pipeline-header">
                 <div>
@@ -231,7 +239,7 @@
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
-                    Matching Intelligent
+                    Matching par compétences
                 </span>
             </div>
 
@@ -298,6 +306,50 @@
                     <span id="dash-cand-refusees" class="recruit-count slate">0</span>
                     <p class="recruit-stat-desc">Clôturées définitivement</p>
                 </article>
+            </div>
+
+            <!-- CANDIDATURES DYNAMIQUES 7J / 30J -->
+            <div style="margin-top: 1.5rem; display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+                <div style="background:#FFFFFF; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between;">
+                    <div>
+                        <div style="font-size:0.8rem; color:#64748B; font-weight:700; text-transform:uppercase;">Reçues ces 7 derniers jours</div>
+                        <div style="font-size:0.82rem; color:#475569; margin-top:0.2rem;">Dynamique de la semaine</div>
+                    </div>
+                    <div id="dash-cand-7j" style="font-size:1.8rem; font-weight:800; color:var(--rec-blue);">0</div>
+                </div>
+
+                <div style="background:#FFFFFF; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between;">
+                    <div>
+                        <div style="font-size:0.8rem; color:#64748B; font-weight:700; text-transform:uppercase;">Reçues ces 30 derniers jours</div>
+                        <div style="font-size:0.82rem; color:#475569; margin-top:0.2rem;">Volume mensuel global</div>
+                    </div>
+                    <div id="dash-cand-30j" style="font-size:1.8rem; font-weight:800; color:var(--rec-teal);">0</div>
+                </div>
+            </div>
+
+            <!-- INSIGHTS : TOP COMPÉTENCES & OFFRES SANS CANDIDATURE -->
+            <div style="margin-top: 2rem; display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem;">
+                <!-- TOP COMPÉTENCES DEMANDÉES -->
+                <div style="background:#FFFFFF; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1.25rem 1.5rem;">
+                    <h3 style="font-size:1.05rem; font-weight:800; color:var(--rec-navy); margin:0 0 0.85rem; display:flex; align-items:center; gap:0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--rec-blue);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        Compétences les plus demandées
+                    </h3>
+                    <div id="dash-top-competences" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                        <span class="recruit-muted" style="font-size:0.85rem;">Chargement des compétences…</span>
+                    </div>
+                </div>
+
+                <!-- ALERTE OFFRES SANS CANDIDATURE DEPUIS 14 JOURS -->
+                <div style="background:#FFFFFF; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1.25rem 1.5rem;">
+                    <h3 style="font-size:1.05rem; font-weight:800; color:var(--rec-navy); margin:0 0 0.85rem; display:flex; align-items:center; gap:0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:#D97706;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        Offres sans candidature (&ge; 14 jours)
+                    </h3>
+                    <div id="dash-offres-inactives">
+                        <span class="recruit-muted" style="font-size:0.85rem;">Vérification de vos offres…</span>
+                    </div>
+                </div>
             </div>
 
             <!-- RECENT CANDIDATURES LIST -->

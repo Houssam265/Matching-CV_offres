@@ -1648,4 +1648,101 @@ tr.tr-highlight td {
     animation: trHighlightFade 2.5s ease-out;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   PHASE 3 : ENRICHISSEMENTS ESPACE RECRUTEUR
+═══════════════════════════════════════════════════════════ */
+
+/* Bouton Favori (Étoile) */
+.btn-favori {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.35rem;
+    line-height: 1;
+    color: #94A3B8;
+    padding: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-favori:hover {
+    color: #F59E0B;
+    transform: scale(1.15);
+}
+
+.btn-favori.active {
+    color: #F59E0B;
+    text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+/* Note interne */
+.note-interne-box {
+    margin-top: 0.85rem;
+    background: #F8FAFC;
+    border: 1px dashed var(--rec-border);
+    border-radius: var(--rec-radius-sm);
+    padding: 0.65rem 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.note-interne-box:focus-within {
+    border-color: var(--rec-blue);
+    background: #FFFFFF;
+}
+
+/* Statistiques & Entonnoir */
+.stat-funnel-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.stat-funnel-step {
+    flex: 1;
+    min-width: 140px;
+    background: #FFFFFF;
+    border: 1px solid var(--rec-border);
+    border-radius: var(--rec-radius-sm);
+    padding: 0.85rem 1rem;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(15, 30, 60, 0.04);
+}
+
+.stat-funnel-step.success {
+    border-color: #86EFAC;
+    background: #F0FDF4;
+}
+
+.stat-funnel-step.danger {
+    border-color: #FECACA;
+    background: #FEF2F2;
+}
+
+.stat-funnel-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--rec-navy);
+}
+
+.stat-funnel-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-top: 0.2rem;
+}
+
+@media (max-width: 860px) {
+    .entreprise-layout {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+
 

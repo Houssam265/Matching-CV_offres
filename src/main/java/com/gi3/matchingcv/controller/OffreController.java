@@ -6,6 +6,7 @@ import com.gi3.matchingcv.service.OffreService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -40,6 +41,22 @@ public class OffreController {
     @PatchMapping("/{id}/cloturer")
     public OffreDto cloturer(@PathVariable Long id, @RequestParam Long recruteurId) {
         return offres.cloturer(id, recruteurId);
+    }
+
+    public record RouvrirRequest(LocalDateTime dateLimite) {}
+
+    @PatchMapping("/{id}/rouvrir")
+    public OffreDto rouvrir(@PathVariable Long id,
+                            @RequestParam Long recruteurId,
+                            @RequestBody(required = false) RouvrirRequest request) {
+        LocalDateTime dateLimite = request != null ? request.dateLimite() : null;
+        return offres.rouvrir(id, recruteurId, dateLimite);
+    }
+
+    @PostMapping("/{id}/dupliquer")
+    @ResponseStatus(HttpStatus.CREATED)
+    public OffreDto dupliquer(@PathVariable Long id, @RequestParam Long recruteurId) {
+        return offres.dupliquer(id, recruteurId);
     }
 
     @DeleteMapping("/{id}")

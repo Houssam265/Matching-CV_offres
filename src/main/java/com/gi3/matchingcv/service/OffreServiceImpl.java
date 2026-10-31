@@ -6,6 +6,7 @@ import com.gi3.matchingcv.model.enums.*;
 import com.gi3.matchingcv.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -73,7 +74,9 @@ public class OffreServiceImpl implements OffreService {
     public OffreDto modifier(Long id, OffreRequest request) {
         Offre offre = possedee(id, request.recruteurId());
         appliquer(offre, request);
-        return OffreDto.from(offres.save(offre));
+        long total = candidatures.countByOffreId(offre.getId());
+        long aTraiter = candidatures.countByOffreIdAndStatut(offre.getId(), StatutCandidature.ENVOYEE);
+        return OffreDto.from(offres.save(offre), total, aTraiter);
     }
 
     private void appliquer(Offre offre, OffreRequest request) {
@@ -86,6 +89,11 @@ public class OffreServiceImpl implements OffreService {
         if (request.competences() == null || request.competences().stream()
                 .noneMatch(c -> c != null && c.typeExigence() == TypeExigence.REQUISE))
             throw new IllegalArgumentException("Au moins une compétence REQUISE est obligatoire.");
+
+        if (request.dateLimite() != null && request.dateLimite().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("La date limite de candidature doit être future.");
+        }
+        offre.setDateLimite(request.dateLimite());
 
         Map<Long, OffreCompetence> existantes = new HashMap<>();
         offre.getOffreCompetences().forEach(c -> existantes.put(c.getCompetence().getId(), c));
@@ -120,7 +128,70 @@ public class OffreServiceImpl implements OffreService {
     public OffreDto cloturer(Long id, Long recruteurId) {
         Offre offre = possedee(id, recruteurId);
         offre.setStatut(StatutOffre.CLOTUREE);
-        return OffreDto.from(offres.save(offre));
+        long total = candidatures.countByOffreId(offre.getId());
+        long aTraiter = candidatures.countByOffreIdAndStatut(offre.getId(), StatutCandidature.ENVOYEE);
+        return OffreDto.from(offres.save(offre), total, aTraiter);
+    }
+
+    @Override
+    public OffreDto rouvrir(Long id, Long recruteurId, LocalDateTime nouvelleDateLimite) {
+        Offre offre = possedee(id, recruteurId);
+        if (nouvelleDateLimite != null) {
+            if (nouvelleDateLimite.isBefore(LocalDateTime.now())) {
+                throw new IllegalArgumentException("La date limite de candidature doit être future.");
+            }
+            offre.setDateLimite(nouvelleDateLimite);
+        } else {
+            if (offre.getDateLimite() != null && offre.getDateLimite().isBefore(LocalDateTime.now())) {
+                offre.setDateLimite(null);
+            }
+        }
+        offre.setStatut(StatutOffre.ACTIVE);
+        long total = candidatures.countByOffreId(offre.getId());
+        long aTraiter = candidatures.countByOffreIdAndStatut(offre.getId(), StatutCandidature.ENVOYEE);
+        return OffreDto.from(offres.save(offre), total, aTraiter);
+    }
+
+    @Override
+    public OffreDto dupliquer(Long id, Long recruteurId) {
+        Offre source = possedee(id, recruteurId);
+        Offre copie = new Offre();
+        copie.setRecruteur(source.getRecruteur());
+        copie.setTitre(source.getTitre());
+        copie.setDescription(source.getDescription());
+        copie.setDomaine(source.getDomaine());
+        copie.setLocalisation(source.getLocalisation());
+        copie.setTypeContrat(source.getTypeContrat());
+        copie.setStatut(StatutOffre.ACTIVE);
+        copie.setDatePublication(LocalDateTime.now());
+        copie.setDateLimite(null);
+
+        for (OffreCompetence oc : source.getOffreCompetences()) {
+            OffreCompetence lien = new OffreCompetence();
+            lien.setOffre(copie);
+            lien.setCompetence(oc.getCompetence());
+            lien.setTypeExigence(oc.getTypeExigence());
+            copie.getOffreCompetences().add(lien);
+        }
+
+        Offre saved = offres.save(copie);
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new OffrePublieeEvent(saved.getId(), saved.getRecruteur().getId(), saved.getTitre()));
+        }
+        return OffreDto.from(saved, 0L, 0L);
+    }
+
+    @Scheduled(cron = "0 0 * * * *") // Vérification toutes les heures
+    @Override
+    public int cloturerOffresEchues() {
+        List<Offre> echues = offres.findByStatutAndDateLimiteBefore(StatutOffre.ACTIVE, LocalDateTime.now());
+        for (Offre o : echues) {
+            o.setStatut(StatutOffre.CLOTUREE);
+        }
+        if (!echues.isEmpty()) {
+            offres.saveAll(echues);
+        }
+        return echues.size();
     }
 
     @Override

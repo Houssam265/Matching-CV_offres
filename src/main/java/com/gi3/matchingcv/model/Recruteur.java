@@ -21,6 +21,13 @@ public class Recruteur extends Utilisateur {
 
     private String secteurActivite;
 
+    private String ville;
+
+    private String siteWeb;
+
+    @Column(length = 2000)
+    private String descriptionEntreprise;
+
     @OneToMany(mappedBy = "recruteur", fetch = FetchType.LAZY)
     @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Offre> offres = new ArrayList<>();
