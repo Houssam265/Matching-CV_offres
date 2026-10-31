@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -83,6 +84,10 @@ public class CandidatureServiceImpl implements CandidatureService {
 
         if (offre.getStatut() != StatutOffre.ACTIVE) {
             throw new IllegalStateException("Impossible de postuler : l'offre n'est plus active.");
+        }
+
+        if (offre.getDateLimite() != null && LocalDateTime.now().isAfter(offre.getDateLimite())) {
+            throw new IllegalStateException("Impossible de postuler : la date limite de candidature est dépassée.");
         }
 
         if (candidatureRepository.existsByEtudiantIdAndOffreId(etudiantId, offreId)) {
@@ -170,6 +175,9 @@ public class CandidatureServiceImpl implements CandidatureService {
         }
 
         cand.setStatut(nouveauStatut);
+        if (cand.getDateTraitement() == null) {
+            cand.setDateTraitement(LocalDateTime.now());
+        }
         Candidature saved = candidatureRepository.save(cand);
 
         if (eventPublisher != null && actuel != nouveauStatut) {
@@ -207,11 +215,17 @@ public class CandidatureServiceImpl implements CandidatureService {
     // ──────────────────────────────────────────────────────────
 
     @Override
-    public List<CandidatOffreDto> listerCandidatsPourRecruteur(Long offreId, Long recruteurId, StatutCandidature filtreStatut) {
+    public List<CandidatOffreDto> listerCandidatsPourRecruteur(
+            Long offreId, Long recruteurId,
+            StatutCandidature filtreStatut,
+            Boolean favorisOnly,
+            Double scoreMin,
+            String tri
+    ) {
         Offre offre = offreRepository.findById(offreId)
                 .orElseThrow(() -> new EntityNotFoundException("Offre introuvable : " + offreId));
 
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre peut voir ses candidats et changer un statut.
+        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }
@@ -219,8 +233,19 @@ public class CandidatureServiceImpl implements CandidatureService {
         List<Candidature> candidatures = candidatureRepository.findByOffreIdOrderByScoreDesc(offreId);
         return candidatures.stream()
                 .filter(c -> filtreStatut == null || c.getStatut() == filtreStatut)
-                .sorted(Comparator.comparing(Candidature::getScore, Comparator.nullsLast(Comparator.reverseOrder()))
-                        .thenComparing(Candidature::getDateCandidature, Comparator.nullsLast(Comparator.reverseOrder())))
+                .filter(c -> favorisOnly == null || !favorisOnly || Boolean.TRUE.equals(c.getFavori()))
+                .filter(c -> scoreMin == null || (c.getScore() != null && c.getScore() >= scoreMin))
+                .sorted((c1, c2) -> {
+                    if ("date".equalsIgnoreCase(tri)) {
+                        return Comparator.comparing(Candidature::getDateCandidature, Comparator.nullsLast(Comparator.reverseOrder()))
+                                .thenComparing(Candidature::getScore, Comparator.nullsLast(Comparator.reverseOrder()))
+                                .compare(c1, c2);
+                    } else {
+                        return Comparator.comparing(Candidature::getScore, Comparator.nullsLast(Comparator.reverseOrder()))
+                                .thenComparing(Candidature::getDateCandidature, Comparator.nullsLast(Comparator.reverseOrder()))
+                                .compare(c1, c2);
+                    }
+                })
                 .map(CandidatOffreDto::from)
                 .toList();
     }
@@ -232,7 +257,7 @@ public class CandidatureServiceImpl implements CandidatureService {
                 .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable : " + candidatureId));
 
         Offre offre = cand.getOffre();
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre peut voir ses candidats et changer un statut.
+        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }
@@ -241,6 +266,9 @@ public class CandidatureServiceImpl implements CandidatureService {
         if (cand.getStatut() == StatutCandidature.ENVOYEE) {
             StatutCandidature ancien = cand.getStatut();
             cand.setStatut(StatutCandidature.VUE);
+            if (cand.getDateTraitement() == null) {
+                cand.setDateTraitement(LocalDateTime.now());
+            }
             cand = candidatureRepository.save(cand);
             if (eventPublisher != null) {
                 eventPublisher.publishEvent(new com.gi3.matchingcv.event.CandidatureStatutChangeEvent(
@@ -320,7 +348,10 @@ public class CandidatureServiceImpl implements CandidatureService {
                 matchingDetail,
                 competencesProfil,
                 projetsDto,
-                expsDto
+                expsDto,
+                cand.getFavori() != null ? cand.getFavori() : false,
+                cand.getNoteInterne(),
+                cand.getMessage()
         );
     }
 
@@ -361,17 +392,110 @@ public class CandidatureServiceImpl implements CandidatureService {
 
     @Override
     @Transactional
-    public CandidatureDto changerStatutPourRecruteur(Long candidatureId, StatutCandidature nouveauStatut, Long recruteurId) {
+    public CandidatureDto changerStatutPourRecruteur(Long candidatureId, StatutCandidature nouveauStatut, Long recruteurId, String message) {
         Candidature cand = candidatureRepository.findById(candidatureId)
                 .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable : " + candidatureId));
 
         Offre offre = cand.getOffre();
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre peut voir ses candidats et changer un statut.
+        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }
 
+        if (message != null && !message.isBlank()) {
+            cand.setMessage(message.trim());
+        }
+
         return changerStatut(candidatureId, nouveauStatut);
+    }
+
+    @Override
+    @Transactional
+    public CandidatureDto basculerFavori(Long candidatureId, Long recruteurId) {
+        Candidature cand = candidatureRepository.findById(candidatureId)
+                .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable : " + candidatureId));
+
+        Offre offre = cand.getOffre();
+        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
+        if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
+        }
+
+        cand.setFavori(cand.getFavori() == null || !cand.getFavori());
+        return CandidatureDto.from(candidatureRepository.save(cand));
+    }
+
+    @Override
+    @Transactional
+    public CandidatureDto definirNoteInterne(Long candidatureId, Long recruteurId, String note) {
+        Candidature cand = candidatureRepository.findById(candidatureId)
+                .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable : " + candidatureId));
+
+        Offre offre = cand.getOffre();
+        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
+        if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
+        }
+
+        cand.setNoteInterne(note != null && !note.isBlank() ? note.trim() : null);
+        return CandidatureDto.from(candidatureRepository.save(cand));
+    }
+
+    @Override
+    public OffreStatistiquesDto obtenirStatistiquesOffre(Long offreId, Long recruteurId) {
+        Offre offre = offreRepository.findById(offreId)
+                .orElseThrow(() -> new EntityNotFoundException("Offre introuvable : " + offreId));
+
+        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
+        if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
+        }
+
+        List<Candidature> candidatures = candidatureRepository.findByOffreIdOrderByScoreDesc(offreId);
+        long total = candidatures.size();
+        long envoyees = candidatures.stream().filter(c -> c.getStatut() == StatutCandidature.ENVOYEE).count();
+        long vues = candidatures.stream().filter(c -> c.getStatut() == StatutCandidature.VUE).count();
+        long acceptees = candidatures.stream().filter(c -> c.getStatut() == StatutCandidature.ACCEPTEE).count();
+        long refusees = candidatures.stream().filter(c -> c.getStatut() == StatutCandidature.REFUSEE).count();
+
+        OffreStatistiquesDto.EntonnoirDto entonnoir = new OffreStatistiquesDto.EntonnoirDto(
+                total,
+                vues + acceptees + refusees,
+                acceptees,
+                refusees
+        );
+
+        DoubleSummaryStatistics stats = candidatures.stream()
+                .filter(c -> c.getScore() != null)
+                .mapToDouble(Candidature::getScore)
+                .summaryStatistics();
+        Double scoreMoyen = stats.getCount() > 0 ? Math.round(stats.getAverage() * 10.0) / 10.0 : null;
+
+        Map<String, Long> repartition = new LinkedHashMap<>();
+        repartition.put("< 40%", candidatures.stream().filter(c -> c.getScore() != null && c.getScore() < 40.0).count());
+        repartition.put("40-69%", candidatures.stream().filter(c -> c.getScore() != null && c.getScore() >= 40.0 && c.getScore() < 70.0).count());
+        repartition.put(">= 70%", candidatures.stream().filter(c -> c.getScore() != null && c.getScore() >= 70.0).count());
+
+        List<Double> delaisHeures = candidatures.stream()
+                .filter(c -> c.getDateTraitement() != null && c.getDateCandidature() != null)
+                .map(c -> java.time.Duration.between(c.getDateCandidature(), c.getDateTraitement()).toMinutes() / 60.0)
+                .toList();
+
+        Double delaiMoyen = null;
+        if (!delaisHeures.isEmpty()) {
+            double avg = delaisHeures.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+            delaiMoyen = Math.round(avg * 10.0) / 10.0;
+        }
+
+        return new OffreStatistiquesDto(
+                offre.getId(),
+                offre.getTitre(),
+                total,
+                entonnoir,
+                scoreMoyen,
+                repartition,
+                delaiMoyen
+        );
     }
 
     @Override
@@ -398,6 +522,40 @@ public class CandidatureServiceImpl implements CandidatureService {
                 .map(CandidatOffreDto::from)
                 .toList();
 
+        LocalDateTime now = LocalDateTime.now();
+        long cand7j = candidatures.stream()
+                .filter(c -> c.getDateCandidature() != null && c.getDateCandidature().isAfter(now.minusDays(7)))
+                .count();
+
+        long cand30j = candidatures.stream()
+                .filter(c -> c.getDateCandidature() != null && c.getDateCandidature().isAfter(now.minusDays(30)))
+                .count();
+
+        Map<Long, String> nomCompMap = new HashMap<>();
+        Map<Long, Long> countMap = new HashMap<>();
+        for (Offre o : mesOffres) {
+            for (OffreCompetence oc : o.getOffreCompetences()) {
+                if (oc.getCompetence() != null) {
+                    Long cid = oc.getCompetence().getId();
+                    nomCompMap.put(cid, oc.getCompetence().getNom());
+                    countMap.merge(cid, 1L, Long::sum);
+                }
+            }
+        }
+        List<CompetenceDemandeDto> topCompetences = countMap.entrySet().stream()
+                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
+                .limit(8)
+                .map(e -> new CompetenceDemandeDto(e.getKey(), nomCompMap.get(e.getKey()), e.getValue()))
+                .toList();
+
+        LocalDateTime ilYa14Jours = now.minusDays(14);
+        List<OffreDto> inactives14J = mesOffres.stream()
+                .filter(o -> o.getStatut() == StatutOffre.ACTIVE)
+                .filter(o -> o.getDatePublication() != null && o.getDatePublication().isBefore(ilYa14Jours))
+                .filter(o -> candidatures.stream().noneMatch(c -> Objects.equals(c.getOffre().getId(), o.getId())))
+                .map(OffreDto::from)
+                .toList();
+
         return new RecruteurDashboardDto(
                 offresActives,
                 offresCloturees,
@@ -405,7 +563,11 @@ public class CandidatureServiceImpl implements CandidatureService {
                 totalCandidatures,
                 aTraiter,
                 repartition,
-                recentes
+                recentes,
+                cand7j,
+                cand30j,
+                topCompetences,
+                inactives14J
         );
     }
 }

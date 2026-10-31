@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import java.time.LocalDateTime;
 import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -140,5 +141,67 @@ class OffreServiceTest {
         creation(); offre.setStatut(StatutOffre.CLOTUREE);
         when(offres.findByRecruteurIdOrderByDatePublicationDesc(1L)).thenReturn(List.of(offre));
         assertThat(service.listerParRecruteur(1L)).extracting(OffreDto::statut).containsExactly(StatutOffre.CLOTUREE);
+    }
+
+    @Test
+    @DisplayName("clotureAutomatiqueAEcheance : clôture les offres actives dont la date limite est échue")
+    void clotureAutomatiqueAEcheance() {
+        offre.setDateLimite(LocalDateTime.now().minusHours(2));
+        offre.setStatut(StatutOffre.ACTIVE);
+        when(offres.findByStatutAndDateLimiteBefore(eq(StatutOffre.ACTIVE), any(LocalDateTime.class)))
+                .thenReturn(List.of(offre));
+
+        int closed = service.cloturerOffresEchues();
+
+        assertThat(closed).isEqualTo(1);
+        assertThat(offre.getStatut()).isEqualTo(StatutOffre.CLOTUREE);
+        verify(offres).saveAll(List.of(offre));
+    }
+
+    @Test
+    @DisplayName("rouvrir : repasse une offre clôturée à ACTIVE avec date future ou nulle")
+    void rouvrirOffre_ok() {
+        proprietaire(); sauvegarde();
+        offre.setStatut(StatutOffre.CLOTUREE);
+        offre.setDateLimite(LocalDateTime.now().minusDays(1));
+        when(candidatures.countByOffreId(5L)).thenReturn(0L);
+        when(candidatures.countByOffreIdAndStatut(5L, StatutCandidature.ENVOYEE)).thenReturn(0L);
+
+        LocalDateTime future = LocalDateTime.now().plusDays(10);
+        var result = service.rouvrir(5L, 1L, future);
+
+        assertThat(result.statut()).isEqualTo(StatutOffre.ACTIVE);
+        assertThat(offre.getDateLimite()).isEqualTo(future);
+    }
+
+    @Test
+    @DisplayName("rouvrir : refuse si la nouvelle date limite est dans le passé")
+    void rouvrirOffre_datePassee_refusee() {
+        proprietaire();
+        offre.setStatut(StatutOffre.CLOTUREE);
+        LocalDateTime passee = LocalDateTime.now().minusDays(1);
+
+        assertThatThrownBy(() -> service.rouvrir(5L, 1L, passee))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("future");
+        verify(offres, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("dupliquer : copie les compétences Requise/Atout sans candidatures")
+    void dupliquerOffre_ok() {
+        proprietaire(); sauvegarde();
+        Competence atout = new Competence(); atout.setId(11L); atout.setNom("Docker"); atout.setStatut(StatutCompetence.VALIDEE);
+        offre.getOffreCompetences().add(new OffreCompetence(1L, TypeExigence.REQUISE, offre, java));
+        offre.getOffreCompetences().add(new OffreCompetence(2L, TypeExigence.ATOUT, offre, atout));
+
+        var result = service.dupliquer(5L, 1L);
+
+        assertThat(result.statut()).isEqualTo(StatutOffre.ACTIVE);
+        assertThat(result.titre()).isEqualTo(offre.getTitre());
+        assertThat(result.competences()).hasSize(2);
+        assertThat(result.competences()).extracting(OffreDto.CompetenceDto::typeExigence)
+                .containsExactlyInAnyOrder(TypeExigence.REQUISE, TypeExigence.ATOUT);
+        assertThat(result.nbCandidatures()).isEqualTo(0L);
     }
 }

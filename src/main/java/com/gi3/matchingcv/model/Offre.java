@@ -41,6 +41,8 @@ public class Offre {
 
     private LocalDateTime datePublication;
 
+    private LocalDateTime dateLimite;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recruteur_id")
     private Recruteur recruteur;

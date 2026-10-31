@@ -33,6 +33,16 @@ public class Candidature {
 
     private LocalDateTime dateCandidature;
 
+    private LocalDateTime dateTraitement;
+
+    private Boolean favori = false;
+
+    @Column(length = 2000)
+    private String noteInterne;
+
+    @Column(length = 2000)
+    private String message;
+
     @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "etudiant_id", nullable = false)

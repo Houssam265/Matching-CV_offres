@@ -32,6 +32,7 @@
                 <li><a href="/dashboard-recruteur.html" class="nav-link">Tableau de bord</a></li>
                 <li><a href="/mes-offres.html" class="nav-link">Mes offres</a></li>
                 <li><a href="/publier-offre.html" class="nav-link active" aria-current="page">Publier une offre</a></li>
+                <li><a href="/mon-entreprise.html" class="nav-link">Mon entreprise</a></li>
             </ul>
             <div class="nav-cta">
                 <span id="nav-user-name" class="nav-user-label"></span>
@@ -99,6 +100,14 @@
                 <div style="margin-bottom: 1.5rem;">
                     <label for="description">Description détaillée du poste *</label>
                     <textarea id="description" name="description" required maxlength="4000" rows="8" placeholder="Détaillez les missions, responsabilités quotidiennes, environnement technologique, équipe et profil candidat recherché..."></textarea>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="dateLimite">Date limite de candidature (optionnelle)</label>
+                    <input type="datetime-local" id="dateLimite" name="dateLimite" style="max-width: 320px;">
+                    <p class="recruit-muted" style="font-size: 0.8rem; margin-top: 0.35rem;">
+                        Clôture automatique de l'offre à l'échéance. Aucune candidature ne sera acceptée après cette date.
+                    </p>
                 </div>
 
                 <!-- ÉTAPE 2 : COMPÉTENCES -->

@@ -39,6 +39,28 @@ public class RecruteurServiceImpl implements RecruteurService {
     public RecruteurDto trouver(Long id) { return RecruteurDto.from(entite(id)); }
 
     @Override
+    public RecruteurDto modifier(Long id, RecruteurProfilRequest request) {
+        Recruteur recruteur = entite(id);
+        if (request.nomEntreprise() == null || request.nomEntreprise().isBlank()) {
+            throw new IllegalArgumentException("Le nom de l'entreprise est obligatoire.");
+        }
+        if (request.prenom() != null) {
+            recruteur.setPrenom(request.prenom().trim());
+        }
+        if (request.nom() != null) {
+            recruteur.setNom(request.nom().trim());
+        }
+        recruteur.setNomEntreprise(request.nomEntreprise().trim());
+        recruteur.setSecteurActivite(request.secteurActivite() != null ? request.secteurActivite().trim() : null);
+        recruteur.setVille(request.ville() != null ? request.ville().trim() : null);
+        recruteur.setSiteWeb(request.siteWeb() != null ? request.siteWeb().trim() : null);
+        recruteur.setDescriptionEntreprise(request.descriptionEntreprise() != null ? request.descriptionEntreprise().trim() : null);
+
+        Recruteur saved = recruteurs.save(recruteur);
+        return RecruteurDto.from(saved);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<Competence> suggerer(Long id, String query) {
         entite(id);
