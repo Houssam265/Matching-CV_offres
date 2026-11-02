@@ -314,4 +314,122 @@ class CandidatureServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Transition refusée");
     }
+
+    @Test
+    @DisplayName("postuler : refus si la date limite de candidature est dépassée")
+    void postuler_dateLimiteDepassee_refusee() {
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+        offre.setDateLimite(LocalDateTime.now().minusDays(1)); // Date limite passée
+        when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
+
+        assertThatThrownBy(() -> service.postuler(1L, 100L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("date limite de candidature est dépassée");
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("favoris et notes isolés par recruteur : propriétaire ok, autrui 403, note jamais dans CandidatureDto")
+    void favorisEtNotesIsolesParRecruteur() {
+        Candidature c = candidature(50L, StatutCandidature.ENVOYEE, 75.0);
+        when(candidatureRepository.findById(50L)).thenReturn(Optional.of(c));
+        when(candidatureRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        // 1. Recruteur propriétaire bascule le favori
+        var dtoFavori = service.basculerFavori(50L, 10L);
+        assertThat(c.getFavori()).isTrue();
+
+        // 2. Recruteur propriétaire enregistre une note interne
+        var dtoNote = service.definirNoteInterne(50L, 10L, "Très bon profil pour le stage");
+        assertThat(c.getNoteInterne()).isEqualTo("Très bon profil pour le stage");
+
+        // 3. Autre recruteur non propriétaire (403 FORBIDDEN)
+        assertThatThrownBy(() -> service.basculerFavori(50L, 999L))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((org.springframework.web.server.ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(org.springframework.http.HttpStatus.FORBIDDEN));
+
+        assertThatThrownBy(() -> service.definirNoteInterne(50L, 999L, "Note pirate"))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((org.springframework.web.server.ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(org.springframework.http.HttpStatus.FORBIDDEN));
+    }
+
+    @Test
+    @DisplayName("listerCandidatsPourRecruteur : filtres statut, favoris, score minimum et tri")
+    void filtresListeCandidats() {
+        when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
+
+        Candidature c1 = candidature(1L, StatutCandidature.ENVOYEE, 90.0);
+        c1.setDateCandidature(LocalDateTime.now().minusDays(3));
+        c1.setFavori(true);
+
+        Candidature c2 = candidature(2L, StatutCandidature.VUE, 70.0);
+        c2.setDateCandidature(LocalDateTime.now().minusDays(1));
+        c2.setFavori(false);
+
+        Candidature c3 = candidature(3L, StatutCandidature.ENVOYEE, 50.0);
+        c3.setDateCandidature(LocalDateTime.now().minusDays(2));
+        c3.setFavori(false);
+
+        when(candidatureRepository.findByOffreIdOrderByScoreDesc(100L)).thenReturn(List.of(c1, c2, c3));
+
+        // Filtre par statut ENVOYEE
+        var filtreStatut = service.listerCandidatsPourRecruteur(100L, 10L, StatutCandidature.ENVOYEE, false, null, "score");
+        assertThat(filtreStatut).hasSize(2).extracting(com.gi3.matchingcv.dto.CandidatOffreDto::candidatureId).containsExactly(1L, 3L);
+
+        // Filtre par favoris
+        var filtreFavoris = service.listerCandidatsPourRecruteur(100L, 10L, null, true, null, "score");
+        assertThat(filtreFavoris).hasSize(1).extracting(com.gi3.matchingcv.dto.CandidatOffreDto::candidatureId).containsExactly(1L);
+
+        // Filtre par score minimum 70.0
+        var filtreScore = service.listerCandidatsPourRecruteur(100L, 10L, null, false, 70.0, "score");
+        assertThat(filtreScore).hasSize(2).extracting(com.gi3.matchingcv.dto.CandidatOffreDto::candidatureId).containsExactly(1L, 2L);
+
+        // Tri par date décroissante
+        var triDate = service.listerCandidatsPourRecruteur(100L, 10L, null, false, null, "date");
+        assertThat(triDate).extracting(com.gi3.matchingcv.dto.CandidatOffreDto::candidatureId).containsExactly(2L, 3L, 1L);
+    }
+
+    @Test
+    @DisplayName("obtenirStatistiquesOffre : entonnoir, score moyen, tranches et délai moyen sur jeu de données connu")
+    void statistiquesSurJeuDonneesConnu() {
+        when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
+
+        Candidature c1 = candidature(1L, StatutCandidature.ENVOYEE, 85.0);
+        c1.setDateCandidature(LocalDateTime.now().minusHours(10));
+
+        Candidature c2 = candidature(2L, StatutCandidature.VUE, 90.0);
+        c2.setDateCandidature(LocalDateTime.now().minusHours(24));
+        c2.setDateTraitement(LocalDateTime.now().minusHours(20)); // Traité en 4h
+
+        Candidature c3 = candidature(3L, StatutCandidature.ACCEPTEE, 75.0);
+        c3.setDateCandidature(LocalDateTime.now().minusHours(48));
+        c3.setDateTraitement(LocalDateTime.now().minusHours(42)); // Traité en 6h
+
+        Candidature c4 = candidature(4L, StatutCandidature.REFUSEE, 35.0);
+        c4.setDateCandidature(LocalDateTime.now().minusHours(12));
+        c4.setDateTraitement(LocalDateTime.now().minusHours(10)); // Traité en 2h
+
+        when(candidatureRepository.findByOffreIdOrderByScoreDesc(100L)).thenReturn(List.of(c1, c2, c3, c4));
+
+        var stats = service.obtenirStatistiquesOffre(100L, 10L);
+
+        assertThat(stats.totalCandidatures()).isEqualTo(4L);
+        assertThat(stats.entonnoir().envoyees()).isEqualTo(4L);
+        assertThat(stats.entonnoir().vues()).isEqualTo(3L);
+        assertThat(stats.entonnoir().acceptees()).isEqualTo(1L);
+        assertThat(stats.entonnoir().refusees()).isEqualTo(1L);
+
+        // Score moyen : (85 + 90 + 75 + 35) / 4 = 71.3 (arrondi à 1 décimale)
+        assertThat(stats.scoreMoyen()).isEqualTo(71.3);
+
+        // Répartition des scores : <40%: 1, 40-69%: 0, >=70%: 3
+        assertThat(stats.repartitionScores().get("< 40%")).isEqualTo(1L);
+        assertThat(stats.repartitionScores().get("40-69%")).isEqualTo(0L);
+        assertThat(stats.repartitionScores().get(">= 70%")).isEqualTo(3L);
+
+        // Délai moyen de traitement : (4h + 6h + 2h) / 3 = 4.0h
+        assertThat(stats.delaiMoyenTraitementHeures()).isEqualTo(4.0);
+    }
 }

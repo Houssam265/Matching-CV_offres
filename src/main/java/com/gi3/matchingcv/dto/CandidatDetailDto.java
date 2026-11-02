@@ -14,6 +14,7 @@ import java.util.List;
  * - Explication détaillée du score de matching calculé pour CETTE offre.
  * - Comparaison entre score à la candidature et score actuel recalculé.
  * - L'email n'est exposé QUE si la candidature est ACCEPTEE.
+ * - Favori, note interne privée et message d'accompagnement.
  * - Aucun mot de passe exposé.
  */
 public record CandidatDetailDto(
@@ -35,8 +36,25 @@ public record CandidatDetailDto(
         MatchingDetailDto matchingDetail,
         List<CompetenceProfilDto> competences,
         List<ProjetCandidatDto> projets,
-        List<ExperienceCandidatDto> experiences
+        List<ExperienceCandidatDto> experiences,
+        Boolean favori,
+        String noteInterne,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        String message
 ) {
+    public CandidatDetailDto(
+            Long candidatureId, Long etudiantId, Long offreId, String offreTitre,
+            String nom, String prenom, String filiere, String etablissement,
+            String email, StatutCandidature statut, LocalDateTime dateCandidature,
+            Double scoreCandidature, Double scoreActuel, boolean scoreModifie,
+            MatchingDetailDto matchingDetail, List<CompetenceProfilDto> competences,
+            List<ProjetCandidatDto> projets, List<ExperienceCandidatDto> experiences
+    ) {
+        this(candidatureId, etudiantId, offreId, offreTitre, nom, prenom, filiere, etablissement,
+                email, statut, dateCandidature, scoreCandidature, scoreActuel, scoreModifie,
+                matchingDetail, competences, projets, experiences, false, null, null);
+    }
+
     public record CompetenceProfilDto(
             Long competenceId,
             String nom,

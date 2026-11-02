@@ -7,6 +7,7 @@ import java.util.List;
 public interface RecruteurService {
     AuthResponse inscrire(RecruteurInscriptionRequest request);
     RecruteurDto trouver(Long id);
+    RecruteurDto modifier(Long id, RecruteurProfilRequest request);
     List<Competence> suggerer(Long id, String query);
     Competence proposer(Long id, String nom, String categorie);
 }

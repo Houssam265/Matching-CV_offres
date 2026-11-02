@@ -4,12 +4,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Point d'entrée principal de l'application Matching CV-Offres.
  * GI3 — ENSA Tétouan
  */
 @EnableAsync
+@EnableScheduling
 @SpringBootApplication
 public class MatchingCvOffresApplication {
 

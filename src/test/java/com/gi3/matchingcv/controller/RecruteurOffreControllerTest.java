@@ -88,4 +88,39 @@ class RecruteurOffreControllerTest {
                 """)).andExpect(status().isCreated()).andExpect(jsonPath("$.role").value("RECRUTEUR"))
                 .andExpect(jsonPath("$.motDePasse").doesNotExist());
     }
+
+    @Test void modifierProfilRecruteur200EtJsonPropre() throws Exception {
+        RecruteurDto rDto = new RecruteurDto(1L, "Dupont", "Jean", "jean@acme.com", Role.RECRUTEUR,
+                "Acme Corp", "Tech", "Casablanca", "https://acme.com", "Description courte");
+        when(recruteurs.modifier(eq(1L), any())).thenReturn(rDto);
+
+        mvc.perform(put("/api/recruteurs/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {"nom":"Dupont","prenom":"Jean","nomEntreprise":"Acme Corp","secteurActivite":"Tech",
+                         "ville":"Casablanca","siteWeb":"https://acme.com","descriptionEntreprise":"Description courte"}
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nomEntreprise").value("Acme Corp"))
+                .andExpect(jsonPath("$.ville").value("Casablanca"))
+                .andExpect(jsonPath("$.siteWeb").value("https://acme.com"));
+    }
+
+    @Test void rouvrirOffre200() throws Exception {
+        when(offres.rouvrir(eq(5L), eq(1L), any())).thenReturn(dto());
+        mvc.perform(patch("/api/offres/5/rouvrir").param("recruteurId", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {"dateLimite":"2026-12-31T23:59:59"}
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(5));
+    }
+
+    @Test void dupliquerOffre201() throws Exception {
+        when(offres.dupliquer(5L, 1L)).thenReturn(dto());
+        mvc.perform(post("/api/offres/5/dupliquer").param("recruteurId", "1"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(5));
+    }
 }
