@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const showError = message => { if (error) { error.textContent = message; error.hidden = false; error.scrollIntoView({block: 'nearest'}); } };
     const clearError = () => { if (error) { error.hidden = true; error.textContent = ''; } };
 
-    // Set navbar user info
+    // Set navbar user info & sidebar sync
     const navUserName = document.getElementById('nav-user-name');
     if (navUserName) {
         navUserName.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || 'Recruteur';
@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const navLogout = document.getElementById('nav-logout');
     if (navLogout) {
         navLogout.addEventListener('click', () => MatchingCVSession.logout());
+    }
+    if (window.MatchingCVSidebar && typeof window.MatchingCVSidebar.updateUserInfo === 'function') {
+        window.MatchingCVSidebar.updateUserInfo(user);
     }
 
     // Navbar mobile toggle & scroll
@@ -344,6 +347,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (avatarEl) {
                         const initials = ((recruteurInfo.prenom || user.prenom || 'R')[0] + (recruteurInfo.nom || user.nom || 'E')[0]).toUpperCase();
                         avatarEl.textContent = initials;
+                    }
+                    if (window.MatchingCVSidebar && typeof window.MatchingCVSidebar.updateUserInfo === 'function') {
+                        window.MatchingCVSidebar.updateUserInfo({
+                            ...user,
+                            ...recruteurInfo,
+                            entreprise: recruteurInfo.nomEntreprise || user.entreprise
+                        });
                     }
                 }
             } catch (_) {}
