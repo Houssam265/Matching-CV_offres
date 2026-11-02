@@ -645,8 +645,7 @@ window.NotificationBell = (() => {
 document.addEventListener('DOMContentLoaded', () => {
     if (window.MatchingCVSession) {
         const user = window.MatchingCVSession.read();
-        // N'initialiser automatiquement que pour l'espace étudiant dans ce lot
-        if (user && user.role === 'ETUDIANT') {
+        if (user && (user.role === 'ETUDIANT' || user.role === 'RECRUTEUR')) {
             window.NotificationBell.init({ userId: user.id });
         }
     }
