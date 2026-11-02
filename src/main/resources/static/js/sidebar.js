@@ -99,16 +99,29 @@ window.MatchingCVSidebar = (() => {
      */
     function updateUserInfo(user) {
         if (!user) return;
+        const isRecruteur = user.role === 'RECRUTEUR';
         const prenom = user.prenom || '';
         const nom = user.nom || '';
-        const fullName = `${prenom} ${nom}`.trim() || 'Étudiant';
-        const initials = ((prenom.charAt(0) || '') + (nom.charAt(0) || '')).toUpperCase() || 'E';
+        const defaultName = isRecruteur ? 'Recruteur' : 'Étudiant';
+        const defaultInitial = isRecruteur ? 'R' : 'E';
+        const fullName = `${prenom} ${nom}`.trim() || defaultName;
+        const initials = ((prenom.charAt(0) || '') + (nom.charAt(0) || '')).toUpperCase() || defaultInitial;
 
         const sbName = document.getElementById('sidebar-user-name');
         if (sbName) sbName.textContent = fullName;
 
         const sbAvatar = document.getElementById('sidebar-user-avatar');
         if (sbAvatar) sbAvatar.textContent = initials;
+
+        const sbRole = document.getElementById('sidebar-user-role');
+        if (sbRole) {
+            if (isRecruteur) {
+                const ent = user.nomEntreprise || user.entreprise;
+                sbRole.textContent = ent ? `${ent} • Entreprise` : 'Recruteur • Entreprise';
+            } else {
+                sbRole.textContent = 'Étudiant • ENSA';
+            }
+        }
 
         const tbName = document.getElementById('topbar-user-name');
         if (tbName) tbName.textContent = fullName;
