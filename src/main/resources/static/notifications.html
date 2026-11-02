@@ -17,9 +17,55 @@
                 const menuList = document.querySelector('.sidebar-section .sidebar-list');
                 if (menuList) {
                     menuList.innerHTML = `
-                        <li class="sidebar-item"><a href="/dashboard-recruteur.html" class="sidebar-link" title="Tableau de bord"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg></span><span class="sidebar-link-label">Tableau de bord</span></a></li>
-                        <li class="sidebar-item"><a href="/mes-offres.html" class="sidebar-link" title="Mes offres"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span><span class="sidebar-link-label">Mes offres</span></a></li>
-                        <li class="sidebar-item"><a href="/publier-offre.html" class="sidebar-link" title="Publier une offre"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span><span class="sidebar-link-label">Publier une offre</span><span class="sidebar-badge-new">Publier</span></a></li>
+                        <li class="sidebar-item">
+                            <a href="/dashboard-recruteur.html" class="sidebar-link" title="Tableau de bord">
+                                <span class="sidebar-link-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                                        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                                        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                                        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                                    </svg>
+                                </span>
+                                <span class="sidebar-link-label">Tableau de bord</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/mes-offres.html" class="sidebar-link" title="Mes offres">
+                                <span class="sidebar-link-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    </svg>
+                                </span>
+                                <span class="sidebar-link-label">Mes offres</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/publier-offre.html" class="sidebar-link" title="Publier une offre">
+                                <span class="sidebar-link-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </span>
+                                <span class="sidebar-link-label">Publier une offre</span>
+                                <span class="sidebar-badge-new">Publier</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/mon-entreprise.html" class="sidebar-link" title="Mon entreprise">
+                                <span class="sidebar-link-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                    </svg>
+                                </span>
+                                <span class="sidebar-link-label">Mon entreprise</span>
+                            </a>
+                        </li>
                     `;
                 }
                 const toolsSections = document.querySelectorAll('.sidebar-section');
@@ -29,13 +75,42 @@
                         toolsList.innerHTML = `
                             <li class="sidebar-item">
                                 <a href="/notifications.html" class="sidebar-link active" aria-current="page" title="Notifications">
-                                    <span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span>
+                                    <span class="sidebar-link-icon">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                        </svg>
+                                    </span>
                                     <span class="sidebar-link-label">Notifications</span>
                                     <span class="sidebar-badge-counter" id="sidebar-notif-pill" style="display:none;">0</span>
                                 </a>
                             </li>
                         `;
                     }
+                }
+                const topbarPill = document.getElementById('topbar-user-pill');
+                if (topbarPill) {
+                    topbarPill.href = '/dashboard-recruteur.html';
+                }
+                const topbarAction = document.querySelector('.topbar-btn-action');
+                if (topbarAction) {
+                    topbarAction.href = '/publier-offre.html';
+                    topbarAction.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Publier une offre</span>
+                    `;
+                }
+                const heroSub = document.querySelector('.nh-sub');
+                if (heroSub) {
+                    heroSub.textContent = 'Suivez les nouvelles candidatures reçues, les profils correspondants et les interactions en temps réel.';
+                }
+                const userCard = document.getElementById('sidebar-user-card');
+                if (userCard) {
+                    userCard.onclick = () => window.location.href = '/mon-entreprise.html';
+                    userCard.title = 'Mon entreprise';
                 }
             });
         }
@@ -525,7 +600,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const user = MatchingCVSession.require('ETUDIANT');
+    const user = MatchingCVSession.require();
     if (!user) return;
 
     // Mise à jour de la navbar
