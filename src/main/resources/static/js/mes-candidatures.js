@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Navbar ──────────────────────────────────────────────
     const navUserName = document.getElementById('nav-user-name');
     if (navUserName) {
-        navUserName.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || 'Mon Compte';
+        navUserName.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || 'Étudiant';
         navUserName.addEventListener('click', () => { window.location.href = '/dashboard-etudiant.html'; });
     }
     document.getElementById('nav-logout')?.addEventListener('click', () => MatchingCVSession.logout());
@@ -79,10 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }[c.statut] || '';
 
         const statutLabel = {
-            ENVOYEE:  '&#128338; Envoyée',
-            VUE:      '&#128065; Vue par le recruteur',
-            ACCEPTEE: '&#10003; Acceptée',
-            REFUSEE:  '&#10007; Refusée'
+            ENTRETIEN: 'Entretien prévu', RETIREE: 'Retirée',
+            ENVOYEE:  'Envoyée',
+            VUE:      'Vue par le recruteur',
+            ACCEPTEE: 'Acceptée',
+            REFUSEE:  'Refusée'
         }[c.statut] || c.statut;
 
         const cloture = c.statutOffre && c.statutOffre !== 'ACTIVE';

@@ -77,6 +77,7 @@ public class EtudiantServiceImpl implements EtudiantService {
         }
         // TODO sécurité : le hachage BCrypt du mot de passe sera ajouté avec Spring Security
         etudiant.setRole(Role.ETUDIANT);
+        etudiant.setMotDePasse(com.gi3.matchingcv.security.Passwords.hash(etudiant.getMotDePasse()));
         return etudiantRepository.save(etudiant);
     }
 

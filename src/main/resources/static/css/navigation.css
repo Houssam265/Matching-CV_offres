@@ -1,0 +1,46 @@
+/* Identical navigation dimensions and appearance on every portal page. */
+body.has-sidebar{--sidebar-w-collapsed:72px;--sidebar-w-expanded:260px;--topbar-h:64px}
+body.has-sidebar .app-sidebar,
+body.has-sidebar .app-sidebar:hover,
+body.has-sidebar.sidebar-pinned .app-sidebar,
+body.has-sidebar.sidebar-pinned .app-sidebar:hover,
+body.has-sidebar .app-sidebar.sidebar-open{
+    font-family:inherit;background:#102e1f;border-color:#29463f;box-shadow:none;
+    transition:width .28s var(--ease-smooth);
+}
+body.has-sidebar .sidebar-pin-btn,
+body.has-sidebar.sidebar-pinned .sidebar-pin-btn{color:var(--sidebar-text);background:transparent;box-shadow:none}
+body.has-sidebar .app-sidebar::before,body.has-sidebar .app-sidebar::after{display:none}
+body.has-sidebar .sidebar-link{font-size:13px;font-weight:500;border-radius:9px}
+body.has-sidebar .sidebar-link.active{background:#24483f;color:#fff;border-color:transparent}
+body.has-sidebar .sidebar-link-label{white-space:normal;line-height:1.3}
+body.has-sidebar .sidebar-badge-ia,body.has-sidebar .sidebar-badge-new{display:none!important}
+body.has-sidebar .app-topbar{height:64px;min-height:64px;box-sizing:border-box;background:#fff}
+.navigation-loading .app-sidebar,.navigation-loading .app-main-layout,.navigation-loading .app-topbar,.navigation-loading .sidebar-link,.navigation-loading .sidebar-link-label{transition:none!important;animation:none!important}
+body.has-sidebar .sidebar-item{animation:none!important}
+body.has-sidebar .account-main{box-sizing:border-box;width:100%;max-width:1000px}
+@media(prefers-reduced-motion:reduce){.app-sidebar,.app-main-layout,.app-topbar{transition:none!important}}
+
+/* One role-independent theme; only the menu entries and role label differ. */
+body.has-sidebar .app-sidebar{
+    font-family:'Inter','Segoe UI',Arial,sans-serif;
+    --sidebar-text:#b6c9bd;--sidebar-text-bright:#f4faf6;
+    --sidebar-text-muted:#91ad9b;--sidebar-accent:#61b987;
+    --sidebar-accent-light:#b4dfc5;
+}
+body.has-sidebar .sidebar-link{color:#b6c9bd}
+body.has-sidebar .sidebar-link:hover{background:#1d4030!important;color:#fff;box-shadow:none!important}
+body.has-sidebar .sidebar-link.active{background:#29533c!important;color:#fff;box-shadow:none!important}
+body.has-sidebar .sidebar-section-title{color:#91ad9b}
+body.has-sidebar .sidebar-footer{background:#102e1f;backdrop-filter:none;border-color:#29463f}
+body.has-sidebar .sidebar-avatar{background:#29533c;box-shadow:none;border-color:#527561;color:#fff}
+body.has-sidebar .sidebar-portal-tag{color:#b4dfc5}
+body.has-sidebar .sidebar-tag-dot{background:#b4dfc5;box-shadow:none}
+/* Hide the old account block before shared navigation initializes. */
+body.has-sidebar .app-sidebar .sidebar-footer{display:none!important}
+body.has-sidebar a.topbar-user-pill{display:inline-flex!important;text-decoration:none;color:inherit;cursor:pointer}
+body.has-sidebar a.topbar-user-pill:focus-visible{outline:2px solid #207548;outline-offset:3px}
+@media(max-width:600px){
+    body.has-sidebar a.topbar-user-pill{padding:.35rem;flex-shrink:0}
+    body.has-sidebar a.topbar-user-pill .topbar-user-pill-name{display:none}
+}

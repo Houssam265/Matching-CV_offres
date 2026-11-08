@@ -17,7 +17,7 @@ window.CoachCV = (() => {
     }
 
     /**
-     * Charge le résumé Coach d'un étudiant via l'API
+     * Charge le résumé Coach d'un utilisateur via l'API
      */
     async function loadOverview(studentId) {
         try {
@@ -159,7 +159,7 @@ window.CoachCV = (() => {
                         <span>Chaque point de gain est calculé en temps réel selon les exigences des offres actives.</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
-                        <a href="/coach-cv.html" class="coach-btn-view-all" style="background:transparent;border-color:rgba(31,56,100,0.18);color:var(--navy-deep);">
+                        <a href="/coach-cv.html" class="coach-btn-view-all" style="background:transparent;border-color:rgba(31, 100, 66,0.18);color:var(--navy-deep);">
                             <span>Ouvrir la page Coach</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                         </a>
@@ -212,7 +212,7 @@ window.CoachCV = (() => {
         const conseils = await loadOfferAdvice(studentId, offerId);
         if (!conseils || conseils.length === 0) {
             containerEl.innerHTML = `
-                <div style="background:#FFFFFF;border-radius:12px;padding:1rem;border:1px solid #E2E8F0;color:var(--text-mid);font-size:.84rem;">
+                <div style="background:#FFFFFF;border-radius:12px;padding:1rem;border:1px solid #e2f0e9;color:var(--text-mid);font-size:.84rem;">
                     <strong>Félicitations !</strong> Vous maîtrisez déjà toutes les compétences clés de ce poste au niveau maximal.
                 </div>
             `;

@@ -53,9 +53,11 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Erreur serveur : " + e.getMessage()));
+                    .body(Map.of("message", "Service temporairement indisponible."));
         }
     }
 
@@ -66,7 +68,9 @@ public class AuthController {
      */
     @PostMapping("/connexion")
     public ResponseEntity<?> connecter(@Valid @RequestBody ConnexionRequest request,
-                                       BindingResult bindingResult) {
+                                       BindingResult bindingResult,
+                                       jakarta.servlet.http.HttpServletRequest httpRequest,
+                                       jakarta.servlet.http.HttpServletResponse httpResponse) {
         if (bindingResult.hasErrors()) {
             String message = bindingResult.getFieldErrors().stream()
                     .map(e -> e.getDefaultMessage())
@@ -76,12 +80,13 @@ public class AuthController {
         }
         try {
             AuthResponse response = authService.connecter(request);
+            com.gi3.matchingcv.security.Sessions.login(utilisateurRepository.findById(response.getId()).orElseThrow(), httpRequest, httpResponse);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Erreur serveur : " + e.getMessage()));
+                    .body(Map.of("message", "Service temporairement indisponible."));
         }
     }
 
@@ -93,6 +98,17 @@ public class AuthController {
      *
      * @return { "disponible": true } si l'email est libre, { "disponible": false } si pris
      */
+    @GetMapping("/csrf")
+    public Map<String,String> csrf(org.springframework.security.web.csrf.CsrfToken token) {
+        return Map.of("token",token.getToken(),"headerName",token.getHeaderName());
+    }
+
+    @GetMapping("/me")
+    public AuthResponse me() {
+        var u=utilisateurRepository.findById(com.gi3.matchingcv.security.Sessions.current().id()).orElseThrow();
+        return new AuthResponse(u.getId(),u.getPrenom(),u.getNom(),u.getEmail(),u.getRole(),"Session active");
+    }
+
     @GetMapping("/check-email")
     public ResponseEntity<Map<String, Boolean>> checkEmail(@RequestParam String email) {
         boolean existe = utilisateurRepository.existsByEmail(email.trim().toLowerCase());

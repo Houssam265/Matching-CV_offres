@@ -29,7 +29,7 @@ window.MatchingCVSession = (() => {
     function requireSession(role) {
         const user = read();
         if (!user) {
-            redirect('/login.html');
+            redirect(role === 'RECRUTEUR' ? '/login.html?espace=recruteur' : role === 'ETUDIANT' ? '/login.html?espace=utilisateur' : '/login.html');
             return null;
         }
         if (role && user.role !== role) {
@@ -42,6 +42,17 @@ window.MatchingCVSession = (() => {
     function protect(role) {
         const initialUser = requireSession(role);
         if (!initialUser) return null;
+        fetch('/api/auth/me').then(async response => {
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem(storageKey);
+                redirect('/login.html');
+                return;
+            }
+            if (!response.ok) return;
+            const actual = await response.json();
+            localStorage.setItem(storageKey, JSON.stringify(actual));
+            if (actual.id !== initialUser.id || actual.role !== initialUser.role) redirect(dashboards[actual.role] || '/login.html');
+        }).catch(() => { /* Individual API requests display their network errors. */ });
         const recheck = () => {
             const user = requireSession(role);
             if (user && (user.id !== initialUser.id || user.role !== initialUser.role)) {
@@ -57,9 +68,14 @@ window.MatchingCVSession = (() => {
         return initialUser;
     }
 
-    function logout() {
+    async function logout() {
+        const role = read()?.role;
+        try {
+            const response=await fetch('/api/auth/logout',{method:'POST'});
+            if(!response.ok) throw new Error('Déconnexion indisponible. Réessayez.');
+        } catch (error) { window.alert(error.message); return; }
         localStorage.removeItem(storageKey);
-        redirect('/login.html');
+        redirect(role === 'RECRUTEUR' ? '/login.html?espace=recruteur' : '/login.html?espace=utilisateur');
     }
 
     return { read, require: requireSession, protect, logout };

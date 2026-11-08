@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <script src="/js/api-client.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Administration du référentiel des compétences — Matching CV-Offres" />
@@ -8,12 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%AF</text></svg>" />
+    <link rel="icon" href="/favicon.svg" />
     <script src="/js/session.js"></script>
     <!-- TODO sécurité : vérification du rôle ADMIN côté serveur -->
     <script>MatchingCVSession.protect('ADMIN');</script>
+    <link rel="stylesheet" href="/css/interface.css" />
 </head>
 <body>
+<a class="skip-link" href="#main-content">Aller au contenu</a>
 
     <!-- NAVBAR ADMIN -->
     <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation admin" style="padding:0 1.5rem;">
@@ -25,12 +28,13 @@
                         <path d="M8 14l4 4 8-8" stroke="url(#lg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                         <defs>
                             <linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#2E5A9C"/><stop offset="1" stop-color="#2E8B8B"/>
+                                <stop stop-color="#2e9c65"/>
+                                <stop offset="1" stop-color="#2e8b5d"/>
                             </linearGradient>
                         </defs>
                     </svg>
                 </span>
-                <span class="logo-text">Matching<strong>CV</strong> <span style="font-size:.7rem;background:rgba(46,90,156,.15);padding:2px 6px;border-radius:4px;color:var(--navy);font-weight:700;">ADMIN</span></span>
+                <span class="logo-text">Matching<strong>CV</strong> <span style="font-size:.7rem;background:rgba(46, 156, 101,.15);padding:2px 6px;border-radius:4px;color:var(--navy);font-weight:700;">ADMIN</span></span>
             </a>
 
             <ul class="nav-links" id="nav-links" role="list" style="overflow-x:auto;scrollbar-width:none;flex:1;gap:.25rem;">
@@ -84,7 +88,7 @@
     </header>
 
     <!-- CONTENU PRINCIPAL -->
-    <main class="page-main">
+    <main id="main-content" class="page-main">
         <div class="competences-layout">
 
             <!-- COLONNE GAUCHE : FORMULAIRE D'AJOUT -->
@@ -189,7 +193,7 @@
                             Comp&eacute;tences existantes
                             <span class="badge-pill-count" id="competences-count">0</span>
                         </h3>
-                        <p>Donn&eacute;es r&eacute;cup&eacute;r&eacute;es en temps r&eacute;el depuis <code style="background:#EAF1F8;padding:2px 6px;border-radius:4px;color:var(--blue);font-size:.8rem;">/api/competences</code></p>
+                        <p>Donn&eacute;es r&eacute;cup&eacute;r&eacute;es en temps r&eacute;el depuis <code style="background:#ecf6f1;padding:2px 6px;border-radius:4px;color:var(--blue);font-size:.8rem;">/api/competences</code></p>
                     </div>
 
                     <div class="table-header-controls">
@@ -260,8 +264,8 @@
             <div class="footer-brand">
                 <a href="/index.html" class="footer-logo">
                     <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="14" cy="14" r="13" stroke="#3AADAD" stroke-width="2"/>
-                        <path d="M8 14l4 4 8-8" stroke="#3AADAD" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="14" cy="14" r="13" stroke="#3aad74" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="#3aad74" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <span class="logo-text">Matching<strong>CV</strong></span>
                 </a>
@@ -280,7 +284,7 @@
             <div class="footer-col">
                 <h5 class="footer-col-title">Comptes</h5>
                 <ul class="footer-links">
-                    <li><a href="/dashboard-etudiant.html" id="footer-link-etudiant">Espace &Eacute;tudiant</a></li>
+                    <li><a href="/dashboard-etudiant.html" id="footer-link-etudiant">Espace Utilisateur</a></li>
                     <li><a href="/dashboard-recruteur.html" id="footer-link-recruteur">Espace Recruteur</a></li>
                     <li><a href="/admin-competences.html" id="footer-link-admin">Espace Administrateur</a></li>
                 </ul>

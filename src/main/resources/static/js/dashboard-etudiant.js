@@ -107,7 +107,7 @@ function renderDashboardSummary() {
                 if (rel.exps.length) parts.push(rel.exps.length + ' exp.' + (rel.exps.length > 1 ? 's' : ''));
                 relDesc = '<span style="color:var(--teal);font-weight:600;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:2px;"><polyline points="20 6 9 17 4 12"/></svg>Mobilisée dans : ' + parts.join(' &amp; ') + '</span>';
             } else {
-                relDesc = '<span style="color:#94A3B8;font-style:italic;">Compétence autonome (non liée à un projet)</span>';
+                relDesc = '<span style="color:#94b8a6;font-style:italic;">Compétence autonome (non liée à un projet)</span>';
             }
 
             return `
@@ -223,7 +223,7 @@ function renderDrawer() {
     } else {
         dc.innerHTML = S.competences.map(c => `
             <span class="ctag ${c.statut === 'EN_ATTENTE' ? 'pend' : ''}" title="${c.statut === 'EN_ATTENTE' ? 'En attente de validation' : 'Validée'}">
-                ${c.statut === 'EN_ATTENTE' ? '&#9203;' : '&#10003;'} ${esc(c.nom)}
+                ${c.statut === 'EN_ATTENTE' ? '' : '&#10003;'} ${esc(c.nom)}
             </span>
         `).join('');
     }
@@ -585,7 +585,7 @@ async function loadAllData(id) {
         const init = ((prenom.charAt(0) || '') + (nom.charAt(0) || '')).toUpperCase() || '?';
 
         // Hero & Navbar & Sidebar
-        document.getElementById('user-prenom').textContent = prenom || 'Étudiant';
+        document.getElementById('user-prenom').textContent = prenom || 'Utilisateur';
         const navU = document.getElementById('nav-user-name');
         if (navU) navU.textContent = prenom + ' ' + nom;
         if (window.MatchingCVSidebar) {
@@ -596,7 +596,7 @@ async function loadAllData(id) {
         document.getElementById('pc-av').textContent = init;
         document.getElementById('pc-nm').textContent = prenom + ' ' + nom;
         document.getElementById('pc-em').textContent = e.email || '';
-        const roleLabel = e.role === 'ETUDIANT' ? 'Étudiant' : (e.role || 'Étudiant');
+        const roleLabel = e.role === 'ETUDIANT' ? 'Utilisateur' : (e.role || 'Utilisateur');
         
         let tagsHtml = `<span class="pct"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:2px;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>${esc(roleLabel)}</span>`;
         if (e.filiere) {
@@ -616,20 +616,47 @@ async function loadAllData(id) {
         if (document.getElementById('dr-nom')) document.getElementById('dr-nom').value = nom;
         if (document.getElementById('dr-filiere')) document.getElementById('dr-filiere').value = e.filiere || '';
         if (document.getElementById('dr-etablissement')) document.getElementById('dr-etablissement').value = e.etablissement || '';
-    } catch (_) {}
+        document.getElementById('profile-retry')?.remove();
+    } catch (_) {
+        document.getElementById('pc-nm').textContent = 'Votre profil est momentanément indisponible';
+        document.getElementById('pc-em').textContent = 'Réessayez dans quelques instants pour retrouver vos informations.';
+        if (!document.getElementById('profile-retry')) {
+            const retry = document.createElement('button');
+            retry.id = 'profile-retry';
+            retry.type = 'button';
+            retry.className = 'btn-edit-sec';
+            retry.textContent = 'Réessayer';
+            retry.addEventListener('click', async () => {
+                retry.disabled = true;
+                try { await loadAllData(id); } finally { retry.disabled = false; }
+            });
+            document.getElementById('pc-tags').append(retry);
+        }
+    }
 
     try {
         const [projs, exps, candCountRes] = await Promise.all([
-            api(`/api/etudiants/${id}/projets`).catch(() => []),
-            api(`/api/etudiants/${id}/experiences`).catch(() => []),
-            api(`/api/etudiants/${id}/candidatures/count`).catch(() => ({ count: 0 }))
+            api(`/api/etudiants/${id}/projets`),
+            api(`/api/etudiants/${id}/experiences`),
+            api(`/api/etudiants/${id}/candidatures/count`)
         ]);
         S.projets = projs;
         S.experiences = exps;
         S.candidaturesCount = candCountRes && typeof candCountRes.count === 'number' ? candCountRes.count : 0;
         // Les compétences sont déduites automatiquement depuis projets + expériences
         computeCompetencesFromContext();
-    } catch (_) {}
+        document.getElementById('dashboard-load-error')?.remove();
+    } catch (_) {
+        if (!document.getElementById('dashboard-load-error')) {
+            const notice = document.createElement('div');
+            notice.id = 'dashboard-load-error'; notice.setAttribute('role','alert');
+            notice.className = 'account-card';
+            notice.textContent = 'Certaines données ne sont pas disponibles. Les compteurs peuvent être incomplets. ';
+            const retry = document.createElement('button'); retry.type='button'; retry.className='btn-edit-sec'; retry.textContent='Réessayer';
+            retry.onclick=async()=>{retry.disabled=true;try{await loadAllData(id);}finally{retry.disabled=false;}};
+            notice.append(retry); document.querySelector('main')?.prepend(notice);
+        }
+    }
 
     renderDashboardSummary();
     renderDrawer();
@@ -664,7 +691,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('nav-logout')?.addEventListener('click', doLogout);
     document.getElementById('logout-hero')?.addEventListener('click', doLogout);
 
-    // 2. Déterminer l'étudiant connecté
+    // 2. Déterminer l'utilisateur connecté
     const studentId = user.id;
     S.id = studentId;
 
@@ -674,14 +701,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 4. Drawer boutons d'ouverture / fermeture
     document.getElementById('btn-dr')?.addEventListener('click', openDrawer);
     document.getElementById('btn-summary-edit')?.addEventListener('click', openDrawer);
+    document.getElementById('topbar-user-pill')?.addEventListener('click', e => {
+        e.preventDefault();
+        openDrawer();
+    });
     document.getElementById('nav-link-profil')?.addEventListener('click', e => {
         e.preventDefault();
         openDrawer();
     });
     document.getElementById('nav-user-name')?.addEventListener('click', () => {
-        openDrawer();
-    });
-    document.getElementById('topbar-user-pill')?.addEventListener('click', () => {
         openDrawer();
     });
     document.getElementById('sidebar-user-card')?.addEventListener('click', (e) => {

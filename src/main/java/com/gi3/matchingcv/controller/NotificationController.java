@@ -40,7 +40,7 @@ public class NotificationController {
             @RequestParam(name = "size", defaultValue = "20") int size
     ) {
         try {
-            Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size), Sort.by(Sort.Direction.DESC, "dateCreation"));
+            Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(100, Math.max(1, size)), Sort.by(Sort.Direction.DESC, "dateCreation"));
             Page<NotificationDto> result = notificationService.listerParUtilisateur(id, nonLues, pageable);
             return ResponseEntity.ok(result);
         } catch (EntityNotFoundException e) {

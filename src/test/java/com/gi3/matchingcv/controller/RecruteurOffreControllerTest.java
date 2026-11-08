@@ -18,6 +18,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest({OffreController.class, RecruteurController.class})
 class RecruteurOffreControllerTest {
     @Autowired MockMvc mvc;
@@ -84,7 +85,7 @@ class RecruteurOffreControllerTest {
     @Test void inscriptionAccepteAliasEtNeRenvoiePasMotDePasse() throws Exception {
         when(recruteurs.inscrire(any())).thenReturn(new AuthResponse(1L, "Prénom", "Nom", "test@example.com", Role.RECRUTEUR, "Bienvenue"));
         mvc.perform(post("/api/recruteurs").contentType(MediaType.APPLICATION_JSON).content("""
-                {"nom":"Nom","prenom":"Prénom","email":"test@example.com","motDePasse":"secret","entreprise":"ACME","secteur":"IT"}
+                {"nom":"Nom","prenom":"Prénom","email":"test@example.com","motDePasse":"secret-long-123","entreprise":"ACME","secteur":"IT"}
                 """)).andExpect(status().isCreated()).andExpect(jsonPath("$.role").value("RECRUTEUR"))
                 .andExpect(jsonPath("$.motDePasse").doesNotExist());
     }

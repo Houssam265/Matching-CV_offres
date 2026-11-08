@@ -380,8 +380,6 @@ class MatchingServiceTest {
         when(etudiantRepository.existsById(1L)).thenReturn(true);
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
         when(offreRepository.findByStatut(StatutOffre.ACTIVE)).thenReturn(List.of(o1, o2));
-        when(offreRepository.findById(10L)).thenReturn(Optional.of(o1));
-        when(offreRepository.findById(20L)).thenReturn(Optional.of(o2));
         when(experienceRepository.findByEtudiantId(1L)).thenReturn(List.of(exp));
         when(projetRepository.findByEtudiantId(1L)).thenReturn(List.of(proj));
 
@@ -393,5 +391,7 @@ class MatchingServiceTest {
         assertThat(recos.get(0).score()).isEqualTo(100.0);
         assertThat(recos.get(1).id()).isEqualTo(20L);
         assertThat(recos.get(1).score()).isEqualTo(70.0);
+        org.mockito.Mockito.verify(projetRepository).findByEtudiantId(1L);
+        org.mockito.Mockito.verify(experienceRepository).findByEtudiantId(1L);
     }
 }

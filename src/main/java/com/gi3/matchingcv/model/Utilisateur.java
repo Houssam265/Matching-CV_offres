@@ -47,6 +47,38 @@ public abstract class Utilisateur {
     @Column(nullable = false, columnDefinition = "BIT(1) DEFAULT 1")
     private boolean actif = true;
 
+    @JsonIgnore
+    private Long securityVersion = 0L;
+
+    @JsonIgnore
+    private Boolean active = true;
+
+    private Boolean emailVerified = false;
+
+    private Boolean notificationsEnabled = true;
+
+    public long getSecurityVersion() {
+        return securityVersion == null ? 0L : securityVersion;
+    }
+
+    public boolean isActive() {
+        return actif && !Boolean.FALSE.equals(active);
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+        this.actif = !Boolean.FALSE.equals(active);
+    }
+
+    public boolean isActif() {
+        return actif && !Boolean.FALSE.equals(active);
+    }
+
+    public void setActif(boolean actif) {
+        this.actif = actif;
+        this.active = actif;
+    }
+
     @PrePersist
     public void prePersist() {
         if (dateInscription == null) {

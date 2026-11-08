@@ -30,10 +30,12 @@ public class OffreController {
 
     // TODO sécurité : vérifier RECRUTEUR et l'identité authentifiée pour toutes les mutations.
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("#request.recruteurId() == authentication.principal.id()")
     @ResponseStatus(HttpStatus.CREATED)
     public OffreDto creer(@Valid @RequestBody OffreRequest request) { return offres.creer(request); }
 
     @PutMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("#request.recruteurId() == authentication.principal.id()")
     public OffreDto modifier(@PathVariable Long id, @Valid @RequestBody OffreRequest request) {
         return offres.modifier(id, request);
     }
