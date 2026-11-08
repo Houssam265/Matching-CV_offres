@@ -81,7 +81,7 @@ function makeAc(inputId, dropId, usedFn, onSelect) {
             <div class="ac-item" data-id="${c.id}" data-nom="${esc(c.nom)}">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 ${esc(c.nom)}
-                ${c.categorie ? '<span style="margin-left:auto;font-size:.7rem;color:#94A3B8">' + esc(c.categorie) + '</span>' : ''}
+                ${c.categorie ? '<span style="margin-left:auto;font-size:.7rem;color:#94b8a6">' + esc(c.categorie) + '</span>' : ''}
             </div>
         `).join('');
 
@@ -126,7 +126,7 @@ function renderC() {
             ? ` (liée à ${u.projs.length} projet${u.projs.length > 1 ? 's' : ''}, ${u.exps.length} exp.)`
             : '';
         return `<span class="t-chip${c.statut === 'EN_ATTENTE' ? ' pending' : ''}" title="${c.statut === 'EN_ATTENTE' ? 'En attente' : 'Validée'}${useText}">
-            ${c.statut === 'EN_ATTENTE' ? '&#9203;' : '&#10003;'} ${esc(c.nom)}
+            ${c.statut === 'EN_ATTENTE' ? '' : '&#10003;'} ${esc(c.nom)}
             ${u.total > 0 ? `<small style="opacity:.8;font-size:.7rem;margin-left:3px;">(${u.total})</small>` : ''}
         </span>`;
     }).join('');
@@ -174,7 +174,7 @@ function renderE() {
             <div class="ic-title">${esc(exp.poste)}</div>
             <div class="ic-meta">
                 <strong>${esc(exp.entreprise)}</strong>
-                <span style="color:#CBD5E1">|</span>
+                <span style="color:#cbe1d6">|</span>
                 ${dateStr}
             </div>
             <div style="font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;margin-top:.4rem;margin-bottom:.25rem;">Compétences appliquées :</div>
@@ -205,7 +205,7 @@ function renderMC() {
                 <div class="er-sub" style="color:${c.statut === 'EN_ATTENTE' ? '#B45309' : '#16A34A'}">
                     ${c.statut === 'EN_ATTENTE' ? 'En attente' : 'Validée'}${c.categorie ? ' - ' + esc(c.categorie) : ''}
                 </div>
-                <div style="font-size:.72rem;color:#64748B;margin-top:.2rem;">${relText}</div>
+                <div style="font-size:.72rem;color:#648b78;margin-top:.2rem;">${relText}</div>
             </div>
             <button class="btn-del" onclick="delC(${c.id})" title="Supprimer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
         </div>`;
@@ -227,8 +227,8 @@ function renderMP() {
                 </div>
                 <button class="btn-del" onclick="delP(${p.id})" title="Supprimer ce projet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
             </div>
-            <div style="margin-top:.5rem;padding-top:.4rem;border-top:1px dashed #E2E8F0;">
-                <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;">Compétences mobilisées :</div>
+            <div style="margin-top:.5rem;padding-top:.4rem;border-top:1px dashed #e2f0e9;">
+                <div style="font-size:.7rem;font-weight:700;color:#648b78;text-transform:uppercase;">Compétences mobilisées :</div>
                 <div class="er-tags" style="margin-top:.3rem;">
                     ${p.competences && p.competences.length
                         ? p.competences.map(c => `
@@ -237,7 +237,7 @@ function renderMP() {
                                 <button onclick="unlinkProjCompModal(${p.id}, ${c.id})" style="background:none;border:none;cursor:pointer;color:inherit;font-size:.85rem;line-height:1;padding:0;">&times;</button>
                             </span>
                         `).join('')
-                        : '<span style="font-size:.75rem;color:#94A3B8;font-style:italic;">Aucune compétence liée</span>'
+                        : '<span style="font-size:.75rem;color:#94b8a6;font-style:italic;">Aucune compétence liée</span>'
                     }
                 </div>
                 <div style="margin-top:.4rem;">
@@ -271,13 +271,13 @@ function renderME() {
         <div class="edit-row" style="flex-direction:column;align-items:stretch;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;">
                 <div class="er-info">
-                    <div class="er-title">${esc(exp.poste)} - <span style="color:#475569;font-weight:500">${esc(exp.entreprise)}</span></div>
+                    <div class="er-title">${esc(exp.poste)} - <span style="color:#476958;font-weight:500">${esc(exp.entreprise)}</span></div>
                     <div class="er-sub">${dateSub}</div>
                 </div>
                 <button class="btn-del" onclick="delE(${exp.id})" title="Supprimer cette expérience"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
             </div>
-            <div style="margin-top:.5rem;padding-top:.4rem;border-top:1px dashed #E2E8F0;">
-                <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;">Compétences appliquées :</div>
+            <div style="margin-top:.5rem;padding-top:.4rem;border-top:1px dashed #e2f0e9;">
+                <div style="font-size:.7rem;font-weight:700;color:#648b78;text-transform:uppercase;">Compétences appliquées :</div>
                 <div class="er-tags" style="margin-top:.3rem;">
                     ${exp.competences && exp.competences.length
                         ? exp.competences.map(c => `
@@ -286,7 +286,7 @@ function renderME() {
                                 <button onclick="unlinkExpCompModal(${exp.id}, ${c.id})" style="background:none;border:none;cursor:pointer;color:inherit;font-size:.85rem;line-height:1;padding:0;">&times;</button>
                             </span>
                         `).join('')
-                        : '<span style="font-size:.75rem;color:#94A3B8;font-style:italic;">Aucune compétence liée</span>'
+                        : '<span style="font-size:.75rem;color:#94b8a6;font-style:italic;">Aucune compétence liée</span>'
                     }
                 </div>
                 <div style="margin-top:.4rem;">
@@ -297,7 +297,8 @@ function renderME() {
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 /* Modal Inlines for Project and Experience */
@@ -312,7 +313,7 @@ window.onModalProjAcInput = function(projId, inputEl) {
 
     let html = matches.map(c => `
         <div class="ac-item" onclick="linkProjCompModal(${projId}, {competenceId:${c.id}})">
-            ${esc(c.nom)} ${c.categorie ? '<span style="margin-left:auto;font-size:.7rem;color:#94A3B8">' + esc(c.categorie) + '</span>' : ''}
+            ${esc(c.nom)} ${c.categorie ? '<span style="margin-left:auto;font-size:.7rem;color:#94b8a6">' + esc(c.categorie) + '</span>' : ''}
         </div>
     `).join('');
 
@@ -368,7 +369,7 @@ window.onModalExpAcInput = function(expId, inputEl) {
 
     let html = matches.map(c => `
         <div class="ac-item" onclick="linkExpCompModal(${expId}, {competenceId:${c.id}})">
-            ${esc(c.nom)} ${c.categorie ? '<span style="margin-left:auto;font-size:.7rem;color:#94A3B8">' + esc(c.categorie) + '</span>' : ''}
+            ${esc(c.nom)} ${c.categorie ? '<span style="margin-left:auto;font-size:.7rem;color:#94b8a6">' + esc(c.categorie) + '</span>' : ''}
         </div>
     `).join('');
 
@@ -488,7 +489,7 @@ async function loadEtudiants() {
     try {
         const list = await api('/api/etudiants');
         const sel = document.getElementById('etudiant-select');
-        sel.innerHTML = '<option value="">Choisir un étudiant</option>';
+        sel.innerHTML = '<option value="">Choisir un utilisateur</option>';
         list.forEach(e => {
             const o = document.createElement('option');
             o.value = e.id;
@@ -619,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('mp-save').addEventListener('click', async () => {
-        if (!S.id) { alert$('a-proj', 'Sélectionnez d\'abord un étudiant.', 'info'); return; }
+        if (!S.id) { alert$('a-proj', 'Sélectionnez d\'abord un utilisateur.', 'info'); return; }
         const titre = document.getElementById('mp-titre').value.trim();
         if (!titre) { alert$('a-proj', 'Le titre est obligatoire.'); return; }
         const desc = document.getElementById('mp-desc').value.trim();
@@ -678,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
     meFin?.addEventListener('input', validateMeDates);
 
     document.getElementById('me-save').addEventListener('click', async () => {
-        if (!S.id) { alert$('a-exp', 'Sélectionnez d\'abord un étudiant.', 'info'); return; }
+        if (!S.id) { alert$('a-exp', 'Sélectionnez d\'abord un utilisateur.', 'info'); return; }
         const poste = document.getElementById('me-poste').value.trim();
         const entr = document.getElementById('me-entr').value.trim();
         const deb = document.getElementById('me-deb').value;

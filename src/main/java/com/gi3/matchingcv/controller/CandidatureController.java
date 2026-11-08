@@ -81,7 +81,7 @@ public class CandidatureController {
             long count = candidatureService.compterParEtudiant(id);
             return ResponseEntity.ok(Map.of("count", count));
         } catch (Exception e) {
-            return ResponseEntity.ok(Map.of("count", 0));
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("message", "Compteur temporairement indisponible."));
         }
     }
 
@@ -194,6 +194,7 @@ public class CandidatureController {
 
     private String escapeCsv(String val) {
         if (val == null) return "";
+        if (val.matches("^[\\s]*[=+@-].*") || val.startsWith("\t") || val.startsWith("\r")) val = "'" + val;
         if (val.contains(",") || val.contains("\"") || val.contains("\n") || val.contains("\r")) {
             return "\"" + val.replace("\"", "\"\"") + "\"";
         }
@@ -259,6 +260,9 @@ public class CandidatureController {
         String message = body.get("message");
         try {
             StatutCandidature statut = StatutCandidature.valueOf(statutStr.trim().toUpperCase());
+            if (statut == StatutCandidature.RETIREE) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Seul le candidat peut retirer sa candidature."));
+            }
             CandidatureDto dto;
             if (rId != null) {
                 dto = (message != null && !message.isBlank())

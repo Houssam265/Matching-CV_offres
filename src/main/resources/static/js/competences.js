@@ -1,5 +1,5 @@
 /**
- * competences.js — Page "Mes compétences" (Espace Étudiant)
+ * competences.js — Page "Mes compétences" (Espace Utilisateur)
  * Matching CV-Offres (GI3, ENSA Tétouan)
  *
  * Fonctionnalités :
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dejaDansMaListe = studentCompetences.find(c => normaliserNom(c.nom) === qNorm);
         const matchExactDansSuggestions = suggestions.some(s => normaliserNom(s.nom) === qNorm);
 
-        // Si la compétence (ou une variante orthographique ex: spring.boot) est déjà dans la liste de l'étudiant
+        // Si la compétence (ou une variante orthographique ex: spring.boot) est déjà dans la liste de l'utilisateur
         if (dejaDansMaListe) {
             const alreadyItem = document.createElement('div');
             alreadyItem.className = 'autocomplete-item already-present';
@@ -618,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+            .replace(/'/g, '&#39;');
     }
 
     // Burger mobile navbar

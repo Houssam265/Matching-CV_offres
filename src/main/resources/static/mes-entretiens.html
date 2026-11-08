@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="fr">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>Entretiens — MatchingCV</title>
+ <script src="/js/api-client.js"></script><script src="/js/session.js"></script>
+ <script>MatchingCVSession.protect('ETUDIANT');</script>
+ <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/interface.css">
+ <link rel="stylesheet" href="/css/account.css"><link rel="stylesheet" href="/css/notifications.css">
+ <link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3">
+ <link rel="stylesheet" href="/css/interviews.css">
+</head>
+<body>
+ <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+ <main class="account-main" id="main-content">
+  <h1 id="workflow-title">Mes entretiens</h1><p id="workflow-status" role="status"></p>
+  <section class="account-card"><h2>Mes rendez-vous</h2><div id="applications-list"></div></section>
+ </main>
+ <script src="/js/portal-shell.js"></script><script src="/js/sidebar.js"></script>
+ <script src="/js/notifications.js" defer></script><script src="/js/experience.js" defer></script>
+ <script src="/js/candidate-interviews.js"></script>
+
+</body>
+</html>

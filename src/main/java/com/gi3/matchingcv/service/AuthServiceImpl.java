@@ -42,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse inscrire(InscriptionRequest request) {
+        AccountRecoveryService.validatePassword(request.getMotDePasse());
         // Vérification unicité de l'email
         if (utilisateurRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
             throw new IllegalArgumentException("Un compte existe déjà avec l'adresse email : " + request.getEmail());
@@ -54,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
             etudiant.setPrenom(request.getPrenom().trim());
             etudiant.setNom(request.getNom().trim());
             etudiant.setEmail(request.getEmail().trim().toLowerCase());
-            etudiant.setMotDePasse(request.getMotDePasse());
+            etudiant.setMotDePasse(com.gi3.matchingcv.security.Passwords.hash(request.getMotDePasse()));
             etudiant.setRole(Role.ETUDIANT);
             if (request.getFiliere() != null && !request.getFiliere().isBlank()) {
                 etudiant.setFiliere(request.getFiliere().trim());
@@ -69,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
             recruteur.setPrenom(request.getPrenom().trim());
             recruteur.setNom(request.getNom().trim());
             recruteur.setEmail(request.getEmail().trim().toLowerCase());
-            recruteur.setMotDePasse(request.getMotDePasse());
+            recruteur.setMotDePasse(com.gi3.matchingcv.security.Passwords.hash(request.getMotDePasse()));
             recruteur.setRole(Role.RECRUTEUR);
             recruteur.setNomEntreprise(request.getNomEntreprise() != null ? request.getNomEntreprise().trim() : null);
             recruteur.setSecteurActivite(request.getSecteurActivite() != null ? request.getSecteurActivite().trim() : null);
@@ -90,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse connecter(ConnexionRequest request) {
         String emailNormalise = request.getEmail().trim().toLowerCase();
 
@@ -98,8 +99,16 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Identifiants incorrects. Vérifiez votre email et mot de passe."));
 
         // Vérification du mot de passe (comparaison directe — version pédagogique)
-        if (!utilisateur.getMotDePasse().equals(request.getMotDePasse())) {
+        if (!utilisateur.isActive() || !com.gi3.matchingcv.security.Passwords.matches(request.getMotDePasse(), utilisateur.getMotDePasse())) {
             throw new IllegalArgumentException("Identifiants incorrects. Vérifiez votre email et mot de passe.");
+        }
+
+        if (request.getRole() != null && utilisateur.getRole() != request.getRole()) {
+            throw new IllegalArgumentException("Ce compte ne correspond pas à l'espace choisi.");
+        }
+        if (!com.gi3.matchingcv.security.Passwords.encoded(utilisateur.getMotDePasse())) {
+            utilisateur.setMotDePasse(com.gi3.matchingcv.security.Passwords.hash(request.getMotDePasse()));
+            utilisateurRepository.save(utilisateur);
         }
 
         return new AuthResponse(

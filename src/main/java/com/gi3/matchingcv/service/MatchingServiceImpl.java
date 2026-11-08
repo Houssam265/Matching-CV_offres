@@ -50,6 +50,14 @@ public class MatchingServiceImpl implements MatchingService {
         List<Projet> projets = projetRepository.findByEtudiantId(etudiantId);
         List<ExperienceProfessionnelle> experiences = experienceRepository.findByEtudiantId(etudiantId);
 
+        return calculerScoreAvecContexte(etudiant, offre, projets, experiences);
+    }
+
+    private MatchingDetailDto calculerScoreAvecContexte(Etudiant etudiant, Offre offre,
+            List<Projet> projets, List<ExperienceProfessionnelle> experiences) {
+        Long etudiantId=etudiant.getId();
+        Long offreId=offre.getId();
+
         List<CompetenceDetailScoreDto> competencesDetails = new ArrayList<>();
 
         for (OffreCompetence oc : offre.getOffreCompetences()) {
@@ -274,13 +282,16 @@ public class MatchingServiceImpl implements MatchingService {
 
         // Offres ACTIVES uniquement
         List<Offre> offresActives = offreRepository.findByStatut(StatutOffre.ACTIVE);
+        Etudiant profil = etudiantRepository.findById(etudiantId).orElseThrow();
+        List<Projet> projets = projetRepository.findByEtudiantId(etudiantId);
+        List<ExperienceProfessionnelle> experiences = experienceRepository.findByEtudiantId(etudiantId);
 
         return offresActives.stream()
                 .filter(o -> correspondFiltreTexte(o.getDomaine(), domaine))
                 .filter(o -> correspondFiltreTexte(o.getLocalisation(), localisation))
                 .filter(o -> typeContrat == null || o.getTypeContrat() == typeContrat)
                 .map(o -> {
-                    MatchingDetailDto detail = calculerScore(etudiantId, o.getId());
+                    MatchingDetailDto detail = calculerScoreAvecContexte(profil, o, projets, experiences);
                     OffreDto dto = OffreDto.from(o);
                     return new OffreRecommandeeDto(
                             o.getId(),

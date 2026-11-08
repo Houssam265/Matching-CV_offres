@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <script src="/js/api-client.js"></script>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
     <title>Coach CV &mdash; Matching CV-Offres</title>
@@ -13,7 +14,7 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/notifications.css"/>
     <link rel="stylesheet" href="/css/coach-cv.css"/>
-    <link rel="stylesheet" href="/css/sidebar.css?v=2.0"/>
+
     <style>
         body { background: var(--bg); color: var(--text-dark); font-family: var(--font-family); }
         .coach-page-hero {
@@ -67,8 +68,8 @@
             background: #FFFFFF;
             padding: .6rem .85rem;
             border-radius: 14px;
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            box-shadow: 0 2px 8px rgba(15, 30, 60, 0.03);
+            border: 1px solid rgba(226, 240, 233, 0.9);
+            box-shadow: 0 2px 8px rgba(16, 59, 38, 0.03);
         }
         .coach-filter-btn {
             background: none;
@@ -83,7 +84,7 @@
         }
         .coach-filter-btn:hover {
             color: var(--navy-deep);
-            background: rgba(31, 56, 100, 0.05);
+            background: rgba(31, 100, 66, 0.05);
         }
         .coach-filter-btn.active {
             background: var(--teal);
@@ -91,54 +92,57 @@
             font-weight: 700;
         }
     </style>
-</head>
-<body class="has-sidebar">
+    <link rel="stylesheet" href="/css/interface.css" />
+<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"></head>
+<body class="has-sidebar"><script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+<a class="skip-link" href="#main-content">Aller au contenu</a>
 
 <!-- BACKDROP OVERLAY SUR MOBILE -->
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
 <!-- NAVIGATION LATÉRALE ULTRA-PREMIUM -->
 <aside class="app-sidebar" id="app-sidebar" aria-label="Navigation principale">
-    <!-- En-tête / Marque -->
-    <div class="sidebar-brand">
-        <a href="/dashboard-etudiant.html" class="sidebar-logo">
-            <span class="sidebar-logo-icon">
-                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
-                    <circle cx="14" cy="14" r="13" stroke="url(#sblg1)" stroke-width="2"/>
-                    <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <defs>
-                        <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#38BDF8"/>
-                            <stop offset="1" stop-color="#2E8B8B"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </span>
-            <div class="sidebar-logo-text">
-                <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
-                <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Étudiant</span>
+        <!-- En-tête / Marque -->
+        <div class="sidebar-brand">
+            <a href="/dashboard-etudiant.html" class="sidebar-logo">
+                <span class="sidebar-logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="13" stroke="url(#sblg1)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#5cd498"/>
+                                <stop offset="1" stop-color="#2e8b5d"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </span>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
+                    <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Utilisateur</span>
+                </div>
+            </a>
+            <div style="display:flex;align-items:center;gap:.3rem;">
+                <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Épingler la barre">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"></path></svg>
+                </button>
+                <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu latéral">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
-        </a>
-        <div style="display:flex;align-items:center;gap:.3rem;">
-            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Épingler la barre">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"></path></svg>
-            </button>
-            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu latéral">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
         </div>
-    </div>
 
-    <!-- Navigation List -->
-    <nav class="sidebar-nav">
+        <!-- Navigation List -->
+        <nav class="sidebar-nav">
+        <!-- Section Menu Principal -->
         <div class="sidebar-section">
             <div class="sidebar-section-title">Menu Principal</div>
             <ul class="sidebar-list">
                 <li class="sidebar-item">
-                    <a href="/dashboard-etudiant.html" class="sidebar-link" title="Tableau de bord">
+                    <a href="/dashboard-etudiant.html" class="sidebar-link" aria-current="page" title="Tableau de bord">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -186,17 +190,18 @@
             </ul>
         </div>
 
+        <!-- Section Outils & Profil -->
         <div class="sidebar-section">
             <div class="sidebar-section-title">Outils &amp; Suivi</div>
             <ul class="sidebar-list">
                 <li class="sidebar-item">
-                    <a href="/coach-cv.html" class="sidebar-link active" aria-current="page" title="Coach CV & Score">
+                    <a href="/coach-cv.html" class="sidebar-link" title="Coach CV">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
                             </svg>
                         </span>
-                        <span class="sidebar-link-label">Coach CV &amp; Score</span>
+                        <span class="sidebar-link-label">Coach CV</span>
                         <span class="sidebar-badge-new">Coach</span>
                     </a>
                 </li>
@@ -227,26 +232,26 @@
         </div>
     </nav>
 
-    <!-- Sidebar Footer -->
-    <div class="sidebar-footer">
-        <div class="sidebar-user-card" id="sidebar-user-card" title="Ouvrir mon profil">
-            <div class="sidebar-user-left">
-                <div class="sidebar-avatar" id="sidebar-user-avatar">?</div>
-                <div class="sidebar-user-info">
-                    <span class="sidebar-user-name" id="sidebar-user-name">Chargement...</span>
-                    <span class="sidebar-user-role">Étudiant &bull; ENSA</span>
+        <!-- Sidebar Footer / Profil Utilisateur & Déconnexion -->
+        <div class="sidebar-footer">
+            <div class="sidebar-user-card" id="sidebar-user-card" title="Profil recruteur">
+                <div class="sidebar-user-left">
+                    <div class="sidebar-avatar" id="sidebar-user-avatar"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12a20 20 0 0 0 18 0M12 11v4"/></svg></div>
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user-name" id="sidebar-user-name">Recruteur</span>
+                        <span class="sidebar-user-role" id="sidebar-user-role">Recruteur &bull; Entreprise</span>
+                    </div>
                 </div>
+                <button class="sidebar-btn-logout" id="sidebar-logout" title="Se déconnecter" aria-label="Se déconnecter">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
             </div>
-            <button class="sidebar-btn-logout" id="sidebar-logout" title="Se déconnecter" aria-label="Se déconnecter">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-            </button>
         </div>
-    </div>
-</aside>
+    </aside>
 
 <!-- CONTENEUR PRINCIPAL DE L'APPLICATION -->
 <div class="app-main-layout">
@@ -278,7 +283,7 @@
             </div>
             <a href="/dashboard-etudiant.html" class="topbar-user-pill" id="topbar-user-pill" title="Tableau de bord" style="text-decoration:none;">
                 <div class="topbar-user-pill-avatar" id="topbar-user-avatar">?</div>
-                <span class="topbar-user-pill-name" id="topbar-user-name">Étudiant</span>
+                <span class="topbar-user-pill-name" id="topbar-user-name">Utilisateur</span>
             </a>
             <a href="/offres-recommandees.html" class="topbar-btn-action">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -306,7 +311,7 @@
 </div>
 
 <!-- CONTENU PRINCIPAL -->
-<main class="coach-page-main">
+<main id="main-content" class="coach-page-main">
     <!-- Conteneur Carte Coach Synthèse -->
     <div id="coach-full-summary-container"></div>
 
@@ -327,7 +332,7 @@
 </div> <!-- /.app-main-layout -->
 
 <script src="/js/coach-cv.js"></script>
-<script src="/js/sidebar.js?v=2.0"></script>
+<script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
 <script src="/js/notifications.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
@@ -419,5 +424,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 </script>
+    <script src="/js/experience.js" defer></script>
 </body>
 </html>

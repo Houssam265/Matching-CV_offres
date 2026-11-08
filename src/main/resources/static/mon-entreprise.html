@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <script src="/js/api-client.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mon entreprise — Matching CV-Offres</title>
@@ -11,11 +12,13 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/recruteur.css">
     <link rel="stylesheet" href="/css/notifications.css">
-    <link rel="stylesheet" href="/css/sidebar.css?v=2.0">
+
     <script src="/js/notifications.js" defer></script>
     <script src="/js/recruteur.js" defer></script>
-</head>
-<body class="has-sidebar" data-page="mon-entreprise">
+    <link rel="stylesheet" href="/css/interface.css" />
+<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"></head>
+<body class="has-sidebar" data-page="mon-entreprise"><script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+<a class="skip-link" href="#main-content">Aller au contenu</a>
     <!-- BACKDROP OVERLAY SUR MOBILE -->
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
@@ -30,8 +33,8 @@
                         <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
                         <defs>
                             <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#38BDF8"/>
-                                <stop offset="1" stop-color="#2E8B8B"/>
+                                <stop stop-color="#5cd498"/>
+                                <stop offset="1" stop-color="#2e8b5d"/>
                             </linearGradient>
                         </defs>
                     </svg>
@@ -61,7 +64,7 @@
                 <div class="sidebar-section-title">Menu Principal</div>
                 <ul class="sidebar-list">
                     <li class="sidebar-item">
-                        <a href="/dashboard-recruteur.html" class="sidebar-link" title="Tableau de bord">
+                        <a href="/dashboard-recruteur.html" class="sidebar-link" aria-current="page" title="Tableau de bord">
                             <span class="sidebar-link-icon">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -99,7 +102,7 @@
                         </a>
                     </li>
                     <li class="sidebar-item">
-                        <a href="/mon-entreprise.html" class="sidebar-link active" aria-current="page" title="Mon entreprise">
+                        <a href="/mon-entreprise.html" class="sidebar-link" title="Mon entreprise">
                             <span class="sidebar-link-icon">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="2" y="7" width="20" height="14" rx="2"></rect>
@@ -136,7 +139,7 @@
         <div class="sidebar-footer">
             <div class="sidebar-user-card" id="sidebar-user-card" title="Profil recruteur">
                 <div class="sidebar-user-left">
-                    <div class="sidebar-avatar" id="sidebar-user-avatar">🏢</div>
+                    <div class="sidebar-avatar" id="sidebar-user-avatar"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12a20 20 0 0 0 18 0M12 11v4"/></svg></div>
                     <div class="sidebar-user-info">
                         <span class="sidebar-user-name" id="sidebar-user-name">Recruteur</span>
                         <span class="sidebar-user-role" id="sidebar-user-role">Recruteur &bull; Entreprise</span>
@@ -172,7 +175,7 @@
                 </div>
                 <div class="topbar-status-badge">
                     <span class="topbar-status-dot"></span>
-                    <span>Espace Entreprise &bull; Recruteur Vérifié</span>
+                    <span>Espace Entreprise &bull; Recruteur</span>
                 </div>
             </div>
 
@@ -185,7 +188,7 @@
 
                 <!-- Capsule profil dans le topbar -->
                 <div class="topbar-user-pill" id="topbar-user-pill" title="Profil recruteur">
-                    <div class="topbar-user-pill-avatar" id="topbar-user-avatar">🏢</div>
+                    <div class="topbar-user-pill-avatar" id="topbar-user-avatar"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12a20 20 0 0 0 18 0M12 11v4"/></svg></div>
                     <span class="topbar-user-pill-name" id="topbar-user-name">Recruteur</span>
                 </div>
 
@@ -211,7 +214,7 @@
                     Profil Recruteur &amp; Identité Entreprise
                 </div>
                 <h1 id="page-title">Mon <span>Entreprise</span></h1>
-                <p>Configurez la présentation de votre société. Ces éléments composent le bloc entreprise affiché aux étudiants sur chacune de vos offres.</p>
+                <p>Configurez la présentation de votre société. Ces éléments composent le bloc entreprise affiché aux utilisateurs sur chacune de vos offres.</p>
             </div>
             <div class="recruit-hero-actions">
                 <a class="recruit-hero-btn secondary" href="/mes-offres.html">
@@ -225,7 +228,7 @@
     </header>
 
     <!-- MAIN -->
-    <main class="recruit-main">
+    <main id="main-content" class="recruit-main">
         <div id="recruit-error" class="recruit-error" role="alert" hidden></div>
         <div id="recruit-success" class="recruit-alert-success" role="alert" style="display:none; background:#ECFDF5; border:1px solid #A7F3D0; color:#065F46; padding:1rem 1.25rem; border-radius:var(--rec-radius-sm); margin-bottom:1.5rem; font-weight:600;"></div>
 
@@ -303,21 +306,21 @@
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                             <circle cx="12" cy="12" r="3"></circle>
                         </svg>
-                        Aperçu côté étudiant
+                        Aperçu côté utilisateur
                     </div>
 
-                    <div style="background:linear-gradient(135deg, #F8FAFC 0%, #EEF2F6 100%); border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1.25rem;">
+                    <div style="background:linear-gradient(135deg, #f8fcfa 0%, #eef6f2 100%); border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1.25rem;">
                         <div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:0.75rem;">
                             <div id="preview-avatar" style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, var(--rec-blue), var(--rec-teal)); color:#FFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.2rem; flex-shrink:0;">
-                                🏢
+                                <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12a20 20 0 0 0 18 0M12 11v4"/></svg>
                             </div>
                             <div>
                                 <h3 id="preview-nom" style="margin:0; font-size:1.15rem; color:var(--rec-navy); font-weight:800;">Nom Entreprise</h3>
-                                <div id="preview-secteur-ville" style="font-size:0.82rem; color:#64748B;">Secteur · Ville</div>
+                                <div id="preview-secteur-ville" style="font-size:0.82rem; color:#648b78;">Secteur · Ville</div>
                             </div>
                         </div>
 
-                        <p id="preview-desc" style="font-size:0.88rem; color:#334155; margin:0 0 0.85rem; line-height:1.5;">
+                        <p id="preview-desc" style="font-size:0.88rem; color:#335544; margin:0 0 0.85rem; line-height:1.5;">
                             La description courte de votre entreprise apparaîtra ici sur chaque offre publiée.
                         </p>
 
@@ -329,9 +332,9 @@
                         </div>
                     </div>
 
-                    <div style="margin-top:1.25rem; font-size:0.8rem; color:#64748B; line-height:1.45;">
+                    <div style="margin-top:1.25rem; font-size:0.8rem; color:#648b78; line-height:1.45;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                        Ce bloc est exposé via l'attribut <code>entrepriseBloc</code> du contrat <code>OffreDto</code> pour l'espace étudiant.
+                        Ces informations présentent votre entreprise aux utilisateurs qui consultent vos offres.
                     </div>
                 </div>
             </aside>
@@ -347,7 +350,7 @@
                         <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="14" cy="14" r="13" stroke="url(#lgf5)" stroke-width="2"/>
                             <path d="M8 14l4 4 8-8" stroke="url(#lgf5)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <defs><linearGradient id="lgf5" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#4A78C4"/><stop offset="1" stop-color="#3AADAD"/></linearGradient></defs>
+                            <defs><linearGradient id="lgf5" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#4ac487"/><stop offset="1" stop-color="#3aad74"/></linearGradient></defs>
                         </svg>
                     </span>
                     <span class="logo-text">Matching<strong>CV</strong></span>
@@ -377,6 +380,7 @@
     </footer>
     </div> <!-- /.app-main-layout -->
 
-    <script src="/js/sidebar.js?v=2.0"></script>
+    <script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
+    <script src="/js/experience.js" defer></script>
 </body>
 </html>

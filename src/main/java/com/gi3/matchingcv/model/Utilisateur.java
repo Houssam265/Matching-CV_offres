@@ -40,6 +40,15 @@ public abstract class Utilisateur {
 
     private LocalDateTime dateInscription;
 
+    @JsonIgnore
+    private Long securityVersion = 0L;
+    @JsonIgnore
+    private Boolean active = true;
+    private Boolean emailVerified = false;
+    private Boolean notificationsEnabled = true;
+    public long getSecurityVersion() { return securityVersion == null ? 0L : securityVersion; }
+    public boolean isActive() { return !Boolean.FALSE.equals(active); }
+
     @PrePersist
     public void prePersist() {
         if (dateInscription == null) {

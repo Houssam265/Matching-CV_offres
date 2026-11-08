@@ -14,6 +14,9 @@ public class ConnexionRequest {
 
     @NotBlank(message = "Le mot de passe est obligatoire")
     private String motDePasse;
+    private com.gi3.matchingcv.model.enums.Role role;
+    public com.gi3.matchingcv.model.enums.Role getRole() { return role; }
+    public void setRole(com.gi3.matchingcv.model.enums.Role role) { this.role = role; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

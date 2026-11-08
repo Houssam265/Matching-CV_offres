@@ -8,7 +8,7 @@ public record RecruteurInscriptionRequest(
         @NotBlank @Size(max = 255) String nom,
         @NotBlank @Size(max = 255) String prenom,
         @NotBlank @Email @Size(max = 255) String email,
-        @NotBlank @Size(min = 6, max = 255) String motDePasse,
+        @NotBlank @Size(min = 10, max = 72) String motDePasse,
         @JsonAlias("entreprise") @NotBlank @Size(max = 255) String nomEntreprise,
         @JsonAlias("secteur") @NotBlank @Size(max = 255) String secteurActivite) {
     public InscriptionRequest toAuthRequest() {

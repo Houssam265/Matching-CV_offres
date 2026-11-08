@@ -4,5 +4,7 @@ public enum StatutCandidature {
     ENVOYEE,
     VUE,
     ACCEPTEE,
-    REFUSEE
+    REFUSEE,
+    ENTRETIEN,
+    RETIREE
 }

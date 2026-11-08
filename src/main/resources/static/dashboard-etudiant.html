@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <script src="/js/api-client.js"></script>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-    <title>Tableau de bord Étudiant — Matching CV-Offres</title>
+    <title>Tableau de bord Utilisateur — Matching CV-Offres</title>
     <script src="/js/session.js"></script>
     <script>MatchingCVSession.protect('ETUDIANT');</script>
     <!-- SockJS & STOMP pour les notifications en temps réel -->
@@ -12,7 +13,7 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/notifications.css"/>
     <link rel="stylesheet" href="/css/coach-cv.css"/>
-    <link rel="stylesheet" href="/css/sidebar.css?v=2.0"/>
+
     <style>
         :root{
             --card-shadow:var(--shadow-sm);
@@ -38,30 +39,30 @@
         .sc{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.4rem 1.6rem;box-shadow:var(--card-shadow);transition:box-shadow .25s,transform .2s;}
         .sc:hover{box-shadow:var(--card-shadow-hover);transform:translateY(-2px);}
         .sci{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:.8rem;}
-        .ib{background:linear-gradient(135deg,rgba(46,90,156,.12),rgba(46,139,139,.08));color:#2E5A9C;}
-        .it{background:linear-gradient(135deg,rgba(46,139,139,.14),rgba(46,90,156,.08));color:var(--teal);}
-        .ig{background:linear-gradient(135deg,rgba(22,163,74,.12),rgba(46,139,139,.08));color:var(--green);}
+        .ib{background:linear-gradient(135deg,rgba(46, 156, 101,.12),rgba(46, 139, 93,.08));color:#2e9c65;}
+        .it{background:linear-gradient(135deg,rgba(46, 139, 93,.14),rgba(46, 156, 101,.08));color:var(--teal);}
+        .ig{background:linear-gradient(135deg,rgba(22,163,74,.12),rgba(46, 139, 93,.08));color:var(--green);}
         .slb{font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem;}
         .sv{font-size:2.1rem;font-weight:900;color:var(--navy-deep);line-height:1;}
         .ss{font-size:.75rem;color:var(--text-mid);margin-top:.3rem;}
 
         /* Profil Card */
-        .pc{background:linear-gradient(135deg,#fff 0%,#F0FDF4 50%,#F0F9FF 100%);border:1.5px solid rgba(46,139,139,.22);border-radius:20px;padding:1.75rem 2rem;margin-bottom:2.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;box-shadow:0 3px 12px rgba(46,139,139,.08);}
+        .pc{background:linear-gradient(135deg,#fff 0%,#F0FDF4 50%,#f5faf8 100%);border:1.5px solid rgba(46, 139, 93,.22);border-radius:20px;padding:1.75rem 2rem;margin-bottom:2.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;box-shadow:0 3px 12px rgba(46, 139, 93,.08);}
         .pcl{display:flex;align-items:center;gap:1.3rem;}
-        .pca{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#1E3A5F,#2E8B8B);display:flex;align-items:center;justify-content:center;font-size:1.75rem;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 6px 16px rgba(46,139,139,.32);}
+        .pca{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#1e5f3f,#2e8b5d);display:flex;align-items:center;justify-content:center;font-size:1.75rem;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 6px 16px rgba(46, 139, 93,.32);}
         .pcn{font-size:1.25rem;font-weight:800;color:var(--navy-deep);}
         .pce{font-size:.85rem;color:var(--text-mid);margin-top:.15rem;}
         .pcs{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.6rem;}
-        .pct{background:rgba(46,139,139,.08);color:var(--teal);border:1px solid rgba(46,139,139,.25);padding:.22rem .75rem;border-radius:100px;font-size:.72rem;font-weight:700;}
-        .btn-op{display:inline-flex;align-items:center;gap:.6rem;padding:.75rem 1.6rem;border-radius:12px;background:linear-gradient(135deg,#1E3A5F,#2E8B8B);color:#fff;font-size:.9rem;font-weight:800;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(46,139,139,.32);transition:opacity .2s,transform .15s,box-shadow .2s;}
-        .btn-op:hover{opacity:.94;transform:translateY(-2px);box-shadow:0 8px 24px rgba(46,139,139,.4);}
+        .pct{background:rgba(46, 139, 93,.08);color:var(--teal);border:1px solid rgba(46, 139, 93,.25);padding:.22rem .75rem;border-radius:100px;font-size:.72rem;font-weight:700;}
+        .btn-op{display:inline-flex;align-items:center;gap:.6rem;padding:.75rem 1.6rem;border-radius:12px;background:linear-gradient(135deg,#1e5f3f,#2e8b5d);color:#fff;font-size:.9rem;font-weight:800;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(46, 139, 93,.32);transition:opacity .2s,transform .15s,box-shadow .2s;}
+        .btn-op:hover{opacity:.94;transform:translateY(-2px);box-shadow:0 8px 24px rgba(46, 139, 93,.4);}
 
         /* ═══ RÉSUMÉ DU PROFIL (SUR LE DASHBOARD) ═══ */
         .dash-summary{background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:2.5rem;}
-        .ds-header{background:linear-gradient(135deg,#FAFBFC 0%,#F1F5F9 100%);padding:1.4rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+        .ds-header{background:linear-gradient(135deg,#fafcfb 0%,#f1f9f5 100%);padding:1.4rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
         .ds-htitle{font-size:1.05rem;font-weight:800;color:var(--navy-deep);display:flex;align-items:center;gap:.6rem;}
         .ds-hsub{font-size:.82rem;color:var(--text-mid);margin-top:.2rem;}
-        .btn-edit-sec{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:8px;background:var(--teal-soft);color:var(--teal);border:1px solid rgba(46,139,139,.3);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .18s;}
+        .btn-edit-sec{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:8px;background:var(--teal-soft);color:var(--teal);border:1px solid rgba(46, 139, 93,.3);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .18s;}
         .btn-edit-sec:hover{background:var(--teal);color:#fff;}
         .ds-body{padding:1.75rem 2rem;}
 
@@ -69,7 +70,7 @@
         .summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;}
         @media(max-width:960px){.summary-grid{grid-template-columns:1fr;}}
 
-        .sum-col{background:#F8FAFC;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.4rem;display:flex;flex-direction:column;gap:.9rem;}
+        .sum-col{background:#f8fcfa;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.4rem;display:flex;flex-direction:column;gap:.9rem;}
         .sum-col-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:.7rem;border-bottom:1.5px solid var(--border);}
         .sum-col-title{font-size:.88rem;font-weight:800;color:var(--navy-deep);display:flex;align-items:center;gap:.45rem;}
         .sum-count-pill{background:var(--teal);color:#fff;border-radius:100px;font-size:.68rem;font-weight:800;padding:.12rem .5rem;}
@@ -80,12 +81,12 @@
         .sci-t{font-size:.86rem;font-weight:700;color:var(--navy-deep);display:flex;align-items:center;justify-content:space-between;gap:.4rem;}
         .sci-desc{font-size:.78rem;color:var(--text-mid);margin:.3rem 0 .5rem;line-height:1.45;}
         .sci-meta{font-size:.75rem;color:var(--text-mid);margin:.2rem 0 .45rem;}
-        
+
         /* Relation labels & chips */
         .relation-box{margin-top:.45rem;padding-top:.45rem;border-top:1px dashed var(--border);}
         .relation-label{font-size:.68rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;display:flex;align-items:center;gap:.3rem;}
         .relation-chips{display:flex;flex-wrap:wrap;gap:.3rem;}
-        .r-chip{display:inline-flex;align-items:center;gap:.25rem;background:rgba(46,139,139,.08);color:var(--teal-dark);border:1px solid rgba(46,139,139,.22);padding:.18rem .55rem;border-radius:100px;font-size:.72rem;font-weight:600;}
+        .r-chip{display:inline-flex;align-items:center;gap:.25rem;background:rgba(46, 139, 93,.08);color:var(--teal-dark);border:1px solid rgba(46, 139, 93,.22);padding:.18rem .55rem;border-radius:100px;font-size:.72rem;font-weight:600;}
         .r-chip-empty{font-size:.74rem;color:var(--text-light);font-style:italic;}
 
         /* Compétence item spécifique */
@@ -107,15 +108,15 @@
         .qc h3{font-size:.9rem;font-weight:700;color:var(--navy-deep);margin-bottom:.25rem;}
         .qc p{font-size:.8rem;color:var(--text-mid);line-height:1.5;}
         .ql{display:inline-flex;align-items:center;gap:.3rem;margin-top:.65rem;font-size:.78rem;font-weight:700;color:var(--teal);}
-        .cc{background:linear-gradient(135deg,#F9FBFE,#EAF1F8);border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.8rem;min-height:140px;}
-        .cb{background:rgba(46,139,139,.08);color:var(--teal);border:1px solid rgba(46,139,139,.2);padding:.18rem .65rem;border-radius:100px;font-size:.68rem;font-weight:700;display:inline-block;margin-top:.45rem;}
+        .cc{background:linear-gradient(135deg,#fafdfc,#ecf6f1);border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.8rem;min-height:140px;}
+        .cb{background:rgba(46, 139, 93,.08);color:var(--teal);border:1px solid rgba(46, 139, 93,.2);padding:.18rem .65rem;border-radius:100px;font-size:.68rem;font-weight:700;display:inline-block;margin-top:.45rem;}
 
         /* ═══ DRAWER / VOLET LATÉRAL DE MODIFICATION ═══ */
-        .drover{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(5px);z-index:8000;opacity:0;pointer-events:none;transition:opacity .3s;}
+        .drover{position:fixed;inset:0;background:rgba(15, 42, 29,.5);backdrop-filter:blur(5px);z-index:8000;opacity:0;pointer-events:none;transition:opacity .3s;}
         .drover.open{opacity:1;pointer-events:auto;}
         .drawer{position:fixed;top:0;right:0;width:min(640px,100vw);height:100vh;background:#fff;z-index:8001;display:flex;flex-direction:column;box-shadow:-10px 0 45px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .35s cubic-bezier(.22,.68,0,1.2);}
         .drover.open .drawer{transform:translateX(0);}
-        .drh{background:linear-gradient(135deg,#0D1F44,#2E8B8B);padding:1.4rem 1.75rem;display:flex;align-items:center;gap:1rem;flex-shrink:0;}
+        .drh{background:linear-gradient(135deg,#114029,#2e8b5d);padding:1.4rem 1.75rem;display:flex;align-items:center;gap:1rem;flex-shrink:0;}
         .drav{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:#fff;flex-shrink:0;}
         .drin{flex:1;min-width:0;}
         .drnm{font-size:1.1rem;font-weight:800;color:#fff;}
@@ -127,7 +128,7 @@
         /* Sections dans Drawer */
         .ds{border-bottom:1px solid var(--border);}
         .dsh{padding:1.1rem 1.75rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
-        .dsh:hover{background:#F8FAFC;}
+        .dsh:hover{background:#f8fcfa;}
         .dshl{display:flex;align-items:center;gap:.65rem;}
         .dsi{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
         .dst{font-size:.9rem;font-weight:800;color:var(--navy-deep);}
@@ -138,55 +139,55 @@
         .ds.open .dsbd{display:block;}
 
         /* Items dans Drawer */
-        .di{background:#F8FAFC;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin-bottom:.8rem;position:relative;}
+        .di{background:#f8fcfa;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin-bottom:.8rem;position:relative;}
         .dit{font-size:.9rem;font-weight:700;color:var(--navy-deep);margin-bottom:.15rem;padding-right:2.2rem;}
         .dim{font-size:.78rem;color:var(--text-mid);margin-bottom:.45rem;line-height:1.45;}
         .dicl{font-size:.68rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;margin:.5rem 0 .35rem;}
         .dics{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.55rem;}
-        .dic{display:inline-flex;align-items:center;gap:.3rem;background:rgba(46,139,139,.1);color:var(--teal);border:1px solid rgba(46,139,139,.25);padding:.22rem .65rem;border-radius:100px;font-size:.74rem;font-weight:600;}
+        .dic{display:inline-flex;align-items:center;gap:.3rem;background:rgba(46, 139, 93,.1);color:var(--teal);border:1px solid rgba(46, 139, 93,.25);padding:.22rem .65rem;border-radius:100px;font-size:.74rem;font-weight:600;}
         .dicd{background:none;border:none;cursor:pointer;color:inherit;font-size:.95rem;line-height:1;padding:0;opacity:.6;transition:opacity .15s;}
         .dicd:hover{opacity:1;color:#c0392b;}
         .din{font-size:.75rem;color:var(--text-light);font-style:italic;}
 
         /* Inline associate competence inside project/experience */
-        .di-link-box{background:#fff;border:1px dashed rgba(46,139,139,.35);border-radius:9px;padding:.55rem .75rem;margin-top:.4rem;}
+        .di-link-box{background:#fff;border:1px dashed rgba(46, 139, 93,.35);border-radius:9px;padding:.55rem .75rem;margin-top:.4rem;}
         .btn-inline-link{background:none;border:none;color:var(--teal);font-size:.77rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;padding:0;}
         .btn-inline-link:hover{text-decoration:underline;}
         .di-ac{position:relative;}
         .di-ai{width:100%;padding:.45rem .75rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:inherit;background:#fff;box-sizing:border-box;transition:border-color .2s;}
-        .di-ai:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46,139,139,.1);}
+        .di-ai:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46, 139, 93,.1);}
         .di-ad{position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:9999;display:none;overflow:hidden;max-height:220px;overflow-y:auto;}
         .di-ad.open{display:block;}
         .aitem{display:flex;align-items:center;gap:.45rem;padding:.5rem .85rem;font-size:.8rem;cursor:pointer;transition:background .15s;}
-        .aitem:hover{background:#F0F9FF;}
-        .aitem.prop{color:var(--teal);font-weight:700;border-top:1px solid var(--border);background:#F8FAFC;}
-        .aitem.prop:hover{background:#F0F9FF;}
+        .aitem:hover{background:#f5faf8;}
+        .aitem.prop{color:var(--teal);font-weight:700;border-top:1px solid var(--border);background:#f8fcfa;}
+        .aitem.prop:hover{background:#f5faf8;}
         .dide{position:absolute;top:.75rem;right:.75rem;background:none;border:none;cursor:pointer;color:var(--text-light);padding:.25rem;border-radius:6px;transition:color .15s,background .15s;}
         .dide:hover{color:#c0392b;background:#fef2f2;}
 
         /* Formulaire d'ajout dans drawer */
-        .addf{background:#F0F9FF;border:1.5px dashed rgba(46,139,139,.35);border-radius:12px;padding:1.1rem 1.2rem;margin-top:.6rem;display:none;}
+        .addf{background:#f5faf8;border:1.5px dashed rgba(46, 139, 93,.35);border-radius:12px;padding:1.1rem 1.2rem;margin-top:.6rem;display:none;}
         .addf.show{display:block;}
         .adft{font-size:.76rem;font-weight:800;color:var(--teal);margin-bottom:.75rem;display:flex;align-items:center;gap:.35rem;}
         .fi{width:100%;padding:.55rem .85rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:inherit;background:#fff;box-sizing:border-box;transition:border-color .2s;}
-        .fi:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46,139,139,.1);}
+        .fi:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46, 139, 93,.1);}
         textarea.fi{resize:vertical;min-height:60px;}
         .fg{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.7rem;}
-        .fl{font-size:.72rem;font-weight:700;color:#475569;}
+        .fl{font-size:.72rem;font-weight:700;color:#476958;}
         .fr2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.7rem;}
         .schips{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.4rem;}
-        .schip{display:inline-flex;align-items:center;gap:.25rem;background:rgba(46,139,139,.12);color:var(--teal);border:1px solid rgba(46,139,139,.28);padding:.22rem .65rem;border-radius:100px;font-size:.75rem;font-weight:600;}
+        .schip{display:inline-flex;align-items:center;gap:.25rem;background:rgba(46, 139, 93,.12);color:var(--teal);border:1px solid rgba(46, 139, 93,.28);padding:.22rem .65rem;border-radius:100px;font-size:.75rem;font-weight:600;}
         .schip button{background:none;border:none;cursor:pointer;color:inherit;font-size:.9rem;line-height:1;padding:0;}
         .bsave{padding:.52rem 1.1rem;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:.8rem;font-weight:700;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;transition:background .2s;}
         .bsave:hover{background:var(--navy);}
         .bcan{padding:.52rem .85rem;background:none;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;font-family:inherit;cursor:pointer;color:var(--text-mid);transition:border-color .2s;}
         .bcan:hover{border-color:var(--navy);color:var(--navy);}
-        .badd{display:flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:10px;background:rgba(46,139,139,.08);color:var(--teal);border:1.5px dashed rgba(46,139,139,.32);font-size:.8rem;font-weight:700;font-family:inherit;cursor:pointer;width:100%;justify-content:center;transition:all .2s;margin-top:.4rem;}
-        .badd:hover{background:rgba(46,139,139,.15);border-color:var(--teal);}
+        .badd{display:flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:10px;background:rgba(46, 139, 93,.08);color:var(--teal);border:1.5px dashed rgba(46, 139, 93,.32);font-size:.8rem;font-weight:700;font-family:inherit;cursor:pointer;width:100%;justify-content:center;transition:all .2s;margin-top:.4rem;}
+        .badd:hover{background:rgba(46, 139, 93,.15);border-color:var(--teal);}
 
         /* Comp tags dans drawer */
         .ctags{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.85rem;}
-        .ctag{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .8rem;border-radius:100px;font-size:.8rem;font-weight:600;background:rgba(46,90,156,.07);color:var(--navy);border:1px solid rgba(46,139,139,.2);}
+        .ctag{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .8rem;border-radius:100px;font-size:.8rem;font-weight:600;background:rgba(46, 156, 101,.07);color:var(--navy);border:1px solid rgba(46, 139, 93,.2);}
         .ctag.pend{background:rgba(251,191,36,.1);color:#B45309;border-color:rgba(251,191,36,.3);}
         .ctdel{background:none;border:none;cursor:pointer;color:inherit;font-size:.9rem;line-height:1;padding:0;opacity:.55;transition:opacity .15s;}
         .ctdel:hover{opacity:1;color:#c0392b;}
@@ -199,55 +200,57 @@
 
         @media(max-width:640px){.fr2{grid-template-columns:1fr;}.pcl{flex-direction:column;align-items:flex-start;}}
     </style>
-</head>
-<body class="has-sidebar">
+    <link rel="stylesheet" href="/css/interface.css" />
+<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"></head>
+<body class="has-sidebar"><script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+<a class="skip-link" href="#main-content">Aller au contenu</a>
 
 <!-- BACKDROP OVERLAY SUR MOBILE -->
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
 <!-- NAVIGATION LATÉRALE ULTRA-PREMIUM -->
 <aside class="app-sidebar" id="app-sidebar" aria-label="Navigation principale">
-    <!-- En-tête / Marque -->
-    <div class="sidebar-brand">
-        <a href="/dashboard-etudiant.html" class="sidebar-logo">
-            <span class="sidebar-logo-icon">
-                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
-                    <circle cx="14" cy="14" r="13" stroke="url(#sblg1)" stroke-width="2"/>
-                    <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <defs>
-                        <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#38BDF8"/>
-                            <stop offset="1" stop-color="#2E8B8B"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </span>
-            <div class="sidebar-logo-text">
-                <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
-                <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Étudiant</span>
+        <!-- En-tête / Marque -->
+        <div class="sidebar-brand">
+            <a href="/dashboard-etudiant.html" class="sidebar-logo">
+                <span class="sidebar-logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="13" stroke="url(#sblg1)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#5cd498"/>
+                                <stop offset="1" stop-color="#2e8b5d"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </span>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
+                    <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Utilisateur</span>
+                </div>
+            </a>
+            <div style="display:flex;align-items:center;gap:.3rem;">
+                <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Épingler la barre">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"></path></svg>
+                </button>
+                <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu latéral">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
-        </a>
-        <div style="display:flex;align-items:center;gap:.3rem;">
-            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Épingler la barre">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"></path></svg>
-            </button>
-            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu latéral">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
         </div>
-    </div>
 
-    <!-- Navigation List -->
-    <nav class="sidebar-nav">
+        <!-- Navigation List -->
+        <nav class="sidebar-nav">
         <!-- Section Menu Principal -->
         <div class="sidebar-section">
             <div class="sidebar-section-title">Menu Principal</div>
             <ul class="sidebar-list">
                 <li class="sidebar-item">
-                    <a href="/dashboard-etudiant.html" class="sidebar-link active" aria-current="page" title="Tableau de bord">
+                    <a href="/dashboard-etudiant.html" class="sidebar-link" aria-current="page" title="Tableau de bord">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -300,13 +303,13 @@
             <div class="sidebar-section-title">Outils &amp; Suivi</div>
             <ul class="sidebar-list">
                 <li class="sidebar-item">
-                    <a href="/coach-cv.html" class="sidebar-link" title="Coach CV &amp; Score">
+                    <a href="/coach-cv.html" class="sidebar-link" title="Coach CV">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
                             </svg>
                         </span>
-                        <span class="sidebar-link-label">Coach CV &amp; Score</span>
+                        <span class="sidebar-link-label">Coach CV</span>
                         <span class="sidebar-badge-new">Coach</span>
                     </a>
                 </li>
@@ -337,26 +340,26 @@
         </div>
     </nav>
 
-    <!-- Sidebar Footer / Profil Utilisateur & Déconnexion -->
-    <div class="sidebar-footer">
-        <div class="sidebar-user-card" id="sidebar-user-card" title="Ouvrir les paramètres de mon profil">
-            <div class="sidebar-user-left">
-                <div class="sidebar-avatar" id="sidebar-user-avatar">?</div>
-                <div class="sidebar-user-info">
-                    <span class="sidebar-user-name" id="sidebar-user-name">Chargement...</span>
-                    <span class="sidebar-user-role">Étudiant &bull; ENSA</span>
+        <!-- Sidebar Footer / Profil Utilisateur & Déconnexion -->
+        <div class="sidebar-footer">
+            <div class="sidebar-user-card" id="sidebar-user-card" title="Profil recruteur">
+                <div class="sidebar-user-left">
+                    <div class="sidebar-avatar" id="sidebar-user-avatar"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12a20 20 0 0 0 18 0M12 11v4"/></svg></div>
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user-name" id="sidebar-user-name">Recruteur</span>
+                        <span class="sidebar-user-role" id="sidebar-user-role">Recruteur &bull; Entreprise</span>
+                    </div>
                 </div>
+                <button class="sidebar-btn-logout" id="sidebar-logout" title="Se déconnecter" aria-label="Se déconnecter">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
             </div>
-            <button class="sidebar-btn-logout" id="sidebar-logout" title="Se déconnecter" aria-label="Se déconnecter">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-            </button>
         </div>
-    </div>
-</aside>
+    </aside>
 
 <!-- CONTENEUR PRINCIPAL DE L'APPLICATION -->
 <div class="app-main-layout">
@@ -391,7 +394,7 @@
             <!-- Capsule profil dans le topbar -->
             <div class="topbar-user-pill" id="topbar-user-pill" title="Modifier mon profil">
                 <div class="topbar-user-pill-avatar" id="topbar-user-avatar">?</div>
-                <span class="topbar-user-pill-name" id="topbar-user-name">Étudiant</span>
+                <span class="topbar-user-pill-name" id="topbar-user-name">Utilisateur</span>
             </div>
 
             <a href="/offres-recommandees.html" class="topbar-btn-action">
@@ -405,19 +408,19 @@
     </header>
 
     <!-- HERO HEADER -->
-    <div class="dh">
+    <div class="dh workspace-hero"><div class="workspace-hero-photo" aria-hidden="true"></div>
         <div class="dhi">
             <div>
-                <div class="dw">Bonjour, <span id="user-prenom">Étudiant</span>&nbsp;! &#128075;</div>
-                <div class="dsub">Votre espace étudiant &mdash; Synthèse complète de votre profil &amp; compétences</div>
+                <div class="dw">Bonjour, <span id="user-prenom">Utilisateur</span>&nbsp;! </div>
+                <div class="dsub">Retrouvez votre profil, vos compétences et vos candidatures.</div>
             </div>
             <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                <span class="dbadge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>Espace Étudiant</span>
+                <span class="dbadge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>Espace Utilisateur</span>
             </div>
         </div>
     </div>
 
-    <main class="db">
+    <main id="main-content" class="db">
     <!-- STATS -->
     <div class="sg">
         <div class="sc">
@@ -439,7 +442,7 @@
             <div class="ss">expériences professionnelles</div>
         </div>
         <div class="sc" style="border-left:3px solid var(--teal);">
-            <div class="sci" style="background:linear-gradient(135deg,rgba(46,139,139,.14),rgba(46,90,156,.08));color:var(--teal);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div class="sci" style="background:linear-gradient(135deg,rgba(46, 139, 93,.14),rgba(46, 156, 101,.08));color:var(--teal);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
             <div class="slb">Candidatures</div>
             <div class="sv" id="s-cand">0</div>
             <div class="ss">candidatures envoyées</div>
@@ -458,7 +461,7 @@
         </div>
         <button class="btn-op" id="btn-dr">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Modifier mon profil &amp; liaisons
+            Modifier mon profil
         </button>
     </div>
 
@@ -471,18 +474,18 @@
             <div>
                 <div class="ds-htitle">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    Résumé de mon Profil &amp; Articulation des Compétences
+                    Mon parcours en un regard
                 </div>
                 <div class="ds-hsub">Vue synthétique et relation directe entre vos compétences, vos projets et vos expériences.</div>
             </div>
             <button class="btn-edit-sec" id="btn-summary-edit">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                Gérer &amp; Associer des compétences
+                Gérer mes compétences
             </button>
         </div>
         <div class="ds-body">
             <div class="summary-grid">
-                
+
                 <!-- COLONNE 1 : COMPÉTENCES & OÙ ELLES SONT MOBILISÉES -->
                 <div class="sum-col">
                     <div class="sum-col-head">
@@ -559,7 +562,7 @@
     <div class="drh">
         <div class="drav" id="dr-av">?</div>
         <div class="drin">
-            <div class="drnm" id="dr-nm">Profil Étudiant</div>
+            <div class="drnm" id="dr-nm">Profil Utilisateur</div>
             <div class="drem" id="dr-em"></div>
         </div>
         <button class="drx" id="dr-close" title="Fermer le volet">&times;</button>
@@ -570,7 +573,7 @@
         <div class="ds open" id="ds-info">
             <div class="dsh" onclick="toggleSec('ds-info')">
                 <div class="dshl">
-                    <div class="dsi ib" style="background:rgba(46,90,156,.12);color:var(--navy);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                    <div class="dsi ib" style="background:rgba(46, 156, 101,.12);color:var(--navy);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
                     <span class="dst">Mon Profil &amp; Formation</span>
                 </div>
                 <svg class="dsarr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -694,8 +697,9 @@
 </div>
 
 <script src="/js/coach-cv.js"></script>
-<script src="/js/sidebar.js?v=2.0"></script>
+<script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
 <script src="/js/dashboard-etudiant.js"></script>
 <script src="/js/notifications.js"></script>
+    <script src="/js/experience.js" defer></script>
 </body>
 </html>

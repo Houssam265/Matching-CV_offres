@@ -1,0 +1,13 @@
+.interview-intro{color:#587067;margin:-.5rem 0 1.8rem;line-height:1.6}
+.interview-editor button+button{margin-left:.75rem}
+.interview-card{margin:1rem 0;padding:1.5rem!important;border:1px solid #dce7df!important;border-radius:14px;background:#fff;box-shadow:0 2px 8px #173c2510}
+.interview-card-head{padding-bottom:.75rem;border-bottom:1px solid #edf2ee;margin-bottom:1rem}
+.interview-editor summary{display:list-item;padding:.85rem 0;font-weight:600}
+.interview-editor[open]{border-top:1px solid #dce7df;padding-top:.5rem}
+#workflow-status:not(:empty){padding:1rem;border-radius:10px;background:#edf4ef;color:#244c35;margin:1rem 0}
+.interview-card:target{outline:2px solid #3b8255;outline-offset:3px}
+.interview-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.interview-stat{border:1px solid #dbe6df;background:#fff;border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;gap:.4rem}.interview-stat strong{font-size:1.8rem;color:#1c5134}.interview-stat span{font-size:.85rem;color:#587067}
+.interview-toolbar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}.interview-toolbar input,.interview-toolbar select{min-width:160px;flex:1;padding:.8rem;border:1px solid #bdcdc7;border-radius:8px;font:inherit}.interview-toolbar button{margin:0}
+.interview-card{padding:1.5rem 0;border-top:1px solid #e1e9e4;overflow-wrap:anywhere}.interview-card-head{display:flex;gap:1rem;justify-content:space-between;align-items:flex-start}.interview-card h3{font-size:1.05rem}.interview-badge{font-size:.75rem;padding:.4rem .65rem;border-radius:6px;background:#edf4ef;color:#245739;white-space:nowrap}.interview-info{background:#f4f8f5;border-left:3px solid #5d9974;padding:1rem;margin:.8rem 0;border-radius:0 8px 8px 0}.interview-info strong{font-size:.9rem}.interview-instructions{white-space:pre-wrap}.interview-editor{margin-top:1rem}.interview-editor summary{color:#245739;padding:.65rem 0}.interview-editor form{padding:1rem;background:#f8faf8;border-radius:10px}.interview-error{color:#a13434!important}.interview-error:empty{display:none}.interview-cancel{background:#e8efea!important;color:#245739!important}.interview-timezone{font-size:.8rem!important}.interview-empty{text-align:center;padding:2.5rem 1rem}.interview-toolbar button:disabled,.interview-editor button:disabled{opacity:.6;cursor:wait}
+@media(max-width:600px){.interview-stats{gap:.5rem}.interview-stat{padding:.8rem}.interview-stat strong{font-size:1.4rem}.interview-card-head{flex-direction:column;gap:.4rem}.interview-toolbar>*{width:100%}.interview-editor form{padding:.75rem}}

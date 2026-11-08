@@ -82,6 +82,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         Utilisateur destinataire = utilisateurRepository.findById(destinataireId)
                 .orElseThrow(() -> new EntityNotFoundException("Destinataire introuvable avec l'id : " + destinataireId));
+        if (!destinataire.isActive() || Boolean.FALSE.equals(destinataire.getNotificationsEnabled())) return null;
 
         Offre offre = (offreId != null) ? offreRepository.findById(offreId).orElse(null) : null;
         Candidature candidature = (candidatureId != null) ? candidatureRepository.findById(candidatureId).orElse(null) : null;

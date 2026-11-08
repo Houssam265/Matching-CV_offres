@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <script src="/js/api-client.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Publier une offre — Matching CV-Offres</title>
@@ -11,11 +12,13 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/recruteur.css">
     <link rel="stylesheet" href="/css/notifications.css">
-    <link rel="stylesheet" href="/css/sidebar.css?v=2.0">
+
     <script src="/js/notifications.js" defer></script>
     <script src="/js/recruteur.js" defer></script>
-</head>
-<body class="has-sidebar" data-page="form">
+    <link rel="stylesheet" href="/css/interface.css" />
+<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"></head>
+<body class="has-sidebar" data-page="form"><script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+<a class="skip-link" href="#main-content">Aller au contenu</a>
     <!-- BACKDROP OVERLAY SUR MOBILE -->
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
@@ -30,8 +33,8 @@
                         <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
                         <defs>
                             <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#38BDF8"/>
-                                <stop offset="1" stop-color="#2E8B8B"/>
+                                <stop stop-color="#5cd498"/>
+                                <stop offset="1" stop-color="#2e8b5d"/>
                             </linearGradient>
                         </defs>
                     </svg>
@@ -61,7 +64,7 @@
                 <div class="sidebar-section-title">Menu Principal</div>
                 <ul class="sidebar-list">
                     <li class="sidebar-item">
-                        <a href="/dashboard-recruteur.html" class="sidebar-link" title="Tableau de bord">
+                        <a href="/dashboard-recruteur.html" class="sidebar-link" aria-current="page" title="Tableau de bord">
                             <span class="sidebar-link-icon">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -87,7 +90,7 @@
                         </a>
                     </li>
                     <li class="sidebar-item">
-                        <a href="/publier-offre.html" class="sidebar-link active" aria-current="page" title="Publier une offre">
+                        <a href="/publier-offre.html" class="sidebar-link" title="Publier une offre">
                             <span class="sidebar-link-icon">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -136,7 +139,7 @@
         <div class="sidebar-footer">
             <div class="sidebar-user-card" id="sidebar-user-card" title="Profil recruteur">
                 <div class="sidebar-user-left">
-                    <div class="sidebar-avatar" id="sidebar-user-avatar">🏢</div>
+                    <div class="sidebar-avatar" id="sidebar-user-avatar"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12a20 20 0 0 0 18 0M12 11v4"/></svg></div>
                     <div class="sidebar-user-info">
                         <span class="sidebar-user-name" id="sidebar-user-name">Recruteur</span>
                         <span class="sidebar-user-role" id="sidebar-user-role">Recruteur &bull; Entreprise</span>
@@ -172,7 +175,7 @@
                 </div>
                 <div class="topbar-status-badge">
                     <span class="topbar-status-dot"></span>
-                    <span>Espace Entreprise &bull; Recruteur Vérifié</span>
+                    <span>Espace Entreprise &bull; Recruteur</span>
                 </div>
             </div>
 
@@ -185,7 +188,7 @@
 
                 <!-- Capsule profil dans le topbar -->
                 <div class="topbar-user-pill" id="topbar-user-pill" title="Profil recruteur">
-                    <div class="topbar-user-pill-avatar" id="topbar-user-avatar">🏢</div>
+                    <div class="topbar-user-pill-avatar" id="topbar-user-avatar"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12a20 20 0 0 0 18 0M12 11v4"/></svg></div>
                     <span class="topbar-user-pill-name" id="topbar-user-name">Recruteur</span>
                 </div>
 
@@ -217,7 +220,7 @@
     </header>
 
     <!-- MAIN FORM -->
-    <main class="recruit-main">
+    <main id="main-content" class="recruit-main">
         <div id="recruit-error" class="recruit-error" role="alert" hidden></div>
 
         <form id="offre-form" class="recruit-form">
@@ -329,7 +332,7 @@
                         <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="14" cy="14" r="13" stroke="url(#lgf3)" stroke-width="2"/>
                             <path d="M8 14l4 4 8-8" stroke="url(#lgf3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <defs><linearGradient id="lgf3" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#4A78C4"/><stop offset="1" stop-color="#3AADAD"/></linearGradient></defs>
+                            <defs><linearGradient id="lgf3" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#4ac487"/><stop offset="1" stop-color="#3aad74"/></linearGradient></defs>
                         </svg>
                     </span>
                     <span class="logo-text">Matching<strong>CV</strong></span>
@@ -359,6 +362,7 @@
     </footer>
     </div> <!-- /.app-main-layout -->
 
-    <script src="/js/sidebar.js?v=2.0"></script>
+    <script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
+    <script src="/js/experience.js" defer></script>
 </body>
 </html>

@@ -22,7 +22,7 @@ public class InscriptionRequest {
     private String email;
 
     @NotBlank(message = "Le mot de passe est obligatoire")
-    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
+    @Size(min = 10, max = 72, message = "Le mot de passe doit contenir de 10 à 72 caractères")
     private String motDePasse;
 
     @NotNull(message = "Le rôle est obligatoire")

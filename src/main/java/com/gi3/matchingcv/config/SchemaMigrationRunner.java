@@ -25,6 +25,9 @@ public class SchemaMigrationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
 
+        upgradeCandidatureStatuses();
+        upgradeEnum("notifications", "type", com.gi3.matchingcv.model.enums.TypeNotification.values());
+
         // 1. Supprimer toute FK sur etudiant_id (nom auto-généré par Hibernate, variable)
         dropAllForeignKeysOnColumn("notifications", "etudiant_id");
 
@@ -36,6 +39,52 @@ public class SchemaMigrationRunner implements ApplicationRunner {
         );
 
         log.info("[SchemaMigration] Migration des colonnes legacy terminée.");
+    }
+
+    /** Extend the existing MySQL enum while retaining its old values and defaults. */
+    private void upgradeCandidatureStatuses() {
+        upgradeEnum("candidatures", "statut", com.gi3.matchingcv.model.enums.StatutCandidature.values());
+    }
+
+    private void upgradeEnum(String table, String field, Enum<?>[] values) {
+        Boolean mysql = jdbc.execute((org.springframework.jdbc.core.ConnectionCallback<Boolean>) connection -> {
+            String product = connection.getMetaData().getDatabaseProductName();
+            return product.equalsIgnoreCase("MySQL") || product.equalsIgnoreCase("MariaDB");
+        });
+        if (!Boolean.TRUE.equals(mysql)) return;
+        var columns = jdbc.queryForList("SELECT COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT " +
+                "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() " +
+                "AND TABLE_NAME = ? AND COLUMN_NAME = ?", table, field);
+        if (columns.isEmpty()) return;
+        var column = columns.get(0);
+        String original = column.get("COLUMN_TYPE").toString();
+        String updated = original;
+        if (original.toLowerCase(java.util.Locale.ROOT).startsWith("enum(")) {
+            for (var status : values) {
+                String value = "'" + status.name() + "'";
+                if (!updated.contains(value)) updated = updated.substring(0, updated.length()-1) + "," + value + ")";
+            }
+        } else if (original.matches("(?i)varchar\\([1-8]\\)")) {
+            updated = "VARCHAR(32)";
+        }
+        if (updated.equals(original)) return;
+        String nullable = "YES".equals(column.get("IS_NULLABLE")) ? " NULL" : " NOT NULL";
+        Object defaultValue = column.get("COLUMN_DEFAULT");
+        String defaultSql = statusDefaultSql(defaultValue, "YES".equals(column.get("IS_NULLABLE")));
+        jdbc.execute("ALTER TABLE " + table + " MODIFY COLUMN " + field + " " + updated + nullable + defaultSql);
+        log.info("[SchemaMigration] Statuts de candidature mis à jour (entretien et retrait).");
+    }
+
+    static String statusDefaultSql(Object value, boolean nullable) {
+        // MariaDB may return the literal string NULL, or a quoted string default.
+        if (value == null || "NULL".equalsIgnoreCase(value.toString().trim())) {
+            return nullable ? " DEFAULT NULL" : "";
+        }
+        String literal = value.toString();
+        if (literal.length() >= 2 && literal.startsWith("'") && literal.endsWith("'")) {
+            literal = literal.substring(1, literal.length() - 1).replace("''", "'");
+        }
+        return " DEFAULT '" + literal.replace("'", "''") + "'";
     }
 
     /**
