@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Logique de la page des offres recommandées pour les étudiants.
+ * Logique de la page des offres recommandées pour les utilisateurs.
  * Récupère les offres actives et détaille le calcul du score de matching en temps réel.
  */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialiser les éléments utilisateur dans la navbar
     const navUserName = document.getElementById('nav-user-name');
     if (navUserName) {
-        navUserName.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || 'Mon Compte';
+        navUserName.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || 'Étudiant';
         navUserName.addEventListener('click', () => {
             window.location.href = '/dashboard-etudiant.html#dash-summary';
         });
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (c.statut === 'EN_ATTENTE') {
                     cls = 'pending';
-                    icon = '&#9203; ';
+                    icon = '';
                 } else if (matchInfo && matchInfo.niveau > 0) {
                     cls = c.typeExigence === 'ATOUT' ? 'atout-matched' : 'matched';
                     icon = '&#10003; ';
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Badge de prise en compte
             let compteeBadge;
             if (c.statut !== 'VALIDEE') {
-                compteeBadge = `<span class="comptee-badge warn">&#9888; Ignorée</span>`;
+                compteeBadge = `<span class="comptee-badge warn">Ignorée</span>`;
             } else if (c.comptee) {
                 compteeBadge = `<span class="comptee-badge yes">&#10003; Comptabilisée</span>`;
             } else {
@@ -430,15 +430,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderPostulerBouton(offre) {
         const cand = candidaturesMap[offre.id];
         if (cand) {
-            const labels = { ENVOYEE: '&#128338; Envoyée', VUE: '&#128065; Vue', ACCEPTEE: '&#10003; Acceptée', REFUSEE: '&#10007; Refusée' };
-            const colors = { ENVOYEE: '#2563EB', VUE: '#2E8B8B', ACCEPTEE: '#15803D', REFUSEE: '#DC2626' };
-            const bg     = { ENVOYEE: '#EFF6FF', VUE: '#E0F5F5', ACCEPTEE: '#DCFCE7', REFUSEE: '#FEF2F2' };
+            const labels = { ENTRETIEN: 'Entretien prévu', RETIREE: 'Retirée', ENVOYEE: 'Envoyée', VUE: 'Vue', ACCEPTEE: 'Acceptée', REFUSEE: 'Refusée' };
+            const colors = { ENVOYEE: '#43cd88', VUE: '#2e8b5d', ACCEPTEE: '#15803D', REFUSEE: '#DC2626' };
+            const bg     = { ENVOYEE: '#f4faf7', VUE: '#e3f2eb', ACCEPTEE: '#DCFCE7', REFUSEE: '#FEF2F2' };
             const s = cand.statut;
             return `<span style="display:inline-flex;align-items:center;gap:.35rem;padding:.42rem .9rem;border-radius:100px;font-size:.76rem;font-weight:700;background:${bg[s]};color:${colors[s]};border:1.5px solid ${colors[s]}40;">${labels[s] || s}</span>`;
         }
         // offre ACTIVE uniquement → sinon pas de bouton
         if (offre.statut !== 'ACTIVE') return '';
-        return `<button class="btn-view-detail" style="background:linear-gradient(135deg,#1E3A5F,#2E8B8B);color:#fff;border-color:transparent;" data-action="postuler" data-offre-id="${offre.id}">&#9654; Postuler</button>`;
+        return `<button class="btn-view-detail" style="background:linear-gradient(135deg,#1e5f3f,#2e8b5d);color:#fff;border-color:transparent;" data-action="postuler" data-offre-id="${offre.id}">&#9654; Postuler</button>`;
     }
 
     async function postuler(offreId, btn) {
@@ -454,7 +454,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 showToast(data.message || 'Erreur lors de la candidature.', 'err');
                 btn.disabled = false;
-                btn.textContent = '&#9654; Postuler';
+                btn.textContent = 'Postuler';
             }
         } catch (e) {
             showToast('Erreur réseau. Veuillez réessayer.', 'err');

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <script src="/js/api-client.js"></script>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
     <title>Offres Recommandées — Matching CV-Offres</title>
@@ -12,7 +13,7 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/notifications.css"/>
     <link rel="stylesheet" href="/css/coach-cv.css"/>
-    <link rel="stylesheet" href="/css/sidebar.css?v=2.0"/>
+
     <style>
         :root {
             --card-shadow: var(--shadow-sm);
@@ -124,7 +125,7 @@
             border: 1.5px solid var(--border);
             border-radius: 10px;
             font-size: .88rem;
-            background: #F8FAFC;
+            background: #f8fcfa;
             transition: all .2s;
             box-sizing: border-box;
         }
@@ -132,14 +133,14 @@
             outline: none;
             background: #fff;
             border-color: var(--teal);
-            box-shadow: 0 0 0 3px rgba(46,139,139,.12);
+            box-shadow: 0 0 0 3px rgba(46, 139, 93,.12);
         }
         .filter-actions {
             display: flex;
             gap: .5rem;
         }
         .btn-filter {
-            background: linear-gradient(135deg, #1E3A5F, #2E8B8B);
+            background: linear-gradient(135deg, #1e5f3f, #2e8b5d);
             color: #fff;
             border: none;
             border-radius: 10px;
@@ -156,7 +157,7 @@
         .btn-filter:hover {
             opacity: .93;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(46,139,139,.25);
+            box-shadow: 0 4px 12px rgba(46, 139, 93,.25);
         }
         .btn-reset {
             background: transparent;
@@ -172,7 +173,7 @@
         .btn-reset:hover {
             border-color: var(--text-mid);
             color: var(--navy-deep);
-            background: #F1F5F9;
+            background: #f1f9f5;
         }
 
         /* Entête de résultats */
@@ -195,7 +196,7 @@
         .results-count-pill {
             background: var(--teal-soft);
             color: var(--teal-dark);
-            border: 1px solid rgba(46,139,139,.25);
+            border: 1px solid rgba(46, 139, 93,.25);
             font-size: .75rem;
             padding: .15rem .6rem;
             border-radius: 100px;
@@ -220,9 +221,9 @@
             display: inline-block;
         }
         .dot-high { background: #16A34A; }
-        .dot-med  { background: #2E5A9C; }
+        .dot-med  { background: #2e9c65; }
         .dot-low  { background: #D97706; }
-        .dot-na   { background: #94A3B8; }
+        .dot-na   { background: #94b8a6; }
 
         /* Grille des offres recommandées */
         .reco-grid {
@@ -251,7 +252,7 @@
         .reco-card:hover {
             transform: translateY(-3px);
             box-shadow: var(--shadow-md);
-            border-color: rgba(46,139,139,.35);
+            border-color: rgba(46, 139, 93,.35);
         }
         .reco-card-top {
             display: flex;
@@ -309,9 +310,9 @@
             border: 2px solid #86EFAC;
         }
         .score-circle.med {
-            background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
-            color: #1D4ED8;
-            border: 2px solid #93C5FD;
+            background: linear-gradient(135deg, #f4faf7, #e5f4ec);
+            color: #33c27b;
+            border: 2px solid #a8e8c8;
         }
         .score-circle.low {
             background: linear-gradient(135deg, #FEF3C7, #FDE68A);
@@ -319,9 +320,9 @@
             border: 2px solid #FCD34D;
         }
         .score-circle.na {
-            background: #F1F5F9;
-            color: #64748B;
-            border: 1.5px dashed #CBD5E1;
+            background: #f1f9f5;
+            color: #648b78;
+            border: 1.5px dashed #cbe1d6;
             font-size: .75rem;
         }
 
@@ -332,7 +333,7 @@
             margin-bottom: 1rem;
         }
         .meta-pill {
-            background: #F1F5F9;
+            background: #f1f9f5;
             color: var(--navy-deep);
             border: 1px solid var(--border);
             padding: .25rem .65rem;
@@ -344,14 +345,14 @@
             gap: .3rem;
         }
         .meta-pill.contrat {
-            background: rgba(46,90,156,.08);
+            background: rgba(46, 156, 101,.08);
             color: var(--blue);
-            border-color: rgba(46,90,156,.2);
+            border-color: rgba(46, 156, 101,.2);
         }
         .meta-pill.domaine {
-            background: rgba(46,139,139,.08);
+            background: rgba(46, 139, 93,.08);
             color: var(--teal-dark);
-            border-color: rgba(46,139,139,.2);
+            border-color: rgba(46, 139, 93,.2);
         }
 
         .reco-card-desc {
@@ -367,7 +368,7 @@
 
         /* Aperçu des compétences */
         .reco-skills-box {
-            background: #F8FAFC;
+            background: #f8fcfa;
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: .85rem 1rem;
@@ -403,14 +404,14 @@
             border: 1px solid #86EFAC;
         }
         .skill-badge.missing {
-            background: #F1F5F9;
-            color: #64748B;
-            border: 1px solid #E2E8F0;
+            background: #f1f9f5;
+            color: #648b78;
+            border: 1px solid #e2f0e9;
         }
         .skill-badge.atout-matched {
-            background: #E0F2FE;
-            color: #075985;
-            border: 1px solid #7DD3FC;
+            background: #e9f5ef;
+            color: #1d6f46;
+            border: 1px solid #96e3bd;
         }
         .skill-badge.pending {
             background: #FEF3C7;
@@ -433,7 +434,7 @@
         .btn-view-detail {
             background: var(--teal-soft);
             color: var(--teal-dark);
-            border: 1px solid rgba(46,139,139,.3);
+            border: 1px solid rgba(46, 139, 93,.3);
             border-radius: 10px;
             padding: .5rem 1rem;
             font-size: .82rem;
@@ -447,14 +448,14 @@
         .btn-view-detail:hover {
             background: var(--teal);
             color: #fff;
-            box-shadow: 0 4px 12px rgba(46,139,139,.25);
+            box-shadow: 0 4px 12px rgba(46, 139, 93,.25);
         }
 
         /* ════ MODAL / VOLET DÉTAIL D'OFFRE & EXPLICATION DU SCORE ════ */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(13,31,68,.6);
+            background: rgba(17, 64, 41,.6);
             backdrop-filter: blur(6px);
             z-index: 9000;
             opacity: 0;
@@ -530,8 +531,8 @@
 
         /* Carte de synthèse de calcul */
         .score-summary-banner {
-            background: linear-gradient(135deg, #F0FDF4 0%, #F0F9FF 100%);
-            border: 1.5px solid rgba(46,139,139,.25);
+            background: linear-gradient(135deg, #F0FDF4 0%, #f5faf8 100%);
+            border: 1.5px solid rgba(46, 139, 93,.25);
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin-bottom: 2rem;
@@ -590,7 +591,7 @@
 
         /* Explication pédagogique de la formule */
         .formula-card {
-            background: #FAFBFC;
+            background: #fafcfb;
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1rem 1.25rem;
@@ -635,7 +636,7 @@
             text-align: left;
         }
         .comp-table th {
-            background: #F8FAFC;
+            background: #f8fcfa;
             padding: .85rem 1rem;
             font-weight: 700;
             color: var(--navy-deep);
@@ -650,7 +651,7 @@
             vertical-align: middle;
         }
         .comp-table tr:last-child td { border-bottom: none; }
-        .comp-table tr:hover { background: #FAFDFE; }
+        .comp-table tr:hover { background: #fbfdfc; }
 
         .type-badge {
             font-size: .68rem;
@@ -666,9 +667,9 @@
             border: 1px solid #FECACA;
         }
         .type-badge.atout {
-            background: #EFF6FF;
-            color: #2563EB;
-            border: 1px solid #BFDBFE;
+            background: #f4faf7;
+            color: #43cd88;
+            border: 1px solid #d2ebde;
         }
 
         .provenance-tag {
@@ -681,7 +682,7 @@
         }
         .niveau-pill {
             display: inline-block;
-            background: #F1F5F9;
+            background: #f1f9f5;
             color: var(--navy-deep);
             padding: .15rem .55rem;
             border-radius: 100px;
@@ -703,8 +704,8 @@
             color: #15803D;
         }
         .comptee-badge.no {
-            background: #F1F5F9;
-            color: #64748B;
+            background: #f1f9f5;
+            color: #648b78;
         }
         .comptee-badge.warn {
             background: #FEF3C7;
@@ -713,7 +714,7 @@
 
         /* Description de l'offre dans modal */
         .modal-desc-box {
-            background: #F8FAFC;
+            background: #f8fcfa;
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.2rem 1.4rem;
@@ -736,7 +737,7 @@
             width: 58px;
             height: 58px;
             border-radius: 16px;
-            background: rgba(46,139,139,.1);
+            background: rgba(46, 139, 93,.1);
             color: var(--teal);
             display: inline-flex;
             align-items: center;
@@ -751,54 +752,57 @@
         }
         .empty-state p { font-size: .88rem; max-width: 480px; margin: 0 auto; }
     </style>
-</head>
-<body class="has-sidebar">
+    <link rel="stylesheet" href="/css/interface.css" />
+<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"></head>
+<body class="has-sidebar"><script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+<a class="skip-link" href="#main-content">Aller au contenu</a>
 
 <!-- BACKDROP OVERLAY SUR MOBILE -->
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
 <!-- NAVIGATION LATÉRALE ULTRA-PREMIUM -->
 <aside class="app-sidebar" id="app-sidebar" aria-label="Navigation principale">
-    <!-- En-tête / Marque -->
-    <div class="sidebar-brand">
-        <a href="/dashboard-etudiant.html" class="sidebar-logo">
-            <span class="sidebar-logo-icon">
-                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
-                    <circle cx="14" cy="14" r="13" stroke="url(#sblg1)" stroke-width="2"/>
-                    <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <defs>
-                        <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#38BDF8"/>
-                            <stop offset="1" stop-color="#2E8B8B"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </span>
-            <div class="sidebar-logo-text">
-                <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
-                <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Étudiant</span>
+        <!-- En-tête / Marque -->
+        <div class="sidebar-brand">
+            <a href="/dashboard-etudiant.html" class="sidebar-logo">
+                <span class="sidebar-logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="13" stroke="url(#sblg1)" stroke-width="2"/>
+                        <path d="M8 14l4 4 8-8" stroke="url(#sblg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="sblg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#5cd498"/>
+                                <stop offset="1" stop-color="#2e8b5d"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </span>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
+                    <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Utilisateur</span>
+                </div>
+            </a>
+            <div style="display:flex;align-items:center;gap:.3rem;">
+                <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Épingler la barre">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"></path></svg>
+                </button>
+                <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu latéral">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
-        </a>
-        <div style="display:flex;align-items:center;gap:.3rem;">
-            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Épingler la barre">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"></path></svg>
-            </button>
-            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu latéral">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
         </div>
-    </div>
 
-    <!-- Navigation List -->
-    <nav class="sidebar-nav">
+        <!-- Navigation List -->
+        <nav class="sidebar-nav">
+        <!-- Section Menu Principal -->
         <div class="sidebar-section">
             <div class="sidebar-section-title">Menu Principal</div>
             <ul class="sidebar-list">
                 <li class="sidebar-item">
-                    <a href="/dashboard-etudiant.html" class="sidebar-link">
+                    <a href="/dashboard-etudiant.html" class="sidebar-link" aria-current="page" title="Tableau de bord">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -811,7 +815,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="/offres-recommandees.html" class="sidebar-link active" aria-current="page">
+                    <a href="/offres-recommandees.html" class="sidebar-link" title="Offres recommandées">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -823,7 +827,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="/mes-candidatures.html" class="sidebar-link">
+                    <a href="/mes-candidatures.html" class="sidebar-link" title="Mes Candidatures">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -834,7 +838,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="/competences.html" class="sidebar-link">
+                    <a href="/competences.html" class="sidebar-link" title="Compétences">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -846,17 +850,18 @@
             </ul>
         </div>
 
+        <!-- Section Outils & Profil -->
         <div class="sidebar-section">
             <div class="sidebar-section-title">Outils &amp; Suivi</div>
             <ul class="sidebar-list">
                 <li class="sidebar-item">
-                    <a href="/coach-cv.html" class="sidebar-link">
+                    <a href="/coach-cv.html" class="sidebar-link" title="Coach CV">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
                             </svg>
                         </span>
-                        <span class="sidebar-link-label">Coach CV &amp; Score</span>
+                        <span class="sidebar-link-label">Coach CV</span>
                         <span class="sidebar-badge-new">Coach</span>
                     </a>
                 </li>
@@ -872,7 +877,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="/notifications.html" class="sidebar-link">
+                    <a href="/notifications.html" class="sidebar-link" title="Notifications">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -887,26 +892,26 @@
         </div>
     </nav>
 
-    <!-- Sidebar Footer -->
-    <div class="sidebar-footer">
-        <div class="sidebar-user-card" id="sidebar-user-card" title="Ouvrir mon profil">
-            <div class="sidebar-user-left">
-                <div class="sidebar-avatar" id="sidebar-user-avatar">?</div>
-                <div class="sidebar-user-info">
-                    <span class="sidebar-user-name" id="sidebar-user-name">Chargement...</span>
-                    <span class="sidebar-user-role">Étudiant &bull; ENSA</span>
+        <!-- Sidebar Footer / Profil Utilisateur & Déconnexion -->
+        <div class="sidebar-footer">
+            <div class="sidebar-user-card" id="sidebar-user-card" title="Profil recruteur">
+                <div class="sidebar-user-left">
+                    <div class="sidebar-avatar" id="sidebar-user-avatar"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12a20 20 0 0 0 18 0M12 11v4"/></svg></div>
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user-name" id="sidebar-user-name">Recruteur</span>
+                        <span class="sidebar-user-role" id="sidebar-user-role">Recruteur &bull; Entreprise</span>
+                    </div>
                 </div>
+                <button class="sidebar-btn-logout" id="sidebar-logout" title="Se déconnecter" aria-label="Se déconnecter">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
             </div>
-            <button class="sidebar-btn-logout" id="sidebar-logout" title="Se déconnecter" aria-label="Se déconnecter">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-            </button>
         </div>
-    </div>
-</aside>
+    </aside>
 
 <!-- CONTENEUR PRINCIPAL DE L'APPLICATION -->
 <div class="app-main-layout">
@@ -938,7 +943,7 @@
             </div>
             <a href="/dashboard-etudiant.html" class="topbar-user-pill" id="topbar-user-pill" title="Tableau de bord" style="text-decoration:none;">
                 <div class="topbar-user-pill-avatar" id="topbar-user-avatar">?</div>
-                <span class="topbar-user-pill-name" id="topbar-user-name">Étudiant</span>
+                <span class="topbar-user-pill-name" id="topbar-user-name">Utilisateur</span>
             </a>
         </div>
     </header>
@@ -947,7 +952,7 @@
 <header class="reco-hero">
     <div class="reco-hero-inner">
         <div>
-            <h1 class="reco-title">Offres Recommandées <span>pour Vous</span> &#127919;</h1>
+            <h1 class="reco-title">Offres Recommandées <span>pour Vous</span></h1>
             <p class="reco-sub">
                 Toutes les offres actives classées dynamiquement selon votre score de matching personnalisé.
                 Le calcul intègre en direct vos compétences, vos projets et la durée de vos expériences.
@@ -962,7 +967,7 @@
     </div>
 </header>
 
-<main class="reco-container">
+<main id="main-content" class="reco-container">
     <!-- BARRE DE FILTRES -->
     <section class="filter-card">
         <form id="filter-form" class="filter-grid" onsubmit="return false;">
@@ -1112,11 +1117,12 @@
     </div>
 </div>
 
-<div class="toast" id="reco-toast" role="alert" aria-live="polite" style="position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.8rem 1.4rem;border-radius:12px;font-size:.84rem;font-weight:700;box-shadow:0 20px 60px rgba(15,30,60,.16);display:none;align-items:center;gap:.6rem;max-width:360px;"></div>
+<div class="toast" id="reco-toast" role="alert" aria-live="polite" style="position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.8rem 1.4rem;border-radius:12px;font-size:.84rem;font-weight:700;box-shadow:0 20px 60px rgba(16, 59, 38,.16);display:none;align-items:center;gap:.6rem;max-width:360px;"></div>
 
 <script src="/js/coach-cv.js"></script>
-<script src="/js/sidebar.js?v=2.0"></script>
+<script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
 <script src="/js/offres-recommandees.js"></script>
 <script src="/js/notifications.js"></script>
-</body>
+    <script src="/js/experience.js" defer></script>
+<script src="/js/dialog-accessibility.js"></script></body>
 </html>

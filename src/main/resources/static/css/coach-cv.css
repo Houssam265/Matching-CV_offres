@@ -7,8 +7,8 @@
 .coach-summary-card {
     background: #FFFFFF;
     border-radius: 20px;
-    border: 1px solid rgba(46, 139, 139, 0.22);
-    box-shadow: 0 10px 30px -5px rgba(31, 56, 100, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    border: 1px solid rgba(46, 139, 93, 0.22);
+    box-shadow: 0 10px 30px -5px rgba(31, 100, 66, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
     padding: 1.75rem 2rem;
     margin-bottom: 2rem;
     position: relative;
@@ -16,15 +16,15 @@
     transition: box-shadow var(--t) var(--ease), border-color var(--t) var(--ease);
 }
 .coach-summary-card:hover {
-    box-shadow: 0 16px 36px -6px rgba(31, 56, 100, 0.12);
-    border-color: rgba(46, 139, 139, 0.38);
+    box-shadow: 0 16px 36px -6px rgba(31, 100, 66, 0.12);
+    border-color: rgba(46, 139, 93, 0.38);
 }
 .coach-summary-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #1F3864 0%, #2E8B8B 50%, #10B981 100%);
+    background: linear-gradient(90deg, #1f6442 0%, #2e8b5d 50%, #10B981 100%);
 }
 
 /* En-tête Coach */
@@ -45,12 +45,12 @@
     width: 52px;
     height: 52px;
     border-radius: 16px;
-    background: linear-gradient(135deg, rgba(46, 139, 139, 0.15) 0%, rgba(31, 56, 100, 0.12) 100%);
+    background: linear-gradient(135deg, rgba(46, 139, 93, 0.15) 0%, rgba(31, 100, 66, 0.12) 100%);
     color: var(--teal);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(46, 139, 139, 0.15);
+    box-shadow: 0 4px 12px rgba(46, 139, 93, 0.15);
     flex-shrink: 0;
 }
 .coach-title-area {
@@ -62,7 +62,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    background: rgba(46, 139, 139, 0.1);
+    background: rgba(46, 139, 93, 0.1);
     color: var(--teal);
     font-size: 0.76rem;
     font-weight: 700;
@@ -96,8 +96,8 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: rgba(248, 250, 252, 0.9);
-    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: rgba(248, 252, 250, 0.9);
+    border: 1px solid rgba(226, 240, 233, 0.9);
     padding: 0.6rem 1rem;
     border-radius: 14px;
 }
@@ -112,7 +112,7 @@
     font-size: 0.75rem;
     font-weight: 800;
     color: var(--navy-deep);
-    background: conic-gradient(var(--teal) calc(var(--completion, 75) * 1%), #E2E8F0 0);
+    background: conic-gradient(var(--teal) calc(var(--completion, 75) * 1%), #e2f0e9 0);
 }
 .coach-completion-circle::after {
     content: '';
@@ -157,7 +157,7 @@
 /* Carte de conseil individuelle */
 .coach-tip-card {
     background: #FFFFFF;
-    border: 1px solid rgba(226, 232, 240, 0.9);
+    border: 1px solid rgba(226, 240, 233, 0.9);
     border-radius: 16px;
     padding: 1.25rem 1.35rem;
     display: flex;
@@ -166,12 +166,12 @@
     gap: 1rem;
     transition: all var(--t) var(--ease);
     position: relative;
-    box-shadow: 0 2px 8px rgba(15, 30, 60, 0.03);
+    box-shadow: 0 2px 8px rgba(16, 59, 38, 0.03);
 }
 .coach-tip-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(46, 139, 139, 0.4);
-    box-shadow: 0 8px 24px rgba(31, 56, 100, 0.09);
+    border-color: rgba(46, 139, 93, 0.4);
+    box-shadow: 0 8px 24px rgba(31, 100, 66, 0.09);
 }
 
 .coach-tip-top {
@@ -190,16 +190,16 @@
     border-radius: 6px;
 }
 .coach-tip-type-badge.offre {
-    background: rgba(46, 90, 156, 0.1);
-    color: #1F3864;
+    background: rgba(46, 156, 101, 0.1);
+    color: #1f6442;
 }
 .coach-tip-type-badge.valorisation {
-    background: rgba(46, 139, 139, 0.12);
-    color: #147070;
+    background: rgba(46, 139, 93, 0.12);
+    color: #1c6842;
 }
 .coach-tip-type-badge.demande {
-    background: rgba(139, 92, 246, 0.12);
-    color: #6D28D9;
+    background: rgba(119, 219, 169, 0.12);
+    color: #37ca81;
 }
 .coach-tip-type-badge.hygiene {
     background: rgba(245, 158, 11, 0.12);
@@ -247,7 +247,7 @@
     font-size: 0.76rem;
     font-weight: 600;
     color: var(--teal);
-    background: rgba(46, 139, 139, 0.08);
+    background: rgba(46, 139, 93, 0.08);
     padding: 0.2rem 0.5rem;
     border-radius: 6px;
     width: fit-content;
@@ -264,9 +264,9 @@
     font-size: 0.82rem;
     font-weight: 700;
     text-decoration: none;
-    background: rgba(31, 56, 100, 0.05);
+    background: rgba(31, 100, 66, 0.05);
     color: var(--navy-deep);
-    border: 1px solid rgba(31, 56, 100, 0.1);
+    border: 1px solid rgba(31, 100, 66, 0.1);
     transition: all var(--t) var(--ease);
     cursor: pointer;
 }
@@ -275,7 +275,7 @@
     color: #FFFFFF;
     border-color: var(--teal);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 139, 139, 0.25);
+    box-shadow: 0 4px 12px rgba(46, 139, 93, 0.25);
 }
 
 /* Pied de carte Coach (bouton voir tout) */
@@ -285,7 +285,7 @@
     align-items: center;
     margin-top: 1.5rem;
     padding-top: 1.25rem;
-    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    border-top: 1px solid rgba(226, 240, 233, 0.8);
     flex-wrap: wrap;
     gap: 1rem;
 }
@@ -305,8 +305,8 @@
     font-size: 0.84rem;
     font-weight: 700;
     color: var(--teal);
-    background: rgba(46, 139, 139, 0.1);
-    border: 1px solid rgba(46, 139, 139, 0.2);
+    background: rgba(46, 139, 93, 0.1);
+    border: 1px solid rgba(46, 139, 93, 0.2);
     text-decoration: none;
     cursor: pointer;
     transition: all var(--t) var(--ease);
@@ -315,17 +315,17 @@
     background: var(--teal);
     color: #FFFFFF;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 139, 139, 0.3);
+    box-shadow: 0 4px 12px rgba(46, 139, 93, 0.3);
 }
 
 /* ── Bloc Coach dans le Modal Détail Offre ── */
 .coach-modal-block {
-    background: linear-gradient(135deg, rgba(240, 253, 250, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%);
-    border: 1.5px solid rgba(46, 139, 139, 0.3);
+    background: linear-gradient(135deg, rgba(240, 253, 250, 0.9) 0%, rgba(248, 252, 250, 0.95) 100%);
+    border: 1.5px solid rgba(46, 139, 93, 0.3);
     border-radius: 16px;
     padding: 1.35rem 1.5rem;
     margin: 1.5rem 0;
-    box-shadow: 0 4px 16px rgba(46, 139, 139, 0.08);
+    box-shadow: 0 4px 16px rgba(46, 139, 93, 0.08);
 }
 .coach-modal-head {
     display: flex;
@@ -353,7 +353,7 @@
 }
 .coach-modal-item {
     background: #FFFFFF;
-    border: 1px solid rgba(226, 232, 240, 0.9);
+    border: 1px solid rgba(226, 240, 233, 0.9);
     border-radius: 12px;
     padding: 0.85rem 1.15rem;
     display: flex;
@@ -361,12 +361,12 @@
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
-    box-shadow: 0 1px 4px rgba(15, 30, 60, 0.03);
+    box-shadow: 0 1px 4px rgba(16, 59, 38, 0.03);
     transition: all var(--t) var(--ease);
 }
 .coach-modal-item:hover {
-    border-color: rgba(46, 139, 139, 0.4);
-    box-shadow: 0 4px 12px rgba(31, 56, 100, 0.06);
+    border-color: rgba(46, 139, 93, 0.4);
+    box-shadow: 0 4px 12px rgba(31, 100, 66, 0.06);
 }
 .coach-modal-item-left {
     display: flex;
@@ -404,12 +404,12 @@
     border: none;
     cursor: pointer;
     transition: all var(--t) var(--ease);
-    box-shadow: 0 2px 6px rgba(46, 139, 139, 0.25);
+    box-shadow: 0 2px 6px rgba(46, 139, 93, 0.25);
 }
 .coach-modal-btn:hover {
     background: var(--navy-deep);
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(31, 56, 100, 0.25);
+    box-shadow: 0 4px 10px rgba(31, 100, 66, 0.25);
 }
 
 /* Animation douce pour l'affichage des conseils */

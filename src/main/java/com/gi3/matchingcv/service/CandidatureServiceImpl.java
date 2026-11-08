@@ -22,8 +22,10 @@ public class CandidatureServiceImpl implements CandidatureService {
     /** Transitions autorisées : statut courant → ensemble des statuts cibles valides */
     private static final java.util.Map<StatutCandidature, Set<StatutCandidature>> TRANSITIONS =
             java.util.Map.of(
-                    StatutCandidature.ENVOYEE,  Set.of(StatutCandidature.VUE, StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE),
-                    StatutCandidature.VUE,      Set.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE),
+                    StatutCandidature.ENVOYEE,  Set.of(StatutCandidature.VUE, StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE, StatutCandidature.ENTRETIEN, StatutCandidature.RETIREE),
+                    StatutCandidature.VUE,      Set.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE, StatutCandidature.ENTRETIEN, StatutCandidature.RETIREE),
+                    StatutCandidature.ENTRETIEN, Set.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE, StatutCandidature.RETIREE),
+                    StatutCandidature.RETIREE, Set.of(),
                     StatutCandidature.ACCEPTEE, Set.of(),
                     StatutCandidature.REFUSEE,  Set.of()
             );

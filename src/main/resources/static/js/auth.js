@@ -17,7 +17,7 @@ function escapeHtml(text) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+        .replace(/'/g, '&#39;');
 }
 
 function isValidEmail(email) {
@@ -144,12 +144,25 @@ function initLoginPage() {
             const res = await fetch('/api/auth/connexion', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ email, motDePasse })
+                body: JSON.stringify({ email, motDePasse, role: new URLSearchParams(location.search).get('espace') === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT' })
             });
 
             const data = await res.json().catch(() => null);
 
             if (res.ok && data) {
+                const espace = new URLSearchParams(window.location.search).get('espace');
+                const expectedRole = espace === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT';
+                if (data.role !== expectedRole && !(data.role === 'ADMIN' && !espace)) {
+                    const destination = data.role === 'RECRUTEUR' ? 'recruteur' : 'utilisateur';
+                    showAlert('login-alert', `Ce compte appartient à l’espace ${destination}. Changez d’espace pour vous connecter.`, 'danger');
+                    document.getElementById('login-password').value = '';
+                    const link = document.createElement('a');
+                    link.className = 'auth-link portal-error-link';
+                    link.href = `/login.html?espace=${destination}`;
+                    link.textContent = `Accéder à l’espace ${destination}`;
+                    document.getElementById('login-alert').appendChild(link);
+                    return;
+                }
                 // Sauvegarde de la session en localStorage
                 localStorage.setItem('matchingcv_user', JSON.stringify({
                     id: data.id,
@@ -209,7 +222,7 @@ function initRegisterPage() {
     togglePasswordVisibility('reg-password', 'toggle-reg-pwd');
     initRoleToggle();
     initPasswordStrength();
-    initEmailCheck();
+    // Account availability is validated on submission.
 
     const form = document.getElementById('register-form');
     if (!form) return;
@@ -254,8 +267,8 @@ function initRegisterPage() {
             hasError = true;
         }
 
-        if (!motDePasse || motDePasse.length < 6) {
-            setFieldError('error-reg-password', 'Le mot de passe doit contenir au moins 6 caractères.');
+        if (!motDePasse || motDePasse.length < 10) {
+            setFieldError('error-reg-password', 'Le mot de passe doit contenir au moins 10 caractères.');
             setInputState(document.getElementById('reg-password'), 'is-invalid');
             hasError = true;
         }
@@ -282,6 +295,14 @@ function initRegisterPage() {
             const data = await res.json().catch(() => null);
 
             if (res.status === 201 && data) {
+                const connection = await fetch('/api/auth/connexion', {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({email,motDePasse,role})
+                });
+                if (!connection.ok) {
+                    showAlert('register-alert','Compte créé. Connectez-vous pour continuer.','info');
+                    return;
+                }
                 localStorage.setItem('matchingcv_user', JSON.stringify({
                     id: data.id,
                     prenom: data.prenom,
@@ -324,7 +345,7 @@ function initRegisterPage() {
     });
 }
 
-/* ── Bascule Étudiant / Recruteur ────────────────────────────── */
+/* ── Bascule Utilisateur / Recruteur ────────────────────────────── */
 function initRoleToggle() {
     const roleInput    = document.getElementById('register-role');
     const recruteurFields = document.getElementById('recruteur-fields');
@@ -366,14 +387,14 @@ function initPasswordStrength() {
         if (!val) {
             bar.classList.remove('visible');
             fill.className = 'pwd-strength-fill';
-            label.textContent = 'Au moins 6 caractères';
+            label.textContent = 'Au moins 10 caractères';
             return;
         }
 
         bar.classList.add('visible');
 
         let strength = 0;
-        if (val.length >= 6)  strength++;
+        if (val.length >= 10)  strength++;
         if (val.length >= 10) strength++;
         if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength++;
 

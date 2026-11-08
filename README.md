@@ -1,7 +1,7 @@
 
 # Matching CV-Offres
 
-Application web de mise en relation entre des étudiants et des offres de stage ou d'emploi. Le projet comprend une interface web statique, une API REST Java avec Spring Boot et une base MySQL.
+Application web de mise en relation entre des utilisateurs et des offres de stage ou d'emploi. Le projet comprend une interface web statique, une API REST Java avec Spring Boot et une base MySQL.
 
 ## Technologies
 
@@ -15,7 +15,7 @@ Application web de mise en relation entre des étudiants et des offres de stage 
 ## Démarrer le projet
 
 1. Installer Java 17, Maven et MySQL.
-2. Démarrer MySQL. La configuration par défaut utilise `localhost:3306`, la base `matching_cv_offres`, l'utilisateur `root` et un mot de passe vide. Adapter ces valeurs dans `src/main/resources/application.properties` si nécessaire.
+2. Démarrer MySQL. Vérifier la configuration MySQL locale avant le lancement. Adapter ces valeurs dans `src/main/resources/application.properties` si nécessaire.
 3. Depuis le dossier du projet, lancer `mvn spring-boot:run`.
 4. Ouvrir `http://localhost:8080/` dans un navigateur.
 
@@ -244,3 +244,19 @@ dans `application.properties`.
 - `src/main/java/com/gi3/matchingcv/config/.gitkeep`, `dto/.gitkeep`, `model/.gitkeep`, `repository/.gitkeep` et `service/.gitkeep` : marqueurs conservés par Git pour suivre ces dossiers même s'ils deviennent vides. Ils ne contiennent pas de code.
 - `.git/` : données internes utilisées par Git pour l'historique et les branches ; ne pas modifier manuellement.
 - `target/` : fichiers compilés, ressources copiées et résultats de tests générés par Maven. Ce dossier peut être recréé et n'est pas versionné.
+
+
+## Portails et compte
+
+L’accueil propose les espaces utilisateur et recruteur. Les API utilisent une session serveur, un contrôle du rôle et de la propriété des ressources, ainsi qu’un jeton CSRF. Le stockage local sert uniquement à l’affichage. Les mots de passe sont hachés avec BCrypt ; les anciens mots de passe sont migrés au démarrage. Sauvegarder la base avant la première mise à jour.
+
+Les pages « Mon compte », « Favoris et suivi » / « Entretiens » complètent les portails. Le CV PDF est privé, limité à 5 Mo. La désactivation anonymise les coordonnées du compte et conserve l’historique, comme indiqué dans l’interface. Les identifiants techniques ETUDIANT et les anciennes URL restent compatibles.
+
+## Configuration et validation
+
+- `mvn verify` : tests métier, contrôles d’accès et intégration H2, sans utiliser la base MySQL de développement. La CI exécute également la vérification syntaxique JavaScript.
+- Profil `mail` : définir SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, MAIL_FROM et PUBLIC_URL. Sans SMTP, la récupération et la vérification d’email signalent leur indisponibilité.
+- Profil `prod` : définir DB_URL, DB_USER, DB_PASSWORD, PUBLIC_URL et MAIL_FROM ; HTTPS est nécessaire pour le cookie sécurisé. Le schéma est validé, jamais créé automatiquement en production. Préparer et vérifier sa migration sur une copie de la base avant déploiement. Les migrations SQL versionnées restent à établir pour votre base existante.
+- Compléter l’identité de l’exploitant, son contact et les durées de conservation dans la page de confidentialité avant publication.
+
+Les fonctions d’équipe multi-recruteurs, les champs structurés de rémunération et la pagination générale restent des évolutions à réaliser. Le PDF déposé n’est pas analysé automatiquement ; le matching utilise les compétences et expériences renseignées.

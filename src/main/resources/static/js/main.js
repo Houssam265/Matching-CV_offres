@@ -98,7 +98,7 @@ function initCardTilt() {
             card.style.transform =
                 `perspective(1200px) rotateX(${rX}deg) rotateY(${rY}deg) scale3d(${SCALE},${SCALE},${SCALE})`;
             card.style.boxShadow =
-                `${sX}px ${sY}px ${blur}px rgba(31,56,100,${op})`;
+                `${sX}px ${sY}px ${blur}px rgba(31, 100, 66,${op})`;
         });
 
         card.addEventListener('mouseleave', () => {
@@ -107,7 +107,7 @@ function initCardTilt() {
                 'box-shadow .45s cubic-bezier(.4,0,.2,1), ' +
                 'border-color .3s ease';
             card.style.transform  = 'scale3d(1,1,1)';
-            card.style.boxShadow  = '0 2px 8px rgba(31,56,100,.08)';
+            card.style.boxShadow  = '0 2px 8px rgba(31, 100, 66,.08)';
             card.style.borderColor = '';
         });
     });
@@ -234,7 +234,7 @@ function initAuthNavigation() {
             });
         }
 
-        // Si l'utilisateur est étudiant, masquer l'option et la carte recruteur
+        // Si l'utilisateur est utilisateur, masquer l'option et la carte recruteur
         if (user.role === 'ETUDIANT') {
             const cardRecruteur = document.getElementById('card-recruteur');
             if (cardRecruteur) cardRecruteur.style.display = 'none';

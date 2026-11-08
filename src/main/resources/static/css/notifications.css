@@ -4,17 +4,17 @@
    ========================================================================== */
 
 :root {
-    --notif-navy: #0f172a;
-    --notif-teal: #0d9488;
-    --notif-teal-dark: #0f766e;
+    --notif-navy: #0f2a1d;
+    --notif-teal: #227f51;
+    --notif-teal-dark: #1c6943;
     --notif-teal-light: #ccfbf1;
     --notif-crimson: #ef4444;
     --notif-crimson-dark: #b91c1c;
-    --notif-border: #e2e8f0;
+    --notif-border: #e2f0e9;
     --notif-bg-unread: #f0fdf4;
-    --notif-text: #1e293b;
-    --notif-text-muted: #64748b;
-    --notif-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+    --notif-text: #1e3b2d;
+    --notif-text-muted: #648b78;
+    --notif-shadow: 0 10px 25px -5px rgba(15, 42, 29, 0.12), 0 8px 10px -6px rgba(15, 42, 29, 0.08);
 }
 
 /* ─── Conteneur de la cloche dans la Navbar ────────────────── */
@@ -28,8 +28,8 @@
 .notif-bell-btn {
     position: relative;
     background: transparent;
-    border: 1.5px solid rgba(46, 139, 139, 0.25);
-    color: var(--teal, #0d9488);
+    border: 1.5px solid rgba(46, 139, 93, 0.25);
+    color: var(--teal, #227f51);
     width: 40px;
     height: 40px;
     border-radius: 12px;
@@ -43,20 +43,20 @@
 }
 
 .notif-bell-btn:hover {
-    background: rgba(46, 139, 139, 0.08);
-    border-color: var(--teal, #0d9488);
+    background: rgba(46, 139, 93, 0.08);
+    border-color: var(--teal, #227f51);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 139, 139, 0.15);
+    box-shadow: 0 4px 12px rgba(46, 139, 93, 0.15);
 }
 
 .notif-bell-btn:focus-visible {
-    box-shadow: 0 0 0 3px rgba(46, 139, 139, 0.25);
+    box-shadow: 0 0 0 3px rgba(46, 139, 93, 0.25);
 }
 
 .notif-bell-btn.active {
-    background: var(--teal, #0d9488);
+    background: var(--teal, #227f51);
     color: #fff;
-    border-color: var(--teal, #0d9488);
+    border-color: var(--teal, #227f51);
 }
 
 /* Animation discrète de vibration quand une notification arrive */
@@ -144,7 +144,7 @@
 /* En-tête du panneau */
 .notif-dropdown-header {
     padding: 1rem 1.25rem;
-    background: #f8fafc;
+    background: #f8fcfa;
     border-bottom: 1px solid var(--notif-border);
     display: flex;
     align-items: center;
@@ -183,7 +183,7 @@
 }
 
 .notif-btn-readall:hover {
-    background: rgba(13, 148, 136, 0.08);
+    background: rgba(34, 127, 81, 0.08);
     color: var(--notif-teal-dark);
     text-decoration: underline;
 }
@@ -214,8 +214,8 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: #f1f5f9;
-    color: #94a3b8;
+    background: #f1f9f5;
+    color: #94b8a6;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -229,13 +229,13 @@
 
 .notif-empty-sub {
     font-size: 0.78rem;
-    color: #94a3b8;
+    color: #94b8a6;
 }
 
 /* Élément de notification */
 .notif-item {
     padding: 0.85rem 1.15rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f9f5;
     display: flex;
     align-items: flex-start;
     gap: 0.85rem;
@@ -247,7 +247,7 @@
 }
 
 .notif-item:hover {
-    background: #f8fafc;
+    background: #f8fcfa;
 }
 
 .notif-item.unread {
@@ -278,7 +278,7 @@
 /* Variantes de couleurs par type */
 .notif-type-OFFRE_CORRESPONDANTE {
     background: #ccfbf1;
-    color: #0f766e;
+    color: #1c6943;
 }
 .notif-type-CANDIDATURE_ACCEPTEE,
 .notif-type-COMPETENCE_VALIDEE {
@@ -286,8 +286,8 @@
     color: #15803d;
 }
 .notif-type-CANDIDATURE_VUE {
-    background: #e0f2fe;
-    color: #0369a1;
+    background: #e9f5ef;
+    color: #228252;
 }
 .notif-type-CANDIDATURE_REFUSEE,
 .notif-type-COMPETENCE_REJETEE {
@@ -295,8 +295,8 @@
     color: #b91c1c;
 }
 .notif-type-NOUVELLE_CANDIDATURE {
-    background: #ede9fe;
-    color: #6d28d9;
+    background: #eff8f3;
+    color: #37ca81;
 }
 .notif-type-COMPETENCE_A_MODERER {
     background: #fef3c7;
@@ -328,13 +328,13 @@
 
 .notif-time {
     font-size: 0.72rem;
-    color: #94a3b8;
+    color: #94b8a6;
     white-space: nowrap;
 }
 
 .notif-message {
     font-size: 0.8rem;
-    color: #475569;
+    color: #476958;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -350,13 +350,13 @@
     background: var(--notif-teal);
     flex-shrink: 0;
     margin-top: 8px;
-    box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+    box-shadow: 0 0 0 2px rgba(34, 127, 81, 0.2);
 }
 
 /* Pied du panneau */
 .notif-dropdown-footer {
     padding: 0.75rem 1.25rem;
-    background: #f8fafc;
+    background: #f8fcfa;
     border-top: 1px solid var(--notif-border);
     text-align: center;
 }
@@ -449,7 +449,7 @@
 
 .notif-toast-msg {
     font-size: 0.78rem;
-    color: #475569;
+    color: #476958;
     line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -460,7 +460,7 @@
 .notif-toast-close {
     background: none;
     border: none;
-    color: #94a3b8;
+    color: #94b8a6;
     font-size: 1.2rem;
     line-height: 1;
     cursor: pointer;
@@ -483,3 +483,8 @@
         max-width: none;
     }
 }
+/* Interview invitations share the green portal theme. */
+.notif-type-ENTRETIEN_PLANIFIE,.notif-type-ENTRETIEN_MODIFIE{background:#e6f2e9!important;color:#23613c!important}
+.notif-interview-action{display:inline-flex;margin-top:.6rem;padding:.45rem .7rem;border:1px solid #bcd6c5;border-radius:7px;background:#edf6ef;color:#23613c;font:inherit;font-size:.8rem;cursor:pointer}
+.notif-interview-action:hover{background:#dceee2}
+.notif-interview-action:focus-visible{outline:2px solid #23613c;outline-offset:2px}

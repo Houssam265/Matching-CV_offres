@@ -74,6 +74,9 @@ window.NotificationBell = (() => {
      */
     function getNotificationIcon(type) {
         switch (type) {
+            case 'ENTRETIEN_PLANIFIE':
+            case 'ENTRETIEN_MODIFIE':
+                return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m-13 5 2 2 4-4"/></svg>`;
             case 'OFFRE_CORRESPONDANTE':
                 return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -394,6 +397,7 @@ window.NotificationBell = (() => {
                             <span class="notif-time">${esc(timeStr)}</span>
                         </div>
                         <div class="notif-message">${esc(n.message)}</div>
+                        ${['ENTRETIEN_PLANIFIE','ENTRETIEN_MODIFIE'].includes(n.type)?'<button type="button" class="notif-interview-action">Voir mon entretien</button>':''}
                     </div>
                     ${unreadDot}
                 </li>
@@ -484,7 +488,7 @@ window.NotificationBell = (() => {
 
         try {
             // URL avec query parameter pour attribuer le Principal utilisateur
-            const socketUrl = `/ws?userId=${currentUserId}`;
+            const socketUrl = '/ws';
             const socket = new SockJS(socketUrl);
             stompClient = Stomp.over(socket);
 
@@ -492,7 +496,7 @@ window.NotificationBell = (() => {
             stompClient.debug = null;
 
             const headers = {
-                'userId': String(currentUserId)
+                'heart-beat': '10000,10000'
             };
 
             stompClient.connect(headers, () => {

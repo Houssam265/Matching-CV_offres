@@ -1,22 +1,22 @@
 /* ============================================================
    recruteur.css — Espace Recruteur Premium v2
    Matching CV-Offres
-   Palette : Navy #1F3864 | Blue #2E5A9C | Teal #2E8B8B | Bg #F0F5FB
+   Palette : Navy #1f6442 | Blue #2e9c65 | Teal #2e8b5d | Bg #f2f9f5
    ============================================================ */
 
 :root {
-    --rec-navy: #132238;
-    --rec-navy-surface: #1E2E45;
-    --rec-teal: #2E8B8B;
-    --rec-teal-light: #3EA6A6;
-    --rec-teal-dark: #1E6464;
-    --rec-teal-soft: rgba(46, 139, 139, 0.1);
-    --rec-blue: #2E5A9C;
-    --rec-blue-soft: rgba(46, 90, 156, 0.1);
-    --rec-card-shadow: 0 4px 20px rgba(15, 30, 60, 0.06);
-    --rec-card-hover: 0 12px 36px rgba(15, 30, 60, 0.12);
-    --rec-border: #DCE5F0;
-    --rec-border-subtle: #EDF3F9;
+    --rec-navy: #133826;
+    --rec-navy-surface: #1e4532;
+    --rec-teal: #2e8b5d;
+    --rec-teal-light: #3ea672;
+    --rec-teal-dark: #1e6441;
+    --rec-teal-soft: rgba(46, 139, 93, 0.1);
+    --rec-blue: #2e9c65;
+    --rec-blue-soft: rgba(46, 156, 101, 0.1);
+    --rec-card-shadow: 0 4px 20px rgba(16, 59, 38, 0.06);
+    --rec-card-hover: 0 12px 36px rgba(16, 59, 38, 0.12);
+    --rec-border: #dcf0e6;
+    --rec-border-subtle: #eef8f3;
     --rec-radius: 16px;
     --rec-radius-sm: 10px;
     --rec-radius-pill: 9999px;
@@ -26,7 +26,7 @@
    HERO BANNER
 ═══════════════════════════════════════════════════════════ */
 .recruit-hero {
-    background: linear-gradient(135deg, #0B1933 0%, #152A4E 48%, #1F4D62 80%, #206E72 100%);
+    background: linear-gradient(135deg, #0d311f 0%, #154e32 48%, #1f6241 80%, #207249 100%);
     color: #FFFFFF;
     padding: 3.2rem 1.5rem 3rem;
     position: relative;
@@ -51,7 +51,7 @@
     right: 5%;
     width: 380px;
     height: 380px;
-    background: radial-gradient(circle, rgba(46, 139, 139, 0.35) 0%, rgba(46, 90, 156, 0.1) 50%, transparent 70%);
+    background: radial-gradient(circle, rgba(46, 139, 93, 0.35) 0%, rgba(46, 156, 101, 0.1) 50%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
     filter: blur(40px);
@@ -107,13 +107,13 @@
 }
 
 .recruit-hero h1 span {
-    background: linear-gradient(135deg, #A7F3D0, #5EEAD4);
+    background: linear-gradient(135deg, #A7F3D0, #6fd9a4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .recruit-hero p {
-    color: rgba(220, 235, 252, 0.88);
+    color: rgba(229, 243, 236, 0.88);
     margin-top: 0.6rem;
     font-size: 1rem;
     line-height: 1.55;
@@ -140,16 +140,16 @@
 }
 
 .recruit-hero-btn.primary {
-    background: linear-gradient(135deg, #2E8B8B 0%, #206E72 100%);
+    background: linear-gradient(135deg, #2e8b5d 0%, #207249 100%);
     color: #FFFFFF;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 18px rgba(32, 110, 114, 0.45);
+    box-shadow: 0 4px 18px rgba(32, 114, 73, 0.45);
 }
 
 .recruit-hero-btn.primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(32, 110, 114, 0.6);
-    background: linear-gradient(135deg, #359E9E 0%, #257D82 100%);
+    box-shadow: 0 8px 24px rgba(32, 114, 73, 0.6);
+    background: linear-gradient(135deg, #359e6a 0%, #258254 100%);
 }
 
 .recruit-hero-btn.secondary {
@@ -210,9 +210,9 @@
 }
 
 .recruit-info-banner {
-    color: #1E40AF;
-    background: #EFF6FF;
-    border: 1.5px solid #BFDBFE;
+    color: #2ba267;
+    background: #f4faf7;
+    border: 1.5px solid #d2ebde;
     padding: 0.85rem 1.15rem;
     border-radius: var(--rec-radius-sm);
     margin: 0.75rem 0;
@@ -227,8 +227,8 @@
    RECRUITER PROFILE / COMPANY CARD (DASHBOARD)
 ═══════════════════════════════════════════════════════════ */
 .recruit-profile-card {
-    background: linear-gradient(135deg, #FFFFFF 0%, #F5F9FC 60%, #EBF4F7 100%);
-    border: 1.5px solid rgba(46, 139, 139, 0.24);
+    background: linear-gradient(135deg, #FFFFFF 0%, #f6fbf9 60%, #ecf6f1 100%);
+    border: 1.5px solid rgba(46, 139, 93, 0.24);
     border-radius: var(--rec-radius);
     padding: 1.6rem 2rem;
     margin-bottom: 2rem;
@@ -258,7 +258,7 @@
     font-size: 1.55rem;
     font-weight: 800;
     flex-shrink: 0;
-    box-shadow: 0 6px 18px rgba(46, 139, 139, 0.28);
+    box-shadow: 0 6px 18px rgba(46, 139, 93, 0.28);
 }
 
 .recruit-profile-info h2 {
@@ -290,9 +290,9 @@
     font-weight: 700;
     padding: 0.2rem 0.65rem;
     border-radius: var(--rec-radius-pill);
-    background: rgba(46, 139, 139, 0.1);
+    background: rgba(46, 139, 93, 0.1);
     color: var(--rec-teal-dark);
-    border: 1px solid rgba(46, 139, 139, 0.25);
+    border: 1px solid rgba(46, 139, 93, 0.25);
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
@@ -325,7 +325,7 @@
 .recruit-stat-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--rec-card-hover);
-    border-color: rgba(46, 139, 139, 0.4);
+    border-color: rgba(46, 139, 93, 0.4);
 }
 
 .recruit-stat-card-top {
@@ -345,17 +345,17 @@
 }
 
 .recruit-stat-icon-wrap.active {
-    background: linear-gradient(135deg, rgba(22, 163, 74, 0.15) 0%, rgba(46, 139, 139, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(22, 163, 74, 0.15) 0%, rgba(46, 139, 93, 0.1) 100%);
     color: #16A34A;
 }
 
 .recruit-stat-icon-wrap.closed {
-    background: linear-gradient(135deg, rgba(100, 116, 139, 0.15) 0%, rgba(148, 163, 184, 0.1) 100%);
-    color: #475569;
+    background: linear-gradient(135deg, rgba(100, 139, 120, 0.15) 0%, rgba(148, 184, 166, 0.1) 100%);
+    color: #476958;
 }
 
 .recruit-stat-icon-wrap.action {
-    background: linear-gradient(135deg, rgba(46, 90, 156, 0.15) 0%, rgba(46, 139, 139, 0.12) 100%);
+    background: linear-gradient(135deg, rgba(46, 156, 101, 0.15) 0%, rgba(46, 139, 93, 0.12) 100%);
     color: var(--rec-blue);
 }
 
@@ -376,8 +376,8 @@
 }
 
 .recruit-stat-badge.archived {
-    background: #F1F5F9;
-    color: #475569;
+    background: #f1f9f5;
+    color: #476958;
 }
 
 .recruit-stat-card h2,
@@ -404,7 +404,7 @@
 }
 
 .recruit-count.slate {
-    color: #475569;
+    color: #476958;
 }
 
 .recruit-stat-desc {
@@ -542,7 +542,7 @@
     border-radius: var(--rec-radius-sm);
     font-size: 0.88rem;
     color: var(--text-dark);
-    background: #F8FAFC;
+    background: #f8fcfa;
     transition: all 0.2s;
 }
 
@@ -550,7 +550,7 @@
     outline: none;
     border-color: var(--rec-teal);
     background: #FFFFFF;
-    box-shadow: 0 0 0 3px rgba(46, 139, 139, 0.15);
+    box-shadow: 0 0 0 3px rgba(46, 139, 93, 0.15);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -569,7 +569,7 @@
 
 .recruit-card:hover {
     box-shadow: var(--rec-card-hover);
-    border-color: rgba(46, 139, 139, 0.35);
+    border-color: rgba(46, 139, 93, 0.35);
 }
 
 .recruit-card h3 {
@@ -614,9 +614,9 @@
     border-radius: var(--rec-radius-pill);
     font-size: 0.76rem;
     font-weight: 700;
-    background: #F1F5F9;
-    color: #475569;
-    border: 1px solid #E2E8F0;
+    background: #f1f9f5;
+    color: #476958;
+    border: 1px solid #e2f0e9;
     text-transform: capitalize;
 }
 
@@ -661,9 +661,9 @@
 }
 
 .contract-badge.STAGE {
-    background: #F5F3FF;
-    color: #6D28D9;
-    border: 1px solid #DDD6FE;
+    background: #f7fbf9;
+    color: #37ca81;
+    border: 1px solid #e2f2ea;
 }
 
 .contract-badge.CDI {
@@ -673,9 +673,9 @@
 }
 
 .contract-badge.CDD {
-    background: #EFF6FF;
-    color: #1D4ED8;
-    border: 1px solid #BFDBFE;
+    background: #f4faf7;
+    color: #33c27b;
+    border: 1px solid #d2ebde;
 }
 
 .contract-badge.ALTERNANCE {
@@ -730,7 +730,7 @@
     border-radius: var(--rec-radius-pill);
     font-size: 0.74rem;
     font-weight: 600;
-    background: #F8FAFC;
+    background: #f8fcfa;
     color: var(--rec-navy);
     border: 1px solid var(--rec-border);
 }
@@ -738,14 +738,14 @@
 .recruit-skill-pill.required {
     background: var(--rec-teal-soft);
     color: var(--rec-teal-dark);
-    border-color: rgba(46, 139, 139, 0.3);
+    border-color: rgba(46, 139, 93, 0.3);
     font-weight: 700;
 }
 
 .recruit-skill-pill.bonus {
-    background: #F1F5F9;
+    background: #f1f9f5;
     color: var(--text-mid);
-    border-color: #E2E8F0;
+    border-color: #e2f0e9;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -779,7 +779,7 @@
 }
 
 .recruit-btn:hover {
-    background: #F8FAFC;
+    background: #f8fcfa;
     border-color: var(--rec-navy);
     color: var(--rec-navy);
     transform: translateY(-1px);
@@ -789,12 +789,12 @@
     background: linear-gradient(135deg, var(--rec-blue) 0%, var(--rec-teal) 100%);
     color: #FFFFFF;
     border-color: transparent;
-    box-shadow: 0 3px 12px rgba(46, 90, 156, 0.25);
+    box-shadow: 0 3px 12px rgba(46, 156, 101, 0.25);
 }
 
 .recruit-btn.primary:hover {
-    background: linear-gradient(135deg, #244C87 0%, #257D7D 100%);
-    box-shadow: 0 6px 18px rgba(46, 90, 156, 0.35);
+    background: linear-gradient(135deg, #248756 0%, #257d51 100%);
+    box-shadow: 0 6px 18px rgba(46, 156, 101, 0.35);
     transform: translateY(-2px);
     color: #FFFFFF;
 }
@@ -829,8 +829,8 @@
    EMPTY STATES
 ═══════════════════════════════════════════════════════════ */
 .recruit-empty {
-    border: 2px dashed #CBD5E1;
-    background: #F8FAFC;
+    border: 2px dashed #cbe1d6;
+    background: #f8fcfa;
     min-height: 180px;
     border-radius: var(--rec-radius);
     display: flex;
@@ -846,7 +846,7 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: #EFF6FF;
+    background: #f4faf7;
     color: var(--rec-blue);
     display: flex;
     align-items: center;
@@ -873,7 +873,7 @@
    CANDIDATE PIPELINE / TALENT MATCHING SHOWCASE
 ═══════════════════════════════════════════════════════════ */
 .recruit-pipeline-card {
-    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+    background: linear-gradient(135deg, #FFFFFF 0%, #f8fcfa 100%);
     border: 1px solid var(--rec-border);
     border-radius: var(--rec-radius);
     padding: 1.8rem 2rem;
@@ -890,8 +890,8 @@
 }
 
 .recruit-pipeline-badge {
-    background: linear-gradient(135deg, rgba(46, 139, 139, 0.12), rgba(46, 90, 156, 0.12));
-    border: 1px solid rgba(46, 139, 139, 0.25);
+    background: linear-gradient(135deg, rgba(46, 139, 93, 0.12), rgba(46, 156, 101, 0.12));
+    border: 1px solid rgba(46, 139, 93, 0.25);
     color: var(--rec-teal-dark);
     font-size: 0.76rem;
     font-weight: 800;
@@ -1012,7 +1012,7 @@
 .recruit-form textarea:focus,
 .recruit-form select:focus {
     border-color: var(--rec-teal);
-    box-shadow: 0 0 0 4px rgba(46, 139, 139, 0.12);
+    box-shadow: 0 0 0 4px rgba(46, 139, 93, 0.12);
     outline: none;
 }
 
@@ -1057,7 +1057,7 @@
     text-align: left;
     justify-content: flex-start;
     padding: 0.6rem 1rem;
-    background: #F8FAFC;
+    background: #f8fcfa;
     border: 1px solid var(--rec-border);
     border-radius: var(--rec-radius-sm);
     font-size: 0.88rem;
@@ -1080,14 +1080,14 @@
     border: 1.5px solid var(--rec-border);
     border-radius: var(--rec-radius-sm);
     padding: 0.9rem 1.15rem;
-    background: #F8FAFC;
+    background: #f8fcfa;
     transition: all 0.2s var(--ease);
 }
 
 .recruit-tag:hover {
     background: #FFFFFF;
-    border-color: rgba(46, 139, 139, 0.35);
-    box-shadow: 0 2px 8px rgba(15, 30, 60, 0.04);
+    border-color: rgba(46, 139, 93, 0.35);
+    box-shadow: 0 2px 8px rgba(16, 59, 38, 0.04);
 }
 
 .recruit-tag-row {
@@ -1156,7 +1156,7 @@
     font-size: 0.96rem;
     line-height: 1.75;
     color: var(--text-dark);
-    background: #F8FAFC;
+    background: #f8fcfa;
     padding: 1.4rem 1.6rem;
     border-radius: var(--rec-radius-sm);
     border: 1px solid var(--rec-border-subtle);
@@ -1171,7 +1171,7 @@
 }
 
 .recruit-comp-box {
-    background: #F8FAFC;
+    background: #f8fcfa;
     border: 1px solid var(--rec-border);
     border-radius: var(--rec-radius-sm);
     padding: 1.35rem 1.5rem;
@@ -1295,7 +1295,7 @@
 
 .candidat-card:hover {
     box-shadow: var(--rec-card-hover);
-    border-color: #B4C7DD;
+    border-color: #b4ddc9;
     transform: translateY(-2px);
 }
 
@@ -1324,7 +1324,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(31, 56, 100, 0.2);
+    box-shadow: 0 4px 12px rgba(31, 100, 66, 0.2);
     flex-shrink: 0;
 }
 
@@ -1337,7 +1337,7 @@
 
 .candidat-academic {
     font-size: 0.9rem;
-    color: #4A5B73;
+    color: #4a735e;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1352,9 +1352,9 @@
     border-radius: var(--rec-radius-pill);
     font-weight: 800;
     font-size: 0.95rem;
-    background: rgba(46, 139, 139, 0.12);
+    background: rgba(46, 139, 93, 0.12);
     color: var(--rec-teal-dark);
-    border: 1px solid rgba(46, 139, 139, 0.25);
+    border: 1px solid rgba(46, 139, 93, 0.25);
 }
 
 .candidat-score-pill.score-high {
@@ -1364,9 +1364,9 @@
 }
 
 .candidat-score-pill.score-mid {
-    background: #EFF6FF;
-    color: #1D4ED8;
-    border-color: #BFDBFE;
+    background: #f4faf7;
+    color: #33c27b;
+    border-color: #d2ebde;
 }
 
 .candidat-score-pill.score-low {
@@ -1376,9 +1376,9 @@
 }
 
 .candidat-score-pill.score-none {
-    background: #F1F5F9;
-    color: #64748B;
-    border-color: #CBD5E1;
+    background: #f1f9f5;
+    color: #648b78;
+    border-color: #cbe1d6;
 }
 
 /* Statut badges */
@@ -1395,14 +1395,14 @@
 }
 
 .statut-badge.envoyee {
-    background: #EFF6FF;
-    color: #1D4ED8;
-    border: 1px solid #BFDBFE;
+    background: #f4faf7;
+    color: #33c27b;
+    border: 1px solid #d2ebde;
 }
 
 .statut-badge.vue {
     background: #F0FDF4;
-    color: #0D9488;
+    color: #227f51;
     border: 1px solid #99F6E4;
 }
 
@@ -1422,7 +1422,7 @@
 .candidat-modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(11, 25, 51, 0.65);
+    background: rgba(13, 49, 31, 0.65);
     backdrop-filter: blur(4px);
     z-index: 1000;
     display: flex;
@@ -1447,7 +1447,7 @@
     max-height: 90vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 24px 60px rgba(11, 25, 51, 0.28);
+    box-shadow: 0 24px 60px rgba(13, 49, 31, 0.28);
     transform: translateY(20px) scale(0.98);
     transition: transform 0.25s ease;
     overflow: hidden;
@@ -1458,7 +1458,7 @@
 }
 
 .candidat-modal-header {
-    background: linear-gradient(135deg, #0B1933 0%, #152A4E 100%);
+    background: linear-gradient(135deg, #0d311f 0%, #154e32 100%);
     color: #FFFFFF;
     padding: 1.5rem 1.75rem;
     display: flex;
@@ -1502,7 +1502,7 @@
 .candidat-modal-footer {
     padding: 1.25rem 1.75rem;
     border-top: 1px solid var(--rec-border);
-    background: #F8FAFC;
+    background: #f8fcfa;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1526,7 +1526,7 @@
 
 /* Detail tabs / cards */
 .candidate-detail-block {
-    background: #F8FAFC;
+    background: #f8fcfa;
     border: 1px solid var(--rec-border);
     border-radius: var(--rec-radius-sm);
     padding: 1.25rem;
@@ -1550,7 +1550,7 @@
 }
 
 .score-table th {
-    background: #EDF2F7;
+    background: #edf7f2;
     color: var(--rec-navy);
     font-weight: 800;
     text-align: left;
@@ -1565,7 +1565,7 @@
 }
 
 .score-table tr:hover td {
-    background: rgba(240, 245, 251, 0.6);
+    background: rgba(242, 249, 245, 0.6);
 }
 
 /* Counted badge */
@@ -1580,8 +1580,8 @@
 }
 
 .badge-ignoree {
-    background: #F1F5F9;
-    color: #64748B;
+    background: #f1f9f5;
+    color: #648b78;
     font-weight: 700;
     padding: 0.2rem 0.55rem;
     border-radius: var(--rec-radius-pill);
@@ -1594,15 +1594,15 @@
 ═══════════════════════════════════════════════════════════ */
 @keyframes candCardPulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(46, 139, 139, 0.45);
+        box-shadow: 0 0 0 0 rgba(46, 139, 93, 0.45);
         border-color: var(--rec-teal);
     }
     50% {
-        box-shadow: 0 0 0 8px rgba(46, 139, 139, 0.18);
+        box-shadow: 0 0 0 8px rgba(46, 139, 93, 0.18);
         border-color: var(--rec-teal);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(46, 139, 139, 0);
+        box-shadow: 0 0 0 0 rgba(46, 139, 93, 0);
         border-color: var(--rec-teal);
     }
 }
@@ -1615,7 +1615,7 @@
 
 @keyframes candCardFlash {
     0% {
-        background-color: rgba(46, 139, 139, 0.25);
+        background-color: rgba(46, 139, 93, 0.25);
         transform: translateY(-2px);
     }
     100% {
@@ -1640,7 +1640,7 @@
 }
 
 @keyframes trHighlightFade {
-    0% { background: rgba(46, 139, 139, 0.22); }
+    0% { background: rgba(46, 139, 93, 0.22); }
     100% { background: transparent; }
 }
 
@@ -1659,7 +1659,7 @@ tr.tr-highlight td {
     cursor: pointer;
     font-size: 1.35rem;
     line-height: 1;
-    color: #94A3B8;
+    color: #94b8a6;
     padding: 0.25rem;
     display: inline-flex;
     align-items: center;
@@ -1680,7 +1680,7 @@ tr.tr-highlight td {
 /* Note interne */
 .note-interne-box {
     margin-top: 0.85rem;
-    background: #F8FAFC;
+    background: #f8fcfa;
     border: 1px dashed var(--rec-border);
     border-radius: var(--rec-radius-sm);
     padding: 0.65rem 0.9rem;
@@ -1711,7 +1711,7 @@ tr.tr-highlight td {
     padding: 0.85rem 1rem;
     text-align: center;
     position: relative;
-    box-shadow: 0 2px 8px rgba(15, 30, 60, 0.04);
+    box-shadow: 0 2px 8px rgba(16, 59, 38, 0.04);
 }
 
 .stat-funnel-step.success {
@@ -1734,7 +1734,7 @@ tr.tr-highlight td {
     font-size: 0.78rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: #64748B;
+    color: #648b78;
     margin-top: 0.2rem;
 }
 

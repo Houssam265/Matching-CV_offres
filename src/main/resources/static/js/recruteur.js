@@ -10,7 +10,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const owned = `recruteurId=${encodeURIComponent(user.id)}`;
     const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
     const date = value => value ? new Date(value).toLocaleDateString('fr-FR', {day: '2-digit', month: 'short', year: 'numeric'}) : '—';
-    const showError = message => { if (error) { error.textContent = message; error.hidden = false; error.scrollIntoView({block: 'nearest'}); } };
+    const showError = message => {
+        if (error) { error.textContent = message; error.hidden = false; }
+        if (page === 'dashboard') {
+            ['offres-list', 'dash-top-competences', 'dash-offres-inactives', 'recent-candidatures-list'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element && /Chargement|Vérification/.test(element.textContent)) element.textContent = 'Données indisponibles pour le moment.';
+            });
+            if (error) {
+                const retry = document.createElement('button');
+                retry.type = 'button'; retry.className = 'btn-edit-sec'; retry.textContent = 'Réessayer';
+                retry.addEventListener('click', () => location.reload());
+                error.append(' ', retry);
+            }
+        } else error?.scrollIntoView({block: 'nearest'});
+    };
     const clearError = () => { if (error) { error.hidden = true; error.textContent = ''; } };
 
     // Set navbar user info & sidebar sync
@@ -486,7 +500,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (close) {
-                if (!window.confirm('Clôturer cette offre ? Elle disparaîtra des listes et recommandations étudiantes, mais restera accessible pour consulter les candidatures reçues.')) return;
+                if (!window.confirm('Clôturer cette offre ? Elle disparaîtra des listes et recommandations utilisateures, mais restera accessible pour consulter les candidatures reçues.')) return;
                 button.disabled = true;
                 clearError();
                 try {
@@ -740,24 +754,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         <!-- KPIs : Score moyen, Délai moyen, Répartition -->
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-top:1.25rem;">
-                            <div style="background:#F8FAFC; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1rem;">
-                                <div style="font-size:0.78rem; font-weight:700; color:#64748B; text-transform:uppercase;">Score moyen des candidats</div>
+                            <div style="background:#f8fcfa; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1rem;">
+                                <div style="font-size:0.78rem; font-weight:700; color:#648b78; text-transform:uppercase;">Score moyen des candidats</div>
                                 <div style="font-size:1.6rem; font-weight:800; color:var(--rec-navy); margin-top:0.25rem;">
                                     ${stats.scoreMoyen != null ? (Math.round(stats.scoreMoyen * 10) / 10) + '%' : '—'}
                                 </div>
-                                <div style="font-size:0.8rem; color:#64748B;">Sur l'ensemble des candidatures</div>
+                                <div style="font-size:0.8rem; color:#648b78;">Sur l'ensemble des candidatures</div>
                             </div>
 
-                            <div style="background:#F8FAFC; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1rem;">
-                                <div style="font-size:0.78rem; font-weight:700; color:#64748B; text-transform:uppercase;">Délai moyen de traitement</div>
+                            <div style="background:#f8fcfa; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1rem;">
+                                <div style="font-size:0.78rem; font-weight:700; color:#648b78; text-transform:uppercase;">Délai moyen de traitement</div>
                                 <div style="font-size:1.6rem; font-weight:800; color:var(--rec-blue); margin-top:0.25rem;">
                                     ${stats.delaiMoyenTraitementHeures != null ? (Math.round(stats.delaiMoyenTraitementHeures * 10) / 10) + ' h' : '—'}
                                 </div>
-                                <div style="font-size:0.8rem; color:#64748B;">Temps jusqu'à décision</div>
+                                <div style="font-size:0.8rem; color:#648b78;">Temps jusqu'à décision</div>
                             </div>
 
-                            <div style="background:#F8FAFC; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1rem;">
-                                <div style="font-size:0.78rem; font-weight:700; color:#64748B; text-transform:uppercase; margin-bottom:0.4rem;">Répartition des scores</div>
+                            <div style="background:#f8fcfa; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:1rem;">
+                                <div style="font-size:0.78rem; font-weight:700; color:#648b78; text-transform:uppercase; margin-bottom:0.4rem;">Répartition des scores</div>
                                 <div style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.8rem;">
                                     <div style="display:flex; justify-content:space-between;">
                                         <span style="color:#059669; font-weight:600;">&ge; 70% (Fort) :</span>
@@ -803,7 +817,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="recruit-empty" style="margin-top: 1.25rem;">
                             <div class="recruit-empty-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
                             <div class="recruit-empty-title">Aucune candidature reçue pour le moment</div>
-                            <p>Dès qu'un étudiant postule, il apparaîtra ici avec son score de pertinence et son profil complet.</p>
+                            <p>Dès qu'un utilisateur postule, il apparaîtra ici avec son score de pertinence et son profil complet.</p>
                         </div>`;
                     } else {
                         const topCands = cands.slice(0, 3);
@@ -825,7 +839,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                         <div style="margin-top: 1.5rem; display:flex; flex-direction:column; gap:0.75rem;">
                             ${topCands.map(c => `
-                                <div style="display:flex; justify-content:space-between; align-items:center; padding:0.9rem 1.1rem; background:#F8FAFC; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); flex-wrap:wrap; gap:0.75rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; padding:0.9rem 1.1rem; background:#f8fcfa; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); flex-wrap:wrap; gap:0.75rem;">
                                     <div style="display:flex; align-items:center; gap:0.75rem;">
                                         <div class="candidat-avatar" style="width:38px;height:38px;font-size:0.95rem;">${esc(((c.prenom?.[0] || '') + (c.nom?.[0] || '')).toUpperCase())}</div>
                                         <div>
@@ -1203,20 +1217,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <strong>Contact candidat débloqué :</strong>
                     <a href="mailto:${esc(c.email)}" style="color:#15803D; font-weight:700; text-decoration:underline;">${esc(c.email)}</a>
                 </div>` : `
-                <div style="font-size:0.82rem; color:#64748B; display:flex; align-items:center; gap:0.4rem; margin-top:0.4rem;">
+                <div style="font-size:0.82rem; color:#648b78; display:flex; align-items:center; gap:0.4rem; margin-top:0.4rem;">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     <span>Email protégé : disponible immédiatement dès acceptation de la candidature.</span>
                 </div>`}
 
                 ${c.message ? `
-                <div style="margin-top:0.6rem; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:var(--rec-radius-sm); padding:0.6rem 0.85rem; font-size:0.84rem; color:#1E40AF;">
+                <div style="margin-top:0.6rem; background:#f4faf7; border:1px solid #d2ebde; border-radius:var(--rec-radius-sm); padding:0.6rem 0.85rem; font-size:0.84rem; color:#2ba267;">
                     <strong>Message d'accompagnement transmis :</strong> &laquo; ${esc(c.message)} &raquo;
                 </div>` : ''}
 
-                <!-- Note interne privée (JAMAIS visible par l'étudiant) -->
-                <div class="note-interne-box" style="margin-top:0.75rem; background:#F8FAFC; border:1px dashed var(--rec-border); border-radius:8px; padding:0.65rem 0.85rem;">
+                <!-- Note interne privée (JAMAIS visible par l'utilisateur) -->
+                <div class="note-interne-box" style="margin-top:0.75rem; background:#f8fcfa; border:1px dashed var(--rec-border); border-radius:8px; padding:0.65rem 0.85rem;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-                        <span style="font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase; display:flex; align-items:center; gap:0.35rem;">
+                        <span style="font-size:0.75rem; font-weight:700; color:#648b78; text-transform:uppercase; display:flex; align-items:center; gap:0.35rem;">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             Note interne privée (confidentielle recruteur)
                         </span>
@@ -1397,7 +1411,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 decisionTitle.textContent = newStatut === 'ACCEPTEE' ? 'Accepter la candidature' : 'Refuser la candidature';
             }
             if (decisionSubtitle) {
-                decisionSubtitle.textContent = `Candidat : ${candName || 'Étudiant'}`;
+                decisionSubtitle.textContent = `Candidat : ${candName || 'Utilisateur'}`;
             }
             if (decisionPrompt) {
                 decisionPrompt.innerHTML = newStatut === 'ACCEPTEE'
@@ -1551,14 +1565,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 let html = '';
 
-                // Alerte d'écart de score si le profil étudiant a évolué depuis la candidature
+                // Alerte d'écart de score si le profil utilisateur a évolué depuis la candidature
                 if (detail.scoreModifie) {
                     html += `
                     <div class="score-diff-banner">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         <div>
                             <strong>Évolution du profil détectée depuis la candidature :</strong><br>
-                            L'étudiant a mis à jour son CV après avoir postulé. Score initial (snapshot) : <strong>${formatScore(detail.scoreCandidature)}</strong> · Score recalculé en direct : <strong>${formatScore(detail.scoreActuel)}</strong>.
+                            L'utilisateur a mis à jour son CV après avoir postulé. Score initial (snapshot) : <strong>${formatScore(detail.scoreCandidature)}</strong> · Score recalculé en direct : <strong>${formatScore(detail.scoreActuel)}</strong>.
                         </div>
                     </div>`;
                 }
@@ -1577,8 +1591,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>`;
                 } else {
                     html += `
-                    <div class="candidate-detail-block" style="background:#F8FAFC;">
-                        <div class="candidate-detail-block-title" style="color:#475569;">
+                    <div class="candidate-detail-block" style="background:#f8fcfa;">
+                        <div class="candidate-detail-block-title" style="color:#476958;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                             Coordonnées de contact protégées
                         </div>
@@ -1591,12 +1605,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Message accompagnant la décision si déjà statué
                 if (detail.message) {
                     html += `
-                    <div class="candidate-detail-block" style="background:#EFF6FF; border-color:#BFDBFE;">
-                        <div class="candidate-detail-block-title" style="color:#1E40AF;">
+                    <div class="candidate-detail-block" style="background:#f4faf7; border-color:#d2ebde;">
+                        <div class="candidate-detail-block-title" style="color:#2ba267;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                             Message personnalisé transmis au candidat
                         </div>
-                        <div style="font-size:0.92rem; color:#1E3A8A; font-style:italic;">
+                        <div style="font-size:0.92rem; color:#238554; font-style:italic;">
                             &laquo; ${esc(detail.message)} &raquo;
                         </div>
                     </div>`;
@@ -1624,18 +1638,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
                         <div style="background:#FFFFFF; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:0.85rem 1rem;">
-                            <div style="font-size:0.78rem; text-transform:uppercase; font-weight:700; color:#64748B;">Compétences requises</div>
+                            <div style="font-size:0.78rem; text-transform:uppercase; font-weight:700; color:#648b78;">Compétences requises</div>
                             <div style="font-size:1.25rem; font-weight:800; color:var(--rec-navy);">
-                                ${formatScore(match.scoreRequises)} <span style="font-size:0.85rem; font-weight:500; color:#64748B;">/ ${formatScore(match.partRequisesMax || 80)}</span>
+                                ${formatScore(match.scoreRequises)} <span style="font-size:0.85rem; font-weight:500; color:#648b78;">/ ${formatScore(match.partRequisesMax || 80)}</span>
                             </div>
-                            <div style="font-size:0.8rem; color:#64748B;">${match.nbRequisesValidees || 0} validée(s)</div>
+                            <div style="font-size:0.8rem; color:#648b78;">${match.nbRequisesValidees || 0} validée(s)</div>
                         </div>
                         <div style="background:#FFFFFF; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:0.85rem 1rem;">
-                            <div style="font-size:0.78rem; text-transform:uppercase; font-weight:700; color:#64748B;">Atouts appréciés</div>
+                            <div style="font-size:0.78rem; text-transform:uppercase; font-weight:700; color:#648b78;">Atouts appréciés</div>
                             <div style="font-size:1.25rem; font-weight:800; color:var(--rec-navy);">
-                                ${formatScore(match.scoreAtouts)} <span style="font-size:0.85rem; font-weight:500; color:#64748B;">/ ${formatScore(match.partAtoutsMax || 20)}</span>
+                                ${formatScore(match.scoreAtouts)} <span style="font-size:0.85rem; font-weight:500; color:#648b78;">/ ${formatScore(match.partAtoutsMax || 20)}</span>
                             </div>
-                            <div style="font-size:0.8rem; color:#64748B;">${match.nbAtoutsValides || 0} validé(s)</div>
+                            <div style="font-size:0.8rem; color:#648b78;">${match.nbAtoutsValides || 0} validé(s)</div>
                         </div>
                     </div>
 
@@ -1671,7 +1685,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                                 </span>
                                             `}
                                         </td>
-                                        <td style="font-size:0.82rem; color:#4A5B73;">
+                                        <td style="font-size:0.82rem; color:#4a735e;">
                                             ${esc(cs.provenanceLabel || cs.provenance || '—')}
                                         </td>
                                         <td>
@@ -1746,7 +1760,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${projs.map(prj => `
                             <div style="background:#FFFFFF; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); padding:0.85rem 1rem;">
                                 <div style="font-weight:800; color:var(--rec-navy); font-size:0.98rem;">${esc(prj.titre)}</div>
-                                ${prj.description ? `<p style="font-size:0.88rem; color:#4A5B73; margin:0.3rem 0 0.5rem;">${esc(prj.description)}</p>` : ''}
+                                ${prj.description ? `<p style="font-size:0.88rem; color:#4a735e; margin:0.3rem 0 0.5rem;">${esc(prj.description)}</p>` : ''}
                                 ${prj.competences && prj.competences.length > 0 ? `
                                 <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.4rem;">
                                     ${prj.competences.map(c => `<span class="contract-badge" style="font-size:0.72rem;">${esc(c)}</span>`).join('')}
@@ -1963,7 +1977,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         topCompsEl.innerHTML = `<span class="recruit-muted" style="font-size:0.85rem;">Aucune compétence requise définie sur vos offres actives.</span>`;
                     } else {
                         topCompsEl.innerHTML = comps.map(c => `
-                            <span class="recruit-tag" style="background:#F1F5F9; border:1px solid var(--rec-border); padding:0.35rem 0.75rem; border-radius:16px; font-size:0.82rem; display:inline-flex; align-items:center; gap:0.4rem;">
+                            <span class="recruit-tag" style="background:#f1f9f5; border:1px solid var(--rec-border); padding:0.35rem 0.75rem; border-radius:16px; font-size:0.82rem; display:inline-flex; align-items:center; gap:0.4rem;">
                                 <strong>${esc(c.nom)}</strong>
                                 <span style="background:var(--rec-blue); color:#FFF; font-size:0.7rem; font-weight:700; padding:0.1rem 0.4rem; border-radius:10px;">${c.nbDemandes} ${c.nbDemandes > 1 ? 'offres' : 'offre'}</span>
                             </span>
@@ -2008,7 +2022,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                             </div>
                             <div class="recruit-empty-title">Aucune candidature reçue pour le moment</div>
-                            <p style="font-size:0.88rem;">Vos offres sont en ligne. Dès que des étudiants postuleront, vous retrouverez leurs scores et candidatures ici.</p>
+                            <p style="font-size:0.88rem;">Vos offres sont en ligne. Dès que des utilisateurs postuleront, vous retrouverez leurs scores et candidatures ici.</p>
                         </div>`;
                     } else {
                         recentListEl.innerHTML = `
@@ -2029,7 +2043,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         <tr ${(isLive && idx === 0) ? 'class="tr-highlight"' : ''}>
                                             <td>
                                                 <strong>${esc(c.prenom)} ${esc(c.nom)}</strong>
-                                                <div style="font-size:0.78rem; color:#64748B;">${esc(c.filiere || '')} · ${esc(c.etablissement || '')}</div>
+                                                <div style="font-size:0.78rem; color:#648b78;">${esc(c.filiere || '')} · ${esc(c.etablissement || '')}</div>
                                             </td>
                                             <td>
                                                 <a href="/offre-recruteur.html?id=${c.offreId}" style="color:var(--rec-blue); font-weight:600; text-decoration:none;">${esc(c.offreTitre)}</a>
@@ -2042,7 +2056,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                             <td>
                                                 <span class="statut-badge ${String(c.statut).toLowerCase()}">${esc(c.statut)}</span>
                                             </td>
-                                            <td style="color:#64748B; font-size:0.82rem;">${date(c.dateCandidature)}</td>
+                                            <td style="color:#648b78; font-size:0.82rem;">${date(c.dateCandidature)}</td>
                                             <td style="text-align:right;">
                                                 <a class="recruit-btn" style="padding:0.35rem 0.75rem; font-size:0.8rem;" href="/candidats-offre.html?offre=${c.offreId}&candidature=${c.candidatureId}">
                                                     Consulter
@@ -2058,6 +2072,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (err) {
             console.error("Erreur chargement dashboard recruteur :", err);
+            showError('Les indicateurs sont momentanément indisponibles. Vos offres restent accessibles.');
         }
     }
 
@@ -2080,7 +2095,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const inputSiteWeb = document.getElementById('siteWeb');
         const inputDesc = document.getElementById('descriptionEntreprise');
 
-        // Éléments d'aperçu dynamique côté étudiant
+        // Éléments d'aperçu dynamique côté utilisateur
         const prevAvatar = document.getElementById('preview-avatar');
         const prevNom = document.getElementById('preview-nom');
         const prevSecteurVille = document.getElementById('preview-secteur-ville');
@@ -2097,7 +2112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (prevNom) prevNom.textContent = nomEnt;
             if (prevAvatar) {
-                prevAvatar.textContent = (nomEnt[0] || '🏢').toUpperCase();
+                prevAvatar.textContent = (nomEnt[0] || 'E').toUpperCase();
             }
 
             const parts = [];
@@ -2110,7 +2125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (prevDesc) {
                 prevDesc.textContent = desc || "Présentation de l'entreprise et opportunités offertes...";
                 prevDesc.style.fontStyle = desc ? 'normal' : 'italic';
-                prevDesc.style.color = desc ? 'var(--rec-navy)' : '#64748B';
+                prevDesc.style.color = desc ? 'var(--rec-navy)' : '#648b78';
             }
 
             if (prevWeb && prevLink) {

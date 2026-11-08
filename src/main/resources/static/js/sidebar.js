@@ -11,6 +11,34 @@ window.MatchingCVSidebar = (() => {
     const PIN_STORAGE_KEY = 'matchingcv_sidebar_pinned';
 
     function init() {
+        // Native link: the same destination and keyboard behavior on every page.
+        const profilePill = document.getElementById('topbar-user-pill');
+        if (profilePill) {
+            const user = window.MatchingCVSession?.read();
+            const isRecruteur = user?.role === 'RECRUTEUR';
+            const isEtudiantDashboard = !isRecruteur && window.location.pathname.endsWith('dashboard-etudiant.html');
+            if (isRecruteur) {
+                if (profilePill.tagName === 'A') {
+                    profilePill.href = '/mon-entreprise.html';
+                }
+                const label = 'Profil recruteur';
+                profilePill.title = label;
+                profilePill.setAttribute('aria-label', label);
+            } else if (!isEtudiantDashboard) {
+                let profileLink = profilePill;
+                if (profilePill.tagName !== 'A') {
+                    profileLink = document.createElement('a');
+                    profileLink.id = profilePill.id;
+                    profileLink.className = profilePill.className;
+                    while (profilePill.firstChild) profileLink.append(profilePill.firstChild);
+                    profilePill.replaceWith(profileLink);
+                }
+                profileLink.href = '/dashboard-etudiant.html?open=profil';
+                const label = 'Mon profil';
+                profileLink.title = label;
+                profileLink.setAttribute('aria-label', label);
+            }
+        }
         const sidebar = document.getElementById('app-sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
         const toggleBtn = document.getElementById('topbar-sidebar-toggle');
@@ -18,7 +46,7 @@ window.MatchingCVSidebar = (() => {
         const pinBtn = document.getElementById('sidebar-pin-btn');
 
         // 1. Restauration de l'état "épinglé"
-        const isPinned = localStorage.getItem(PIN_STORAGE_KEY) === 'true';
+        const isPinned = localStorage.getItem(PIN_STORAGE_KEY) !== 'false';
         if (isPinned) {
             document.body.classList.add('sidebar-pinned');
             updatePinIcon(true);
@@ -57,6 +85,12 @@ window.MatchingCVSidebar = (() => {
         }
 
         if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && sidebar?.classList.contains('sidebar-open')) {
+                closeSidebar();
+                toggleBtn?.focus();
+            }
+        });
         if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
         if (backdrop) backdrop.addEventListener('click', closeSidebar);
 
@@ -102,8 +136,8 @@ window.MatchingCVSidebar = (() => {
         const isRecruteur = user.role === 'RECRUTEUR';
         const prenom = user.prenom || '';
         const nom = user.nom || '';
-        const defaultName = isRecruteur ? 'Recruteur' : 'Étudiant';
-        const defaultInitial = isRecruteur ? 'R' : 'E';
+        const defaultName = isRecruteur ? 'Recruteur' : 'Utilisateur';
+        const defaultInitial = isRecruteur ? 'R' : 'U';
         const fullName = `${prenom} ${nom}`.trim() || defaultName;
         const initials = ((prenom.charAt(0) || '') + (nom.charAt(0) || '')).toUpperCase() || defaultInitial;
 
@@ -119,7 +153,7 @@ window.MatchingCVSidebar = (() => {
                 const ent = user.nomEntreprise || user.entreprise;
                 sbRole.textContent = ent ? `${ent} • Entreprise` : 'Recruteur • Entreprise';
             } else {
-                sbRole.textContent = 'Étudiant • ENSA';
+                sbRole.textContent = 'Utilisateur';
             }
         }
 

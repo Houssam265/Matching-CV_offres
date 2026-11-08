@@ -5,11 +5,14 @@ import com.gi3.matchingcv.exception.CompetenceUtiliseeException;
 import com.gi3.matchingcv.model.Competence;
 import com.gi3.matchingcv.model.Utilisateur;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
+import com.gi3.matchingcv.model.enums.TypeNotification;
+import com.gi3.matchingcv.repository.AdministrateurRepository;
 import com.gi3.matchingcv.repository.CompetenceRepository;
 import com.gi3.matchingcv.repository.OffreCompetenceRepository;
 import com.gi3.matchingcv.repository.ProfilCompetenceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.EntityManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,11 @@ public class CompetenceServiceImpl implements CompetenceService {
     private final OffreCompetenceRepository offreCompetenceRepository;
     private final EntityManager entityManager;
     private final org.springframework.context.ApplicationEventPublisher eventPublisher;
+    private final NotificationService notificationService;
+    private final AdministrateurRepository administrateurRepository;
+
+    @Value("${app.propositions.limite:10}")
+    private int propositionsLimite;
 
     /**
      * Injection par constructeur (IoC) : la classe déclare explicitement ses dépendances,
@@ -43,7 +51,8 @@ public class CompetenceServiceImpl implements CompetenceService {
             OffreCompetenceRepository offreCompetenceRepository,
             EntityManager entityManager
     ) {
-        this(competenceRepository, profilCompetenceRepository, offreCompetenceRepository, entityManager, null);
+        this(competenceRepository, profilCompetenceRepository, offreCompetenceRepository,
+                entityManager, null, null, null);
     }
 
     @org.springframework.beans.factory.annotation.Autowired
@@ -52,13 +61,17 @@ public class CompetenceServiceImpl implements CompetenceService {
             ProfilCompetenceRepository profilCompetenceRepository,
             OffreCompetenceRepository offreCompetenceRepository,
             EntityManager entityManager,
-            org.springframework.context.ApplicationEventPublisher eventPublisher
+            org.springframework.context.ApplicationEventPublisher eventPublisher,
+            NotificationService notificationService,
+            AdministrateurRepository administrateurRepository
     ) {
         this.competenceRepository = competenceRepository;
         this.profilCompetenceRepository = profilCompetenceRepository;
         this.offreCompetenceRepository = offreCompetenceRepository;
         this.entityManager = entityManager;
         this.eventPublisher = eventPublisher;
+        this.notificationService = notificationService;
+        this.administrateurRepository = administrateurRepository;
     }
 
     @Override
@@ -136,6 +149,17 @@ public class CompetenceServiceImpl implements CompetenceService {
     public Competence proposer(String nom, String categorie, Utilisateur proposeePar) {
         String nomNettoye = nom != null ? nom.trim() : "";
 
+        // Vérification de la limite de propositions EN_ATTENTE par utilisateur
+        if (proposeePar != null) {
+            long nbEnAttente = competenceRepository.countByProposeePar_IdAndStatut(
+                    proposeePar.getId(), StatutCompetence.EN_ATTENTE);
+            if (nbEnAttente >= propositionsLimite) {
+                throw new IllegalStateException(
+                        "Vous avez atteint la limite de " + propositionsLimite +
+                        " propositions en attente de modération.");
+            }
+        }
+
         String nomNormalise = Competence.normaliserNom(nomNettoye);
         competenceRepository.findByNomNormalise(nomNormalise).ifPresent(existante -> {
             throw new CompetenceDejaExistanteException("Cette compétence existe déjà : " + existante.getNom());
@@ -147,7 +171,25 @@ public class CompetenceServiceImpl implements CompetenceService {
         competence.setCategorie(categorie);
         competence.setStatut(StatutCompetence.EN_ATTENTE);
         competence.setProposeePar(proposeePar);
-        return competenceRepository.save(competence);
+        Competence saved = competenceRepository.save(competence);
+
+        // Notification de tous les administrateurs (COMPETENCE_A_MODERER)
+        if (notificationService != null && administrateurRepository != null) {
+            String titre = "Compétence à modérer";
+            String message = "La compétence « " + saved.getNom() + " » attend votre validation.";
+            String lien = "/admin-moderation.html";
+            Long auteurId = proposeePar != null ? proposeePar.getId() : null;
+            administrateurRepository.findAll().forEach(admin ->
+                    notificationService.notifier(
+                            admin.getId(),
+                            TypeNotification.COMPETENCE_A_MODERER,
+                            titre, message, lien,
+                            null, null, saved.getId(), null, auteurId
+                    )
+            );
+        }
+
+        return saved;
     }
 
     @Override

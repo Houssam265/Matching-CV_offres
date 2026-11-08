@@ -53,6 +53,11 @@ public class Competence {
     @Column(name = "synonyme")
     private List<String> synonymes = new ArrayList<>();
 
+    @Column(name = "date_creation")
+    private java.time.LocalDateTime dateCreation;
+
+
+
     /**
      * Normalise un nom de compétence :
      * - conversion en minuscules
@@ -74,6 +79,9 @@ public class Competence {
     public void calculerNomNormalise() {
         if (this.nom != null) {
             this.nomNormalise = normaliserNom(this.nom);
+        }
+        if (this.dateCreation == null) {
+            this.dateCreation = java.time.LocalDateTime.now();
         }
     }
 }
