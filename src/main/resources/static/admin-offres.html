@@ -1,0 +1,404 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gestion des offres — Espace Administrateur Matching CV-Offres" />
+    <title>Offres — Admin · Matching CV-Offres</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/sidebar.css?v=3" />
+    <link rel="stylesheet" href="/css/navigation.css?v=3" />
+    <link rel="stylesheet" href="/css/notifications.css" />
+    <link rel="icon" href="/favicon.svg" />
+    <script src="/js/session.js"></script>
+    <!-- TODO sécurité : vérification du rôle ADMIN côté serveur -->
+    <script>MatchingCVSession.protect('ADMIN');</script>
+    <style>
+        :root {
+            --admin-bg:       #f6faf8;
+            --admin-surface:  #edf4f0;
+            --admin-card:     #ffffff;
+            --admin-border:   #dce9e2;
+            --admin-accent:   #24774e;
+            --admin-accent2:  #20754b;
+            --admin-green:    #2e9c65;
+            --admin-red:      #dc2626;
+            --admin-amber:    #d97706;
+            --admin-text:     #1c4330;
+            --admin-muted:    #527765;
+            --admin-badge-bg: rgba(36,119,78,.12);
+        }
+        body { background: var(--admin-bg); color: var(--admin-text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; margin: 0; }
+
+        /* ── Navbar ── */
+        .admin-navbar { background: #ffffff; border-bottom: 1px solid var(--admin-border); position: sticky; top: 0; z-index: 100; padding: 0 1.5rem; }
+        .admin-nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; height: 60px; }
+        .admin-logo { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: #184b32; font-weight: 800; font-size: 1.05rem; flex-shrink: 0; }
+        .admin-logo-badge { font-size: .65rem; background: var(--admin-badge-bg); color: var(--admin-accent); padding: 2px 7px; border-radius: 4px; font-weight: 700; letter-spacing: .04em; }
+        .admin-nav-links { display: flex; list-style: none; margin: 0; padding: 0; gap: .35rem; flex: 1; overflow-x: auto; scrollbar-width: none; }
+        .admin-nav-links::-webkit-scrollbar { display: none; }
+        .admin-nav-link { display: flex; align-items: center; gap: .4rem; padding: .45rem .85rem; border-radius: 8px; text-decoration: none; color: var(--admin-muted); font-size: .875rem; font-weight: 500; white-space: nowrap; transition: background .15s, color .15s; }
+        .admin-nav-link:hover { background: #edf4f0; color: #184b32; }
+        .admin-nav-link.active { background: #e2ece7; color: #184b32; font-weight: 700; }
+        .admin-nav-link .badge { background: var(--admin-red); color: #fff; font-size: .7rem; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+        .admin-nav-right { display: flex; align-items: center; gap: .85rem; flex-shrink: 0; }
+        .admin-nav-user { font-size: .85rem; color: #184b32; font-weight: 600; }
+        .btn-nav-logout { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: .35rem .85rem; border-radius: 7px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+        .btn-nav-logout:hover { background: #fee2e2; }
+
+        /* ── Page ── */
+        .admin-page { max-width: 1300px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+        .admin-page-title { font-size: 1.75rem; font-weight: 800; margin: 0 0 .3rem; background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .admin-page-subtitle { color: var(--admin-muted); font-size: .9rem; margin: 0 0 2rem; }
+
+        /* ── Toolbar ── */
+        .toolbar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .search-box { background: #ffffff; border: 1px solid var(--admin-border); color: var(--admin-text); padding: .5rem .9rem; border-radius: 8px; font-size: .875rem; outline: none; min-width: 220px; }
+        .search-box:focus { border-color: var(--admin-accent); }
+        .filter-select { background: #ffffff; border: 1px solid var(--admin-border); color: var(--admin-text); padding: .5rem .9rem; border-radius: 8px; font-size: .875rem; outline: none; cursor: pointer; }
+
+        /* ── Table ── */
+        .table-wrap { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 14px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+        thead th { padding: .85rem 1.25rem; text-align: left; font-size: .78rem; font-weight: 600; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--admin-border); background: #f8fbfa; }
+        tbody tr { border-bottom: 1px solid var(--admin-border); transition: background .1s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f0f7f3; }
+        td { padding: .85rem 1.25rem; vertical-align: middle; }
+        .chip { display: inline-block; font-size: .72rem; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+        .chip-active   { background: rgba(34,197,94,.12); color: var(--admin-green); border: 1px solid rgba(34,197,94,.2); }
+        .chip-cloturee { background: rgba(239,68,68,.12); color: var(--admin-red); border: 1px solid rgba(239,68,68,.2); }
+        .chip-draft    { background: rgba(148,163,184,.1); color: var(--admin-muted); border: 1px solid rgba(148,163,184,.15); }
+        .btn-action { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; transition: opacity .15s; }
+        .btn-action:hover { opacity: .88; }
+        .btn-action:disabled { opacity: .4; cursor: not-allowed; }
+        .btn-red    { background: rgba(239,68,68,.15);  color: var(--admin-red);   border: 1px solid rgba(239,68,68,.3); }
+        .btn-sm { padding: .3rem .7rem; font-size: .78rem; border-radius: 6px; }
+
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--admin-muted); }
+        .spinner { width: 32px; height: 32px; border: 3px solid var(--admin-border); border-top-color: var(--admin-accent); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-center { display: flex; justify-content: center; padding: 3rem; }
+
+        /* ── Modal ── */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(6px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity .2s; }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-box { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 18px; padding: 2rem 2.25rem; max-width: 480px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.5); transform: translateY(16px) scale(.97); transition: transform .2s; }
+        .modal-overlay.open .modal-box { transform: none; }
+        .modal-title { font-size: 1.15rem; font-weight: 800; margin: 0 0 1.25rem; }
+        .modal-label { font-size: .8rem; font-weight: 600; color: var(--admin-muted); margin-bottom: .35rem; display: block; }
+        .modal-textarea { width: 100%; background: var(--admin-surface); border: 1px solid var(--admin-border); color: var(--admin-text); padding: .6rem .9rem; border-radius: 8px; font-size: .875rem; outline: none; resize: vertical; min-height: 90px; box-sizing: border-box; font-family: inherit; }
+        .modal-textarea:focus { border-color: var(--admin-accent); }
+        .modal-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; }
+        .btn-indigo { background: var(--admin-badge-bg); color: var(--admin-accent); border: 1px solid rgba(99,102,241,.3); }
+
+        .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--admin-surface); border: 1px solid var(--admin-border); color: var(--admin-text); padding: .75rem 1.25rem; border-radius: 10px; font-size: .875rem; z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,.4); animation: toastIn .3s ease; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+    </style>
+<style id="admin-sidebar-overrides">
+    .admin-navbar, .admin-nav-inner, .admin-nav-links, .admin-nav-link,
+    .admin-nav-right, .admin-logo, .admin-logo-badge, .btn-nav-logout { display: none !important; }
+    body { background: #f6faf8; }
+    .admin-page { padding: 1.75rem 2rem 4rem; }
+    @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
+</style>
+</head>
+<body class="has-sidebar">
+<script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+<aside class="app-sidebar" id="app-sidebar" aria-label="Navigation administration">
+    <div class="sidebar-brand">
+        <a href="/admin-dashboard.html" class="sidebar-logo">
+            <span class="sidebar-logo-icon">
+                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="13" stroke="url(#asg1)" stroke-width="2"/>
+                    <path d="M8 14l4 4 8-8" stroke="url(#asg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="asg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#5cd498"/><stop offset="1" stop-color="#2e8b5d"/></linearGradient></defs>
+                </svg>
+            </span>
+            <div class="sidebar-logo-text">
+                <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
+                <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Admin</span>
+            </div>
+        </a>
+        <div style="display:flex;align-items:center;gap:.3rem;">
+            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Epingler la barre">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"/></svg>
+            </button>
+            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu lateral">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Menu Principal</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item"><a href="/admin-dashboard.html" class="sidebar-link " title="Tableau de bord"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="sidebar-link-label">Tableau de bord</span></a></li>
+                <li class="sidebar-item"><a href="/admin-moderation.html" class="sidebar-link " title="Moderation"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span class="sidebar-link-label">Moderation</span><span id="sidebar-badge-moderation" style="display:none;background:#dc2626;color:#fff;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;margin-left:auto;"></span></a></li>
+                <li class="sidebar-item"><a href="/admin-competences.html" class="sidebar-link " title="Referentiel"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="sidebar-link-label">Referentiel</span></a></li>
+                <li class="sidebar-item"><a href="/admin-utilisateurs.html" class="sidebar-link " title="Utilisateurs"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-link-label">Utilisateurs</span></a></li>
+                <li class="sidebar-item"><a href="/admin-offres.html" class="sidebar-link active" title="Offres"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="sidebar-link-label">Offres</span></a></li>
+                <li class="sidebar-item"><a href="/admin-stats.html" class="sidebar-link " title="Statistiques"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="sidebar-link-label">Statistiques</span></a></li>
+                <li class="sidebar-item"><a href="/admin-journal.html" class="sidebar-link " title="Journal d'audit"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="sidebar-link-label">Journal</span></a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Compte</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item"><a href="/index.html" class="sidebar-link" title="Site principal"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sidebar-link-label">Site principal</span></a></li>
+                <li class="sidebar-item"><button class="sidebar-link" id="btn-sidebar-logout" title="Deconnexion" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;font-family:inherit;"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="sidebar-link-label" style="color:#dc2626;">Deconnexion</span></button></li>
+            </ul>
+        </div>
+    </nav>
+</aside>
+<div class="app-main-layout">
+    <header class="app-topbar">
+        <div class="topbar-left">
+            <button class="topbar-toggle" id="topbar-sidebar-toggle" aria-label="Ouvrir le menu lateral">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="topbar-breadcrumb">
+                <span class="topbar-bc-root">MatchingCV</span>
+                <span class="topbar-bc-sep">/</span>
+                <span class="topbar-bc-current">Offres</span>
+            </div>
+            <span style="font-size:.62rem;background:rgba(36,119,78,.12);color:#184b32;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.06em;margin-left:6px;">ADMIN</span>
+        </div>
+        <div class="topbar-right">
+            <div class="nav-cta" id="topbar-nav-cta">
+                <span id="nav-user-name" style="display:none;"></span>
+                <button id="nav-logout" style="display:none;"></button>
+            </div>
+            <span style="font-size:.84rem;color:#184b32;font-weight:600;" id="nav-admin-name">Administrateur</span>
+            <button style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:.35rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;" id="btn-topbar-logout">Deconnexion</button>
+        </div>
+    </header>
+<!-- ── CONTENU ── -->
+<main class="admin-page">
+    <header style="margin-bottom:2rem;">
+        <h1 class="admin-page-title">Gestion des offres</h1>
+        <p class="admin-page-subtitle">Consultez toutes les offres et clôturez-en si nécessaire.</p>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input class="search-box" type="search" id="search-input" placeholder="Rechercher par titre, entreprise, localisation…" />
+        <select class="filter-select" id="filter-statut">
+            <option value="">Tous les statuts</option>
+            <option value="ACTIVE">Active</option>
+            <option value="CLOTUREE">Clôturée</option>
+            <option value="DRAFT">Brouillon</option>
+        </select>
+        <select class="filter-select" id="filter-domaine">
+            <option value="">Tous les domaines</option>
+        </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Offre</th>
+                    <th>Entreprise</th>
+                    <th>Domaine</th>
+                    <th>Statut</th>
+                    <th>Publication</th>
+                    <th>Candidatures</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="offres-tbody">
+                <tr><td colspan="7"><div class="loading-center"><div class="spinner"></div></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p id="offres-count" style="font-size:.8rem;color:var(--admin-muted);margin-top:.75rem;text-align:right"></p>
+</main>
+
+<!-- ── Modal clôturer ── -->
+<div class="modal-overlay" id="modal-cloturer" role="dialog" aria-modal="true" aria-labelledby="modal-cloturer-title">
+    <div class="modal-box">
+        <h2 class="modal-title" id="modal-cloturer-title">Clôturer l'offre</h2>
+        <p id="modal-cloturer-desc" style="font-size:.875rem;color:var(--admin-muted);margin:0 0 1.25rem;"></p>
+        <label class="modal-label" for="motif-textarea">Motif (optionnel)</label>
+        <textarea class="modal-textarea" id="motif-textarea" placeholder="Raison de la clôture…"></textarea>
+        <p id="cloturer-error" style="color:var(--admin-red);font-size:.85rem;display:none;margin-top:.5rem"></p>
+        <div class="modal-actions">
+            <button class="btn-action btn-red" id="btn-cloturer-confirm">Confirmer la clôture</button>
+            <button class="btn-action" style="background:var(--admin-surface);color:var(--admin-text);border:1px solid var(--admin-border);" id="btn-cloturer-cancel">Annuler</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/notifications.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    const MVN_API = '/api/admin';
+    const user = MatchingCVSession.read();
+    const adminId = user ? user.id : null;
+    if (user) {
+        document.getElementById('nav-admin-name').textContent = (user.prenom || '') + ' ' + (user.nom || '');
+        if (window.NotificationBell) NotificationBell.init({ userId: user.id, role: 'ADMIN' });
+    }
+    document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
+
+    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+        if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
+    }).catch(() => {});
+
+    let allOffres = [];
+    let selectedOffreId = null;
+
+    function fmt(dt) {
+        if (!dt) return '—';
+        return new Date(dt).toLocaleDateString('fr-FR');
+    }
+    function escHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function statutChip(s) {
+        if (s === 'ACTIVE') return '<span class="chip chip-active">Active</span>';
+        if (s === 'CLOTUREE') return '<span class="chip chip-cloturee">Clôturée</span>';
+        return '<span class="chip chip-draft">' + escHtml(s) + '</span>';
+    }
+
+    function loadOffres() {
+        const q = document.getElementById('search-input').value.trim();
+        const statut = document.getElementById('filter-statut').value;
+        const domaine = document.getElementById('filter-domaine').value;
+
+        const params = new URLSearchParams();
+        if (q) params.set('query', q);
+        if (statut) params.set('statut', statut);
+        if (domaine) params.set('domaine', domaine);
+
+        fetch(`${MVN_API}/offres?${params}`)
+            .then(r => r.json())
+            .then(data => {
+                allOffres = data;
+
+                // Populate domaine filter
+                const domSet = new Set(data.map(o => o.domaine).filter(Boolean));
+                const sel = document.getElementById('filter-domaine');
+                const cur = sel.value;
+                sel.innerHTML = '<option value="">Tous les domaines</option>' +
+                    [...domSet].sort().map(d => `<option value="${escHtml(d)}"${d===cur?' selected':''}>${escHtml(d)}</option>`).join('');
+
+                renderTable(data);
+            })
+            .catch(() => {
+                document.getElementById('offres-tbody').innerHTML = '<tr><td colspan="7" class="empty-state">Erreur de chargement.</td></tr>';
+            });
+    }
+
+    function renderTable(offres) {
+        const tbody = document.getElementById('offres-tbody');
+        document.getElementById('offres-count').textContent = `${offres.length} offre(s)`;
+        if (!offres.length) {
+            tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Aucune offre trouvée.</div></td></tr>';
+            return;
+        }
+        tbody.innerHTML = offres.map(o => {
+            const canClose = o.statut === 'ACTIVE';
+            return `<tr>
+                <td>
+                    <div style="font-weight:600">${escHtml(o.titre || '—')}</div>
+                    <div style="font-size:.78rem;color:var(--admin-muted)">${escHtml(o.typeContrat || '')} · ${escHtml(o.localisation || '')}</div>
+                </td>
+                <td style="color:var(--admin-muted)">${escHtml(o.nomEntreprise || '—')}</td>
+                <td style="color:var(--admin-muted)">${escHtml(o.domaine || '—')}</td>
+                <td>${statutChip(o.statut)}</td>
+                <td style="color:var(--admin-muted)">${fmt(o.datePublication)}</td>
+                <td style="text-align:center;font-weight:600">${o.nbCandidatures != null ? o.nbCandidatures : '—'}</td>
+                <td>
+                    ${canClose
+                        ? `<button class="btn-action btn-red btn-sm" onclick="openCloturer(${o.id}, '${escHtml(o.titre || '')}')">Clôturer</button>`
+                        : '<span style="color:var(--admin-muted);font-size:.8rem">—</span>'}
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    // ── Clôturer ──
+    window.openCloturer = function(id, titre) {
+        selectedOffreId = id;
+        document.getElementById('modal-cloturer-desc').textContent = `Offre : « ${titre} »`;
+        document.getElementById('motif-textarea').value = '';
+        document.getElementById('cloturer-error').style.display = 'none';
+        openModal('modal-cloturer');
+    };
+
+    document.getElementById('btn-cloturer-confirm').addEventListener('click', () => {
+        const motif = document.getElementById('motif-textarea').value.trim();
+        const errEl = document.getElementById('cloturer-error');
+        errEl.style.display = 'none';
+
+        fetch(`${MVN_API}/offres/${selectedOffreId}/cloturer`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(adminId) },
+            body: JSON.stringify({ motif: motif || null })
+        }).then(r => {
+            if (!r.ok) return r.json().then(j => { throw new Error(j.message || 'Erreur ' + r.status); });
+            closeModal('modal-cloturer');
+            showToast('Offre clôturée avec succès');
+            loadOffres();
+        }).catch(e => { errEl.textContent = e.message; errEl.style.display = ''; });
+    });
+
+    document.getElementById('btn-cloturer-cancel').addEventListener('click', () => closeModal('modal-cloturer'));
+    document.getElementById('modal-cloturer').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('modal-cloturer'); });
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function showToast(msg, isError = false) {
+        const t = document.createElement('div');
+        t.className = 'toast';
+        if (isError) t.style.borderColor = 'rgba(239,68,68,.5)';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 4000);
+    }
+
+    let debounce;
+    document.getElementById('search-input').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(loadOffres, 350); });
+    document.getElementById('filter-statut').addEventListener('change', loadOffres);
+    document.getElementById('filter-domaine').addEventListener('change', loadOffres);
+
+    loadOffres();
+})();
+</script>
+</div>
+<!-- end app-main-layout -->
+<script src="/js/sidebar.js?v=2.0"></script>
+<script>
+(function(){
+    var user = MatchingCVSession.read();
+    if(user){
+        var el = document.getElementById('nav-admin-name');
+        if(el) el.textContent = ((user.prenom||'') + ' ' + (user.nom||'')).trim() || 'Administrateur';
+        if(window.NotificationBell) NotificationBell.init({userId:user.id,role:'ADMIN'});
+    }
+    function doLogout(){ MatchingCVSession.logout(); }
+    var b1 = document.getElementById('btn-topbar-logout');
+    var b2 = document.getElementById('btn-sidebar-logout');
+    if(b1) b1.addEventListener('click', doLogout);
+    if(b2) b2.addEventListener('click', doLogout);
+    // Badge moderation
+    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+        var badge = document.getElementById('sidebar-badge-moderation');
+        if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
+    }).catch(()=>{});
+})();
+</script>
+</body>
+</html>
+

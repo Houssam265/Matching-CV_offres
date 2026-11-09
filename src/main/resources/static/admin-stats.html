@@ -1,0 +1,400 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Statistiques globales — Espace Administrateur Matching CV-Offres" />
+    <title>Statistiques — Admin · Matching CV-Offres</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/sidebar.css?v=3" />
+    <link rel="stylesheet" href="/css/navigation.css?v=3" />
+    <link rel="stylesheet" href="/css/notifications.css" />
+    <link rel="icon" href="/favicon.svg" />
+    <script src="/js/session.js"></script>
+    <!-- TODO sécurité : vérification du rôle ADMIN côté serveur -->
+    <script>MatchingCVSession.protect('ADMIN');</script>
+    <style>
+        :root {
+            --admin-bg:       #f6faf8;
+            --admin-surface:  #edf4f0;
+            --admin-card:     #ffffff;
+            --admin-border:   #dce9e2;
+            --admin-accent:   #24774e;
+            --admin-accent2:  #20754b;
+            --admin-green:    #2e9c65;
+            --admin-red:      #dc2626;
+            --admin-amber:    #d97706;
+            --admin-text:     #1c4330;
+            --admin-muted:    #527765;
+            --admin-badge-bg: rgba(36,119,78,.12);
+        }
+        body { background: var(--admin-bg); color: var(--admin-text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; margin: 0; }
+
+        /* ── Navbar ── */
+        .admin-navbar { background: #ffffff; border-bottom: 1px solid var(--admin-border); position: sticky; top: 0; z-index: 100; padding: 0 1.5rem; }
+        .admin-nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; height: 60px; }
+        .admin-logo { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: #184b32; font-weight: 800; font-size: 1.05rem; flex-shrink: 0; }
+        .admin-logo-badge { font-size: .65rem; background: var(--admin-badge-bg); color: var(--admin-accent); padding: 2px 7px; border-radius: 4px; font-weight: 700; letter-spacing: .04em; }
+        .admin-nav-links { display: flex; list-style: none; margin: 0; padding: 0; gap: .35rem; flex: 1; overflow-x: auto; scrollbar-width: none; }
+        .admin-nav-links::-webkit-scrollbar { display: none; }
+        .admin-nav-link { display: flex; align-items: center; gap: .4rem; padding: .45rem .85rem; border-radius: 8px; text-decoration: none; color: var(--admin-muted); font-size: .875rem; font-weight: 500; white-space: nowrap; transition: background .15s, color .15s; }
+        .admin-nav-link:hover { background: #edf4f0; color: #184b32; }
+        .admin-nav-link.active { background: #e2ece7; color: #184b32; font-weight: 700; }
+        .admin-nav-link .badge { background: var(--admin-red); color: #fff; font-size: .7rem; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+        .admin-nav-right { display: flex; align-items: center; gap: .85rem; flex-shrink: 0; }
+        .admin-nav-user { font-size: .85rem; color: #184b32; font-weight: 600; }
+        .btn-nav-logout { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: .35rem .85rem; border-radius: 7px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+        .btn-nav-logout:hover { background: #fee2e2; }
+
+        /* ── Page ── */
+        .admin-page { max-width: 1300px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+        .admin-page-title { font-size: 1.75rem; font-weight: 800; margin: 0 0 .3rem; background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .admin-page-subtitle { color: var(--admin-muted); font-size: .9rem; margin: 0 0 2rem; }
+
+        /* ── Grids & Cards ── */
+        .stats-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .stats-card { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 14px; padding: 1.5rem; }
+        .stats-card-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+        .stats-card-badge { font-size: .75rem; color: var(--admin-accent); background: var(--admin-badge-bg); padding: 2px 8px; border-radius: 6px; }
+
+        /* ── KPI Highlight ── */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .kpi-box { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 10px; padding: 1rem 1.25rem; }
+        .kpi-box-val { font-size: 1.8rem; font-weight: 800; margin-top: .25rem; }
+        .kpi-box-lbl { font-size: .8rem; color: var(--admin-muted); font-weight: 500; }
+
+        /* ── Simple Bars & Funnel ── */
+        .bar-row { display: flex; align-items: center; gap: 1rem; margin-bottom: .85rem; font-size: .85rem; }
+        .bar-label { width: 140px; color: var(--admin-text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bar-container { flex: 1; height: 10px; background: #e2ece7; border-radius: 6px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; border-radius: 6px; transition: width .4s ease; }
+        .bar-val { width: 60px; text-align: right; color: var(--admin-muted); font-weight: 600; font-size: .8rem; }
+
+        /* ── Table ── */
+        .table-wrap { background: #ffffff; border: 1px solid var(--admin-border); border-radius: 10px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+        thead th { padding: .75rem 1rem; text-align: left; font-size: .75rem; font-weight: 600; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--admin-border); background: #f8fbfa; }
+        tbody tr { border-bottom: 1px solid var(--admin-border); }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f0f7f3; }
+        td { padding: .75rem 1rem; }
+
+        .spinner { width: 32px; height: 32px; border: 3px solid var(--admin-border); border-top-color: var(--admin-accent); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-center { display: flex; justify-content: center; padding: 3rem; }
+    </style>
+<style id="admin-sidebar-overrides">
+    .admin-navbar, .admin-nav-inner, .admin-nav-links, .admin-nav-link,
+    .admin-nav-right, .admin-logo, .admin-logo-badge, .btn-nav-logout { display: none !important; }
+    body { background: #f6faf8; }
+    .admin-page { padding: 1.75rem 2rem 4rem; }
+    @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
+</style>
+</head>
+<body class="has-sidebar">
+<script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+<aside class="app-sidebar" id="app-sidebar" aria-label="Navigation administration">
+    <div class="sidebar-brand">
+        <a href="/admin-dashboard.html" class="sidebar-logo">
+            <span class="sidebar-logo-icon">
+                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="13" stroke="url(#asg1)" stroke-width="2"/>
+                    <path d="M8 14l4 4 8-8" stroke="url(#asg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="asg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#5cd498"/><stop offset="1" stop-color="#2e8b5d"/></linearGradient></defs>
+                </svg>
+            </span>
+            <div class="sidebar-logo-text">
+                <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
+                <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Admin</span>
+            </div>
+        </a>
+        <div style="display:flex;align-items:center;gap:.3rem;">
+            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Epingler la barre">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"/></svg>
+            </button>
+            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu lateral">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Menu Principal</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item"><a href="/admin-dashboard.html" class="sidebar-link " title="Tableau de bord"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="sidebar-link-label">Tableau de bord</span></a></li>
+                <li class="sidebar-item"><a href="/admin-moderation.html" class="sidebar-link " title="Moderation"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span class="sidebar-link-label">Moderation</span><span id="sidebar-badge-moderation" style="display:none;background:#dc2626;color:#fff;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;margin-left:auto;"></span></a></li>
+                <li class="sidebar-item"><a href="/admin-competences.html" class="sidebar-link " title="Referentiel"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="sidebar-link-label">Referentiel</span></a></li>
+                <li class="sidebar-item"><a href="/admin-utilisateurs.html" class="sidebar-link " title="Utilisateurs"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-link-label">Utilisateurs</span></a></li>
+                <li class="sidebar-item"><a href="/admin-offres.html" class="sidebar-link " title="Offres"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="sidebar-link-label">Offres</span></a></li>
+                <li class="sidebar-item"><a href="/admin-stats.html" class="sidebar-link active" title="Statistiques"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="sidebar-link-label">Statistiques</span></a></li>
+                <li class="sidebar-item"><a href="/admin-journal.html" class="sidebar-link " title="Journal d'audit"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="sidebar-link-label">Journal</span></a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Compte</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item"><a href="/index.html" class="sidebar-link" title="Site principal"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sidebar-link-label">Site principal</span></a></li>
+                <li class="sidebar-item"><button class="sidebar-link" id="btn-sidebar-logout" title="Deconnexion" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;font-family:inherit;"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="sidebar-link-label" style="color:#dc2626;">Deconnexion</span></button></li>
+            </ul>
+        </div>
+    </nav>
+</aside>
+<div class="app-main-layout">
+    <header class="app-topbar">
+        <div class="topbar-left">
+            <button class="topbar-toggle" id="topbar-sidebar-toggle" aria-label="Ouvrir le menu lateral">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="topbar-breadcrumb">
+                <span class="topbar-bc-root">MatchingCV</span>
+                <span class="topbar-bc-sep">/</span>
+                <span class="topbar-bc-current">Statistiques</span>
+            </div>
+            <span style="font-size:.62rem;background:rgba(36,119,78,.12);color:#184b32;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.06em;margin-left:6px;">ADMIN</span>
+        </div>
+        <div class="topbar-right">
+            <div class="nav-cta" id="topbar-nav-cta">
+                <span id="nav-user-name" style="display:none;"></span>
+                <button id="nav-logout" style="display:none;"></button>
+            </div>
+            <span style="font-size:.84rem;color:#184b32;font-weight:600;" id="nav-admin-name">Administrateur</span>
+            <button style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:.35rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;" id="btn-topbar-logout">Deconnexion</button>
+        </div>
+    </header>
+<!-- ── CONTENU ── -->
+<main class="admin-page">
+    <header style="margin-bottom:2rem;">
+        <h1 class="admin-page-title">Statistiques globales</h1>
+        <p class="admin-page-subtitle">Analyse transversale de l'activité, du marché et de l'entonnoir de recrutement.</p>
+    </header>
+
+    <div id="stats-container">
+        <div class="loading-center"><div class="spinner"></div></div>
+    </div>
+</main>
+
+<script src="/js/notifications.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    const user = MatchingCVSession.read();
+    if (user) {
+        document.getElementById('nav-admin-name').textContent = (user.prenom || '') + ' ' + (user.nom || '');
+        if (window.NotificationBell) NotificationBell.init({ userId: user.id, role: 'ADMIN' });
+    }
+    document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
+
+    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+        if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
+    }).catch(() => {});
+
+    function renderStats(s) {
+        const ent = s.entonnoirCandidatures || { total:0, envoyees:0, enCours:0, acceptees:0, refusees:0 };
+        const maxEnt = Math.max(ent.total, 1);
+        const roles = s.utilisateursParRole || {};
+        const totalUsers = (roles.ETUDIANT || 0) + (roles.RECRUTEUR || 0) + (roles.ADMIN || 0);
+
+        let html = `
+        <!-- High-level KPIs -->
+        <div class="kpi-row">
+            <div class="kpi-box">
+                <div class="kpi-box-lbl">Score moyen candidatures</div>
+                <div class="kpi-box-val" style="color:var(--admin-accent2)">${s.scoreMoyen != null ? s.scoreMoyen + ' / 100' : '—'}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-box-lbl">Taux d'acceptation</div>
+                <div class="kpi-box-val" style="color:var(--admin-green)">${s.tauxAcceptation != null ? s.tauxAcceptation + '%' : '—'}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-box-lbl">Compétences en attente</div>
+                <div class="kpi-box-val" style="color:var(--admin-amber)">${s.competencesEnAttente || 0}</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-box-lbl">Total utilisateurs</div>
+                <div class="kpi-box-val" style="color:var(--admin-accent)">${totalUsers}</div>
+            </div>
+        </div>
+
+        <div class="stats-grid-2">
+            <!-- Entonnoir -->
+            <div class="stats-card">
+                <div class="stats-card-title">
+                    <span>Entonnoir global des candidatures</span>
+                    <span class="stats-card-badge">${ent.total} total</span>
+                </div>
+                ${renderBar('Envoyées', ent.envoyees, maxEnt, 'var(--admin-accent)')}
+                ${renderBar('En cours (Vue / Entretien)', ent.enCours, maxEnt, 'var(--admin-accent2)')}
+                ${renderBar('Acceptées', ent.acceptees, maxEnt, 'var(--admin-green)')}
+                ${renderBar('Refusées / Retirées', ent.refusees, maxEnt, 'var(--admin-red)')}
+            </div>
+
+            <!-- Utilisateurs par rôle -->
+            <div class="stats-card">
+                <div class="stats-card-title">
+                    <span>Répartition des utilisateurs</span>
+                    <span class="stats-card-badge">${totalUsers} comptes</span>
+                </div>
+                ${renderBar('Étudiants', roles.ETUDIANT || 0, Math.max(totalUsers, 1), 'var(--admin-accent)')}
+                ${renderBar('Recruteurs', roles.RECRUTEUR || 0, Math.max(totalUsers, 1), 'var(--admin-accent2)')}
+                ${renderBar('Administrateurs', roles.ADMIN || 0, Math.max(totalUsers, 1), 'var(--admin-amber)')}
+            </div>
+        </div>
+
+        <div class="stats-grid-2">
+            <!-- Offres par domaine -->
+            <div class="stats-card">
+                <div class="stats-card-title">
+                    <span>Offres par domaine (Actives vs Clôturées)</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Domaine</th><th style="text-align:center">Actives</th><th style="text-align:center">Clôturées</th><th style="text-align:center">Total</th></tr>
+                        </thead>
+                        <tbody>
+                            ${renderOffresDomaines(s.offresParDomaine || {})}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Inscriptions par semaine -->
+            <div class="stats-card">
+                <div class="stats-card-title">
+                    <span>Inscriptions récentes (par semaine)</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Semaine</th><th style="text-align:right">Nouveaux inscrits</th></tr>
+                        </thead>
+                        <tbody>
+                            ${renderInscriptions(s.inscriptionsParSemaine || [])}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Écart du marché -->
+        <div class="stats-card" style="margin-top:1.5rem">
+            <div class="stats-card-title">
+                <span>⚖️ Écart du marché — Compétences les plus demandées vs possédées (Top 15)</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Compétence</th>
+                            <th style="text-align:center">Demandées (Offres)</th>
+                            <th style="text-align:center">Possédées (Étudiants)</th>
+                            <th style="text-align:center">Tension / Écart</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${renderEcartMarche(s.ecartMarche || [])}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        `;
+        document.getElementById('stats-container').innerHTML = html;
+    }
+
+    function renderBar(label, val, max, color) {
+        const pct = Math.round((val / max) * 100);
+        return `
+        <div class="bar-row">
+            <div class="bar-label" title="${label}">${label}</div>
+            <div class="bar-container">
+                <div class="bar-fill" style="width:${pct}%;background:${color};"></div>
+            </div>
+            <div class="bar-val">${val} <span style="font-size:.7rem;color:var(--admin-muted)">(${pct}%)</span></div>
+        </div>`;
+    }
+
+    function renderOffresDomaines(domaines) {
+        const keys = Object.keys(domaines);
+        if (!keys.length) return '<tr><td colspan="4" style="text-align:center;color:var(--admin-muted)">Aucune offre</td></tr>';
+        return keys.map(k => {
+            const d = domaines[k];
+            const tot = (d.actives || 0) + (d.cloturees || 0);
+            return `<tr>
+                <td style="font-weight:600">${escapeHtml(k)}</td>
+                <td style="text-align:center;color:var(--admin-green);font-weight:600">${d.actives || 0}</td>
+                <td style="text-align:center;color:var(--admin-red)">${d.cloturees || 0}</td>
+                <td style="text-align:center;font-weight:700">${tot}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    function renderInscriptions(list) {
+        if (!list.length) return '<tr><td colspan="2" style="text-align:center;color:var(--admin-muted)">Aucune donnée</td></tr>';
+        return list.slice(-10).reverse().map(item => `
+            <tr>
+                <td style="font-weight:600">${escapeHtml(item.semaine)}</td>
+                <td style="text-align:right;font-weight:700;color:var(--admin-accent)">+${item.nombre}</td>
+            </tr>
+        `).join('');
+    }
+
+    function renderEcartMarche(list) {
+        if (!list.length) return '<tr><td colspan="4" style="text-align:center;color:var(--admin-muted)">Aucune donnée</td></tr>';
+        return list.map(c => {
+            const ecart = c.ecart;
+            const ecartColor = ecart > 0 ? 'var(--admin-red)' : (ecart < 0 ? 'var(--admin-green)' : 'var(--admin-muted)');
+            const ecartLabel = ecart > 0 ? `+${ecart} (Pénurie)` : (ecart < 0 ? `${ecart} (Excédent)` : '0 (Équilibre)');
+            return `<tr>
+                <td style="font-weight:600">${escapeHtml(c.nom)}</td>
+                <td style="text-align:center;font-weight:600;color:var(--admin-accent2)">${c.demandees}</td>
+                <td style="text-align:center;font-weight:600;color:var(--admin-accent)">${c.possedees}</td>
+                <td style="text-align:center;font-weight:700;color:${ecartColor}">${ecartLabel}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    fetch('/api/admin/stats')
+        .then(r => r.json())
+        .then(data => renderStats(data))
+        .catch(err => {
+            console.error(err);
+            document.getElementById('stats-container').innerHTML = '<p style="color:var(--admin-red);padding:2rem">Impossible de charger les statistiques.</p>';
+        });
+})();
+</script>
+</div>
+<!-- end app-main-layout -->
+<script src="/js/sidebar.js?v=2.0"></script>
+<script>
+(function(){
+    var user = MatchingCVSession.read();
+    if(user){
+        var el = document.getElementById('nav-admin-name');
+        if(el) el.textContent = ((user.prenom||'') + ' ' + (user.nom||'')).trim() || 'Administrateur';
+        if(window.NotificationBell) NotificationBell.init({userId:user.id,role:'ADMIN'});
+    }
+    function doLogout(){ MatchingCVSession.logout(); }
+    var b1 = document.getElementById('btn-topbar-logout');
+    var b2 = document.getElementById('btn-sidebar-logout');
+    if(b1) b1.addEventListener('click', doLogout);
+    if(b2) b2.addEventListener('click', doLogout);
+    // Badge moderation
+    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+        var badge = document.getElementById('sidebar-badge-moderation');
+        if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
+    }).catch(()=>{});
+})();
+</script>
+</body>
+</html>
+

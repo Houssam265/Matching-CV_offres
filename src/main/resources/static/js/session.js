@@ -6,7 +6,7 @@ window.MatchingCVSession = (() => {
     const dashboards = {
         ETUDIANT: '/dashboard-etudiant.html',
         RECRUTEUR: '/dashboard-recruteur.html',
-        ADMIN: '/admin-competences.html'
+        ADMIN: '/admin-dashboard.html'
     };
 
     function read() {
@@ -29,7 +29,7 @@ window.MatchingCVSession = (() => {
     function requireSession(role) {
         const user = read();
         if (!user) {
-            redirect(role === 'RECRUTEUR' ? '/login.html?espace=recruteur' : role === 'ETUDIANT' ? '/login.html?espace=utilisateur' : '/login.html');
+            redirect(role === 'RECRUTEUR' ? '/login.html?espace=recruteur' : role === 'ETUDIANT' ? '/login.html?espace=utilisateur' : role === 'ADMIN' ? '/admin-login.html' : '/login.html');
             return null;
         }
         if (role && user.role !== role) {
@@ -45,7 +45,7 @@ window.MatchingCVSession = (() => {
         fetch('/api/auth/me').then(async response => {
             if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem(storageKey);
-                redirect('/login.html');
+                redirect(role === 'ADMIN' ? '/admin-login.html' : (role === 'RECRUTEUR' ? '/login.html?espace=recruteur' : '/login.html'));
                 return;
             }
             if (!response.ok) return;
@@ -75,8 +75,8 @@ window.MatchingCVSession = (() => {
             if(!response.ok) throw new Error('Déconnexion indisponible. Réessayez.');
         } catch (error) { window.alert(error.message); return; }
         localStorage.removeItem(storageKey);
-        redirect(role === 'RECRUTEUR' ? '/login.html?espace=recruteur' : '/login.html?espace=utilisateur');
+        redirect(role === 'RECRUTEUR' ? '/login.html?espace=recruteur' : role === 'ADMIN' ? '/admin-login.html' : '/login.html?espace=utilisateur');
     }
 
-    return { read, require: requireSession, protect, logout };
+    return { read, getUser: read, require: requireSession, protect, logout };
 })();

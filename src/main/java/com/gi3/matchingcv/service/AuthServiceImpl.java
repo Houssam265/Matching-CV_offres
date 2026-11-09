@@ -108,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Compte désactivé. Contactez l'administrateur.");
         }
 
-        if (request.getRole() != null && utilisateur.getRole() != request.getRole()) {
+        if (request.getRole() != null && utilisateur.getRole() != com.gi3.matchingcv.model.enums.Role.ADMIN && utilisateur.getRole() != request.getRole()) {
             throw new IllegalArgumentException("Ce compte ne correspond pas à l'espace choisi.");
         }
         if (!com.gi3.matchingcv.security.Passwords.encoded(utilisateur.getMotDePasse())) {

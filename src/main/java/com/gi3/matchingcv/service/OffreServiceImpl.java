@@ -206,7 +206,7 @@ public class OffreServiceImpl implements OffreService {
     @Transactional(readOnly = true)
     public OffreDto trouver(Long id, Long recruteurId) {
         Offre offre = recruteurId == null ? offre(id) : possedee(id, recruteurId);
-        if (recruteurId == null && offre.getStatut() != StatutOffre.ACTIVE)
+        if (recruteurId == null && (offre.getStatut() != StatutOffre.ACTIVE || (offre.getRecruteur() != null && !offre.getRecruteur().isActif())))
             throw new EntityNotFoundException("Offre introuvable.");
         if (recruteurId != null) {
             long total = candidatures.countByOffreId(offre.getId());
@@ -233,6 +233,7 @@ public class OffreServiceImpl implements OffreService {
     @Transactional(readOnly = true)
     public List<OffreDto> listerPubliques(String domaine, String localisation, TypeContrat typeContrat) {
         return offres.findByStatut(StatutOffre.ACTIVE).stream()
+                .filter(o -> o.getRecruteur() == null || o.getRecruteur().isActif())
                 .filter(o -> contient(o.getDomaine(), domaine) && contient(o.getLocalisation(), localisation))
                 .filter(o -> typeContrat == null || o.getTypeContrat() == typeContrat)
                 .sorted(Comparator.comparing(Offre::getDatePublication, Comparator.nullsLast(Comparator.reverseOrder())))

@@ -32,8 +32,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
     private static final Logger log = LoggerFactory.getLogger(AdminCompetenceServiceImpl.class);
 
     private final CompetenceRepository competenceRepository;
-    private final AdministrateurRepository administrateurRepository;
-    private final AuditLogRepository auditLogRepository;
+    private final AuditService auditService;
     private final NotificationService notificationService;
     private final CompetenceService competenceService;
     private final OffreCompetenceRepository offreCompetenceRepository;
@@ -45,8 +44,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
 
     public AdminCompetenceServiceImpl(
             CompetenceRepository competenceRepository,
-            AdministrateurRepository administrateurRepository,
-            AuditLogRepository auditLogRepository,
+            AuditService auditService,
             NotificationService notificationService,
             CompetenceService competenceService,
             OffreCompetenceRepository offreCompetenceRepository,
@@ -54,8 +52,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
             EntityManager entityManager
     ) {
         this.competenceRepository = competenceRepository;
-        this.administrateurRepository = administrateurRepository;
-        this.auditLogRepository = auditLogRepository;
+        this.auditService = auditService;
         this.notificationService = notificationService;
         this.competenceService = competenceService;
         this.offreCompetenceRepository = offreCompetenceRepository;
@@ -85,11 +82,15 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
         long n = 0;
         for (String table : List.of("etudiant_competence", "projet_competence",
                 "experience_competence", "offre_competences", "profil_competences")) {
-            Number r = (Number) entityManager
-                    .createNativeQuery("SELECT COUNT(*) FROM " + table + " WHERE competence_id = :id")
-                    .setParameter("id", competenceId)
-                    .getSingleResult();
-            if (r != null) n += r.longValue();
+            try {
+                Number r = (Number) entityManager
+                        .createNativeQuery("SELECT COUNT(*) FROM " + table + " WHERE competence_id = :id")
+                        .setParameter("id", competenceId)
+                        .getSingleResult();
+                if (r != null) n += r.longValue();
+            } catch (Exception e) {
+                log.debug("Impossible de compter les usages dans {} : {}", table, e.getMessage());
+            }
         }
         return n;
     }
@@ -125,6 +126,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
                 .orElseThrow(() -> new EntityNotFoundException("Compétence introuvable : " + id));
         if (nom != null && !nom.isBlank()) {
             c.setNom(nom.trim());
+            c.setNomNormalise(Competence.normaliserNom(nom.trim()));
         }
         if (categorie != null) {
             c.setCategorie(categorie.isBlank() ? null : categorie.trim());
@@ -133,9 +135,11 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
             c.setSynonymes(synonymes.stream().filter(s -> s != null && !s.isBlank())
                     .map(String::trim).collect(Collectors.toList()));
         }
+        competenceRepository.save(c);
+
         // Délègue à CompetenceService pour déclencher l'événement et la notification à l'auteur
         Competence saved = competenceService.changerStatut(id, StatutCompetence.VALIDEE);
-        journaliser(adminId, "VALIDER_COMPETENCE", "Compétence #" + id + " '" + saved.getNom() + "'", null);
+        auditService.journaliser(adminId, "VALIDER_COMPETENCE", "Compétence #" + id + " '" + saved.getNom() + "'", null);
         return saved;
     }
 
@@ -146,7 +150,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
         // Délègue à CompetenceService pour déclencher l'événement et la notification à l'auteur
         Competence saved = competenceService.changerStatut(id, StatutCompetence.REJETEE);
         String details = (motif != null && !motif.isBlank()) ? motif : null;
-        journaliser(adminId, "REJETER_COMPETENCE",
+        auditService.journaliser(adminId, "REJETER_COMPETENCE",
                 "Compétence #" + id + " '" + c.getNom() + "'", details);
         return saved;
     }
@@ -165,26 +169,24 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
         Competence cible  = competenceRepository.findById(cibleId)
                 .orElseThrow(() -> new EntityNotFoundException("Compétence cible introuvable : " + cibleId));
 
-        // 1. Re-pointer les tables many-to-many simples (sans contrainte unique problématique)
+        // 1. Re-pointer les tables many-to-many (etudiant_competence, projet_competence, experience_competence)
         for (String table : List.of("etudiant_competence", "projet_competence", "experience_competence")) {
-            // Supprimer les doublons éventuels avant la mise à jour
+            String col = table.equals("etudiant_competence") ? "etudiant_id" :
+                         table.equals("projet_competence")   ? "projet_id"   : "experience_id";
+
+            // Supprimer les doublons pour la cible
             entityManager.createNativeQuery(
-                    "DELETE FROM " + table + " WHERE competence_id = :source " +
-                    "AND EXISTS (SELECT 1 FROM (SELECT * FROM " + table + ") t2 " +
-                    "WHERE t2.competence_id = :cible AND t2." +
-                    (table.equals("etudiant_competence") ? "etudiant_id" :
-                     table.equals("projet_competence")   ? "projet_id"   : "experience_id") +
-                    " = " + table + "." +
-                    (table.equals("etudiant_competence") ? "etudiant_id" :
-                     table.equals("projet_competence")   ? "projet_id"   : "experience_id") + ")"
+                    "DELETE FROM " + table + " WHERE competence_id = :source AND " + col + " IN (" +
+                    "SELECT " + col + " FROM (SELECT " + col + " FROM " + table + " WHERE competence_id = :cible) t)"
             ).setParameter("source", sourceId).setParameter("cible", cibleId).executeUpdate();
 
+            // Re-pointer les lignes restantes vers la cible
             entityManager.createNativeQuery(
                     "UPDATE " + table + " SET competence_id = :cible WHERE competence_id = :source"
             ).setParameter("cible", cibleId).setParameter("source", sourceId).executeUpdate();
         }
 
-        // 2. Re-pointer profil_competences (entité JPA — supprime doublons via repo)
+        // 2. Re-pointer profil_competences (supprime doublons via repo)
         List<ProfilCompetence> profilsSrc = profilCompetenceRepository.findByCompetenceId(sourceId);
         for (ProfilCompetence pc : profilsSrc) {
             boolean existeDeja = profilCompetenceRepository.findByCompetenceId(cibleId).stream()
@@ -197,7 +199,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
             }
         }
 
-        // 3. Re-pointer offre_competences (REQUISE prioritaire sur ATOUT en cas de doublon)
+        // 3. Re-pointer offre_competences (REQUISE prioritaire sur ATOUT en cas de doublon, sans doublon)
         List<OffreCompetence> offresSrc = offreCompetenceRepository.findByCompetenceId(sourceId);
         List<OffreCompetence> offresCible = offreCompetenceRepository.findByCompetenceId(cibleId);
         for (OffreCompetence oc : offresSrc) {
@@ -218,15 +220,22 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
             }
         }
 
-        // 4. Ajouter l'ancien nom dans les synonymes de la cible
+        // 4. Ajouter l'ancien nom (et ses synonymes) dans les synonymes de la cible
         List<String> syns = new ArrayList<>(cible.getSynonymes() != null ? cible.getSynonymes() : List.of());
         if (!syns.contains(source.getNom())) {
             syns.add(source.getNom());
         }
+        if (source.getSynonymes() != null) {
+            for (String s : source.getSynonymes()) {
+                if (s != null && !s.isBlank() && !syns.contains(s) && !s.equalsIgnoreCase(cible.getNom())) {
+                    syns.add(s);
+                }
+            }
+        }
         cible.setSynonymes(syns);
         competenceRepository.save(cible);
 
-        // 5. Notifier l'auteur de la compétence source (si elle en a un)
+        // 5. Notifier l'auteur de la compétence source ("fusionnée avec X")
         if (source.getProposeePar() != null) {
             notificationService.notifier(
                     source.getProposeePar().getId(),
@@ -240,9 +249,10 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
 
         // 6. Supprimer la source
         competenceRepository.delete(source);
+        entityManager.flush();
 
         // 7. Journaliser
-        journaliser(adminId, "FUSIONNER_COMPETENCE",
+        auditService.journaliser(adminId, "FUSIONNER_COMPETENCE",
                 "Compétence #" + sourceId + " '" + source.getNom() + "' → #" + cibleId + " '" + cible.getNom() + "'",
                 null);
         log.info("Compétence #{} '{}' fusionnée dans #{} '{}'", sourceId, source.getNom(), cibleId, cible.getNom());
@@ -285,6 +295,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
         String ancienNom = c.getNom();
         if (nom != null && !nom.isBlank()) {
             c.setNom(nom.trim());
+            c.setNomNormalise(Competence.normaliserNom(nom.trim()));
         }
         if (categorie != null) {
             c.setCategorie(categorie.isBlank() ? null : categorie.trim());
@@ -294,7 +305,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
                     .map(String::trim).collect(Collectors.toList()));
         }
         Competence saved = competenceRepository.save(c);
-        journaliser(adminId, "MODIFIER_COMPETENCE",
+        auditService.journaliser(adminId, "MODIFIER_COMPETENCE",
                 "Compétence #" + id + " '" + ancienNom + "'",
                 nom != null ? "Nouveau nom : " + nom : null);
         return saved;
@@ -339,7 +350,7 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
                 }
             }
         }
-        journaliser(adminId, "IMPORT_CSV", "CSV compétences",
+        auditService.journaliser(adminId, "IMPORT_CSV", "CSV compétences",
                 creees + " créées, " + ignorees + " ignorées");
         return Map.of("creees", creees, "ignorees", ignorees);
     }
@@ -360,19 +371,6 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
     // ──────────────────────────────────────────────────────────────────────────
     // UTILITAIRES PRIVÉS
     // ──────────────────────────────────────────────────────────────────────────
-
-    private void journaliser(Long adminId, String action, String cible, String details) {
-        Administrateur admin = adminId != null
-                ? administrateurRepository.findById(adminId).orElse(null) : null;
-        String adminNom = admin != null ? admin.getPrenom() + " " + admin.getNom() : "Système";
-        AuditLog log = new AuditLog();
-        log.setAdminId(adminId);
-        log.setAdminNom(adminNom);
-        log.setAction(action);
-        log.setCible(cible);
-        log.setDetails(details);
-        auditLogRepository.save(log);
-    }
 
     private String escapeCsv(String val) {
         if (val == null) return "";

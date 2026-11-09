@@ -144,7 +144,7 @@ function initLoginPage() {
             const res = await fetch('/api/auth/connexion', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ email, motDePasse, role: new URLSearchParams(location.search).get('espace') === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT' })
+                body: JSON.stringify({ email, motDePasse, role: new URLSearchParams(location.search).get('espace') === 'admin' ? 'ADMIN' : (new URLSearchParams(location.search).get('espace') === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT') })
             });
 
             const data = await res.json().catch(() => null);
@@ -152,7 +152,7 @@ function initLoginPage() {
             if (res.ok && data) {
                 const espace = new URLSearchParams(window.location.search).get('espace');
                 const expectedRole = espace === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT';
-                if (data.role !== expectedRole && !(data.role === 'ADMIN' && !espace)) {
+                if (data.role !== 'ADMIN' && data.role !== expectedRole) {
                     const destination = data.role === 'RECRUTEUR' ? 'recruteur' : 'utilisateur';
                     showAlert('login-alert', `Ce compte appartient à l’espace ${destination}. Changez d’espace pour vous connecter.`, 'danger');
                     document.getElementById('login-password').value = '';
@@ -182,7 +182,7 @@ function initLoginPage() {
                     } else if (role === 'RECRUTEUR') {
                         window.location.href = '/dashboard-recruteur.html';
                     } else if (role === 'ADMIN') {
-                        window.location.href = '/competences.html';
+                        window.location.href = '/admin-dashboard.html';
                     } else {
                         window.location.href = '/index.html';
                     }
