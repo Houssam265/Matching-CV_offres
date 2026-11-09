@@ -1,0 +1,317 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Journal d'audit — Espace Administrateur Matching CV-Offres" />
+    <title>Journal d'Audit — Admin · Matching CV-Offres</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/sidebar.css?v=3" />
+    <link rel="stylesheet" href="/css/navigation.css?v=3" />
+    <link rel="stylesheet" href="/css/notifications.css" />
+    <link rel="icon" href="/favicon.svg" />
+    <script src="/js/session.js"></script>
+    <!-- TODO sécurité : vérification du rôle ADMIN côté serveur -->
+    <script>MatchingCVSession.protect('ADMIN');</script>
+    <style>
+        :root {
+            --admin-bg:       #f6faf8;
+            --admin-surface:  #edf4f0;
+            --admin-card:     #ffffff;
+            --admin-border:   #dce9e2;
+            --admin-accent:   #24774e;
+            --admin-accent2:  #20754b;
+            --admin-green:    #2e9c65;
+            --admin-red:      #dc2626;
+            --admin-amber:    #d97706;
+            --admin-text:     #1c4330;
+            --admin-muted:    #527765;
+            --admin-badge-bg: rgba(36,119,78,.12);
+        }
+        body { background: var(--admin-bg); color: var(--admin-text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; margin: 0; }
+
+        /* ── Navbar ── */
+        .admin-navbar { background: #ffffff; border-bottom: 1px solid var(--admin-border); position: sticky; top: 0; z-index: 100; padding: 0 1.5rem; }
+        .admin-nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; height: 60px; }
+        .admin-logo { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: #184b32; font-weight: 800; font-size: 1.05rem; flex-shrink: 0; }
+        .admin-logo-badge { font-size: .65rem; background: var(--admin-badge-bg); color: var(--admin-accent); padding: 2px 7px; border-radius: 4px; font-weight: 700; letter-spacing: .04em; }
+        .admin-nav-links { display: flex; list-style: none; margin: 0; padding: 0; gap: .35rem; flex: 1; overflow-x: auto; scrollbar-width: none; }
+        .admin-nav-links::-webkit-scrollbar { display: none; }
+        .admin-nav-link { display: flex; align-items: center; gap: .4rem; padding: .45rem .85rem; border-radius: 8px; text-decoration: none; color: var(--admin-muted); font-size: .875rem; font-weight: 500; white-space: nowrap; transition: background .15s, color .15s; }
+        .admin-nav-link:hover { background: #edf4f0; color: #184b32; }
+        .admin-nav-link.active { background: #e2ece7; color: #184b32; font-weight: 700; }
+        .admin-nav-link .badge { background: var(--admin-red); color: #fff; font-size: .7rem; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+        .admin-nav-right { display: flex; align-items: center; gap: .85rem; flex-shrink: 0; }
+        .admin-nav-user { font-size: .85rem; color: #184b32; font-weight: 600; }
+        .btn-nav-logout { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: .35rem .85rem; border-radius: 7px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+        .btn-nav-logout:hover { background: #fee2e2; }
+
+        /* ── Page ── */
+        .admin-page { max-width: 1300px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+        .admin-page-title { font-size: 1.75rem; font-weight: 800; margin: 0 0 .3rem; background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .admin-page-subtitle { color: var(--admin-muted); font-size: .9rem; margin: 0 0 2rem; }
+
+        /* ── Toolbar ── */
+        .toolbar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .search-box { background: #ffffff; border: 1px solid var(--admin-border); color: var(--admin-text); padding: .5rem .9rem; border-radius: 8px; font-size: .875rem; outline: none; min-width: 260px; }
+        .search-box:focus { border-color: var(--admin-accent); }
+        .filter-select { background: #ffffff; border: 1px solid var(--admin-border); color: var(--admin-text); padding: .5rem .9rem; border-radius: 8px; font-size: .875rem; outline: none; cursor: pointer; }
+
+        /* ── Table ── */
+        .table-wrap { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 14px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+        thead th { padding: .85rem 1.25rem; text-align: left; font-size: .78rem; font-weight: 600; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--admin-border); background: #f8fbfa; }
+        tbody tr { border-bottom: 1px solid var(--admin-border); }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f0f7f3; }
+        td { padding: .85rem 1.25rem; vertical-align: top; }
+
+        .chip-action { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; letter-spacing: .03em; }
+        .chip-valider    { background: rgba(34,197,94,.15); color: var(--admin-green); border: 1px solid rgba(34,197,94,.3); }
+        .chip-rejeter    { background: rgba(239,68,68,.15); color: var(--admin-red); border: 1px solid rgba(239,68,68,.3); }
+        .chip-fusionner  { background: rgba(36,119,78,.15); color: var(--admin-accent); border: 1px solid rgba(36,119,78,.3); }
+        .chip-suspendre  { background: rgba(239,68,68,.15); color: var(--admin-red); border: 1px solid rgba(239,68,68,.3); }
+        .chip-reactiver  { background: rgba(34,197,94,.15); color: var(--admin-green); border: 1px solid rgba(34,197,94,.3); }
+        .chip-cloturer   { background: rgba(245,158,11,.15); color: var(--admin-amber); border: 1px solid rgba(245,158,11,.3); }
+        .chip-import     { background: rgba(34,211,238,.15); color: var(--admin-accent2); border: 1px solid rgba(34,211,238,.3); }
+        .chip-autre      { background: rgba(148,163,184,.15); color: var(--admin-muted); border: 1px solid rgba(148,163,184,.3); }
+
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--admin-muted); }
+        .spinner { width: 32px; height: 32px; border: 3px solid var(--admin-border); border-top-color: var(--admin-accent); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-center { display: flex; justify-content: center; padding: 3rem; }
+    </style>
+<style id="admin-sidebar-overrides">
+    .admin-navbar, .admin-nav-inner, .admin-nav-links, .admin-nav-link,
+    .admin-nav-right, .admin-logo, .admin-logo-badge, .btn-nav-logout { display: none !important; }
+    body { background: #f6faf8; }
+    .admin-page { padding: 1.75rem 2rem 4rem; }
+    @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
+</style>
+</head>
+<body class="has-sidebar">
+<script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+<aside class="app-sidebar" id="app-sidebar" aria-label="Navigation administration">
+    <div class="sidebar-brand">
+        <a href="/admin-dashboard.html" class="sidebar-logo">
+            <span class="sidebar-logo-icon">
+                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="13" stroke="url(#asg1)" stroke-width="2"/>
+                    <path d="M8 14l4 4 8-8" stroke="url(#asg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="asg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#5cd498"/><stop offset="1" stop-color="#2e8b5d"/></linearGradient></defs>
+                </svg>
+            </span>
+            <div class="sidebar-logo-text">
+                <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
+                <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Admin</span>
+            </div>
+        </a>
+        <div style="display:flex;align-items:center;gap:.3rem;">
+            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Epingler la barre">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"/></svg>
+            </button>
+            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu lateral">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Menu Principal</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item"><a href="/admin-dashboard.html" class="sidebar-link " title="Tableau de bord"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="sidebar-link-label">Tableau de bord</span></a></li>
+                <li class="sidebar-item"><a href="/admin-moderation.html" class="sidebar-link " title="Moderation"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span class="sidebar-link-label">Moderation</span><span id="sidebar-badge-moderation" style="display:none;background:#dc2626;color:#fff;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;margin-left:auto;"></span></a></li>
+                <li class="sidebar-item"><a href="/admin-competences.html" class="sidebar-link " title="Referentiel"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="sidebar-link-label">Referentiel</span></a></li>
+                <li class="sidebar-item"><a href="/admin-utilisateurs.html" class="sidebar-link " title="Utilisateurs"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-link-label">Utilisateurs</span></a></li>
+                <li class="sidebar-item"><a href="/admin-offres.html" class="sidebar-link " title="Offres"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="sidebar-link-label">Offres</span></a></li>
+                <li class="sidebar-item"><a href="/admin-stats.html" class="sidebar-link " title="Statistiques"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="sidebar-link-label">Statistiques</span></a></li>
+                <li class="sidebar-item"><a href="/admin-journal.html" class="sidebar-link active" title="Journal d'audit"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="sidebar-link-label">Journal</span></a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Compte</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item"><a href="/index.html" class="sidebar-link" title="Site principal"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sidebar-link-label">Site principal</span></a></li>
+                <li class="sidebar-item"><button class="sidebar-link" id="btn-sidebar-logout" title="Deconnexion" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;font-family:inherit;"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="sidebar-link-label" style="color:#dc2626;">Deconnexion</span></button></li>
+            </ul>
+        </div>
+    </nav>
+</aside>
+<div class="app-main-layout">
+    <header class="app-topbar">
+        <div class="topbar-left">
+            <button class="topbar-toggle" id="topbar-sidebar-toggle" aria-label="Ouvrir le menu lateral">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="topbar-breadcrumb">
+                <span class="topbar-bc-root">MatchingCV</span>
+                <span class="topbar-bc-sep">/</span>
+                <span class="topbar-bc-current">Journal</span>
+            </div>
+            <span style="font-size:.62rem;background:rgba(36,119,78,.12);color:#184b32;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.06em;margin-left:6px;">ADMIN</span>
+        </div>
+        <div class="topbar-right">
+            <div class="nav-cta" id="topbar-nav-cta">
+                <span id="nav-user-name" style="display:none;"></span>
+                <button id="nav-logout" style="display:none;"></button>
+            </div>
+            <span style="font-size:.84rem;color:#184b32;font-weight:600;" id="nav-admin-name">Administrateur</span>
+            <button style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:.35rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;" id="btn-topbar-logout">Deconnexion</button>
+        </div>
+    </header>
+<!-- ── CONTENU ── -->
+<main class="admin-page">
+    <header style="margin-bottom:2rem;">
+        <h1 class="admin-page-title">Journal d'audit</h1>
+        <p class="admin-page-subtitle">Historique en lecture seule de toutes les actions d'administration.</p>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input class="search-box" type="search" id="search-input" placeholder="Rechercher par administrateur, cible, détails…" />
+        <select class="filter-select" id="filter-action">
+            <option value="">Toutes les actions</option>
+            <option value="VALIDER_COMPETENCE">VALIDER_COMPETENCE</option>
+            <option value="REJETER_COMPETENCE">REJETER_COMPETENCE</option>
+            <option value="FUSIONNER_COMPETENCE">FUSIONNER_COMPETENCE</option>
+            <option value="SUSPENDRE_UTILISATEUR">SUSPENDRE_UTILISATEUR</option>
+            <option value="REACTIVER_UTILISATEUR">REACTIVER_UTILISATEUR</option>
+            <option value="CREER_ADMIN">CREER_ADMIN</option>
+            <option value="CLOTURER_OFFRE">CLOTURER_OFFRE</option>
+            <option value="IMPORT_CSV_COMPETENCES">IMPORT_CSV_COMPETENCES</option>
+            <option value="MODIFIER_COMPETENCE">MODIFIER_COMPETENCE</option>
+        </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th style="min-width:140px">Date & Heure</th>
+                    <th>Administrateur</th>
+                    <th>Action</th>
+                    <th>Cible</th>
+                    <th>Détails / Motif</th>
+                </tr>
+            </thead>
+            <tbody id="journal-tbody">
+                <tr><td colspan="5"><div class="loading-center"><div class="spinner"></div></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p id="journal-count" style="font-size:.8rem;color:var(--admin-muted);margin-top:.75rem;text-align:right"></p>
+</main>
+
+<script src="/js/notifications.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    const user = MatchingCVSession.read();
+    if (user) {
+        document.getElementById('nav-admin-name').textContent = (user.prenom || '') + ' ' + (user.nom || '');
+        if (window.NotificationBell) NotificationBell.init({ userId: user.id, role: 'ADMIN' });
+    }
+    document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
+
+    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+        if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
+    }).catch(() => {});
+
+    function fmt(dt) {
+        if (!dt) return '—';
+        return new Date(dt).toLocaleString('fr-FR', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+    }
+
+    function actionChip(action) {
+        if (!action) return '<span class="chip-action chip-autre">—</span>';
+        if (action.includes('VALIDER'))   return `<span class="chip-action chip-valider">${action}</span>`;
+        if (action.includes('REJETER'))   return `<span class="chip-action chip-rejeter">${action}</span>`;
+        if (action.includes('FUSIONNER')) return `<span class="chip-action chip-fusionner">${action}</span>`;
+        if (action.includes('SUSPENDRE')) return `<span class="chip-action chip-suspendre">${action}</span>`;
+        if (action.includes('REACTIVER')) return `<span class="chip-action chip-reactiver">${action}</span>`;
+        if (action.includes('CLOTURER'))  return `<span class="chip-action chip-cloturer">${action}</span>`;
+        if (action.includes('IMPORT'))    return `<span class="chip-action chip-import">${action}</span>`;
+        return `<span class="chip-action chip-autre">${action}</span>`;
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function loadJournal() {
+        const query = document.getElementById('search-input').value.trim();
+        const action = document.getElementById('filter-action').value;
+
+        const params = new URLSearchParams();
+        if (query) params.set('query', query);
+        if (action) params.set('action', action);
+
+        fetch(`/api/admin/journal?${params}`)
+            .then(r => r.json())
+            .then(logs => {
+                const tbody = document.getElementById('journal-tbody');
+                document.getElementById('journal-count').textContent = `${logs.length} entrée(s) trouvée(s)`;
+
+                if (!logs.length) {
+                    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Aucune entrée trouvée.</div></td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = logs.map(l => `
+                    <tr>
+                        <td style="white-space:nowrap;color:var(--admin-muted);font-size:.8rem">${fmt(l.dateAction)}</td>
+                        <td style="font-weight:600">${escapeHtml(l.adminNom || ('Admin #' + (l.adminId || '?')))}</td>
+                        <td>${actionChip(l.action)}</td>
+                        <td style="font-weight:500">${escapeHtml(l.cible || '—')}</td>
+                        <td style="color:var(--admin-muted);font-size:.82rem">${escapeHtml(l.details || '—')}</td>
+                    </tr>
+                `).join('');
+            })
+            .catch(() => {
+                document.getElementById('journal-tbody').innerHTML = '<tr><td colspan="5" class="empty-state">Erreur de chargement.</td></tr>';
+            });
+    }
+
+    let debounce;
+    document.getElementById('search-input').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(loadJournal, 350); });
+    document.getElementById('filter-action').addEventListener('change', loadJournal);
+
+    loadJournal();
+})();
+</script>
+</div>
+<!-- end app-main-layout -->
+<script src="/js/sidebar.js?v=2.0"></script>
+<script>
+(function(){
+    var user = MatchingCVSession.read();
+    if(user){
+        var el = document.getElementById('nav-admin-name');
+        if(el) el.textContent = ((user.prenom||'') + ' ' + (user.nom||'')).trim() || 'Administrateur';
+        if(window.NotificationBell) NotificationBell.init({userId:user.id,role:'ADMIN'});
+    }
+    function doLogout(){ MatchingCVSession.logout(); }
+    var b1 = document.getElementById('btn-topbar-logout');
+    var b2 = document.getElementById('btn-sidebar-logout');
+    if(b1) b1.addEventListener('click', doLogout);
+    if(b2) b2.addEventListener('click', doLogout);
+    // Badge moderation
+    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+        var badge = document.getElementById('sidebar-badge-moderation');
+        if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
+    }).catch(()=>{});
+})();
+</script>
+</body>
+</html>
+

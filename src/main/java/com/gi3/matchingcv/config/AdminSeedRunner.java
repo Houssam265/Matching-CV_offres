@@ -1,6 +1,7 @@
 package com.gi3.matchingcv.config;
 
 import com.gi3.matchingcv.model.Administrateur;
+import com.gi3.matchingcv.model.Utilisateur;
 import com.gi3.matchingcv.model.enums.Role;
 import com.gi3.matchingcv.repository.AdministrateurRepository;
 import com.gi3.matchingcv.repository.UtilisateurRepository;
@@ -44,7 +45,7 @@ public class AdminSeedRunner implements CommandLineRunner {
     @Value("#{'${app.admin.prenoms:Admin}'.split(',')}")
     private List<String> prenoms;
 
-    @Value("#{'${app.admin.noms:Système}'.split(',')}")
+    @Value("#{'${app.admin.noms:Principal}'.split(',')}")
     private List<String> noms;
 
     @Value("#{'${app.admin.passwords:admin123}'.split(',')}")
@@ -67,16 +68,43 @@ public class AdminSeedRunner implements CommandLineRunner {
         int crees = 0;
         for (int i = 0; i < emails.size(); i++) {
             String email = emails.get(i).trim().toLowerCase();
-            if (email.isBlank() || utilisateurRepository.existsByEmail(email)) {
+            if (email.isBlank()) {
+                continue;
+            }
+            String rawPassword = i < passwords.size() ? passwords.get(i).trim() : "admin123";
+            String adminNom = i < noms.size() ? noms.get(i).trim() : "Principal";
+            var existingOpt = utilisateurRepository.findByEmail(email);
+            if (existingOpt.isPresent()) {
+                Utilisateur existing = existingOpt.get();
+                existing.setActif(true);
+                existing.setActive(true);
+                existing.setRole(Role.ADMIN);
+                // Corrige tout nom null ou corrompu par un encodage incorrect (artefacts Latin-1 : Ã, ├, etc.)
+                String nomActuel = existing.getNom();
+                boolean nomCorrompu = nomActuel == null
+                        || nomActuel.contains("Ã")
+                        || nomActuel.contains("├")
+                        || nomActuel.contains("Â")
+                        || nomActuel.isBlank();
+                if (nomCorrompu) {
+                    existing.setNom(adminNom);
+                    log.info("Nom admin corrigé : '{}' → '{}' pour {}", nomActuel, adminNom, email);
+                }
+                if (!com.gi3.matchingcv.security.Passwords.matches(rawPassword, existing.getMotDePasse())) {
+                    existing.setMotDePasse(com.gi3.matchingcv.security.Passwords.hash(rawPassword));
+                    log.info("Mot de passe réinitialisé pour l'admin : {}", email);
+                }
+                utilisateurRepository.save(existing);
                 continue;
             }
             Administrateur admin = new Administrateur();
             admin.setEmail(email);
             admin.setPrenom(i < prenoms.size() ? prenoms.get(i).trim() : "Admin");
-            admin.setNom(i < noms.size() ? noms.get(i).trim() : "Système");
-            admin.setMotDePasse(i < passwords.size() ? passwords.get(i).trim() : "admin123");
+            admin.setNom(adminNom);
+            admin.setMotDePasse(com.gi3.matchingcv.security.Passwords.hash(rawPassword));
             admin.setRole(Role.ADMIN);
             admin.setActif(true);
+            admin.setActive(true);
             administrateurRepository.save(admin);
             crees++;
             log.info("Compte admin créé : {} ({})", admin.getPrenom() + " " + admin.getNom(), email);

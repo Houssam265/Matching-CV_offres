@@ -126,6 +126,8 @@ window.MatchingCVSidebar = (() => {
 
         document.getElementById('sidebar-logout')?.addEventListener('click', doLogout);
         document.getElementById('nav-logout')?.addEventListener('click', doLogout);
+        document.getElementById('btn-sidebar-logout')?.addEventListener('click', doLogout);
+        document.getElementById('btn-topbar-logout')?.addEventListener('click', doLogout);
     }
 
     /**
@@ -133,11 +135,12 @@ window.MatchingCVSidebar = (() => {
      */
     function updateUserInfo(user) {
         if (!user) return;
+        const isAdmin = user.role === 'ADMIN';
         const isRecruteur = user.role === 'RECRUTEUR';
         const prenom = user.prenom || '';
         const nom = user.nom || '';
-        const defaultName = isRecruteur ? 'Recruteur' : 'Utilisateur';
-        const defaultInitial = isRecruteur ? 'R' : 'U';
+        const defaultName = isAdmin ? 'Administrateur' : (isRecruteur ? 'Recruteur' : 'Utilisateur');
+        const defaultInitial = isAdmin ? 'A' : (isRecruteur ? 'R' : 'U');
         const fullName = `${prenom} ${nom}`.trim() || defaultName;
         const initials = ((prenom.charAt(0) || '') + (nom.charAt(0) || '')).toUpperCase() || defaultInitial;
 
@@ -149,7 +152,9 @@ window.MatchingCVSidebar = (() => {
 
         const sbRole = document.getElementById('sidebar-user-role');
         if (sbRole) {
-            if (isRecruteur) {
+            if (isAdmin) {
+                sbRole.textContent = 'Administrateur';
+            } else if (isRecruteur) {
                 const ent = user.nomEntreprise || user.entreprise;
                 sbRole.textContent = ent ? `${ent} • Entreprise` : 'Recruteur • Entreprise';
             } else {
@@ -165,6 +170,9 @@ window.MatchingCVSidebar = (() => {
 
         const legacyNavName = document.getElementById('nav-user-name');
         if (legacyNavName) legacyNavName.textContent = fullName;
+
+        const navAdminName = document.getElementById('nav-admin-name');
+        if (navAdminName) navAdminName.textContent = fullName;
     }
 
     /**

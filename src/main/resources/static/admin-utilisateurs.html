@@ -1,0 +1,524 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gestion des utilisateurs — Espace Administrateur Matching CV-Offres" />
+    <title>Utilisateurs — Admin · Matching CV-Offres</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/sidebar.css?v=3" />
+    <link rel="stylesheet" href="/css/navigation.css?v=3" />
+    <link rel="stylesheet" href="/css/notifications.css" />
+    <link rel="icon" href="/favicon.svg" />
+    <script src="/js/session.js"></script>
+    <!-- TODO sécurité : vérification du rôle ADMIN côté serveur -->
+    <script>MatchingCVSession.protect('ADMIN');</script>
+    <style>
+        :root {
+            --admin-bg:       #f6faf8;
+            --admin-surface:  #edf4f0;
+            --admin-card:     #ffffff;
+            --admin-border:   #dce9e2;
+            --admin-accent:   #24774e;
+            --admin-accent2:  #20754b;
+            --admin-green:    #2e9c65;
+            --admin-red:      #dc2626;
+            --admin-amber:    #d97706;
+            --admin-text:     #1c4330;
+            --admin-muted:    #527765;
+            --admin-badge-bg: rgba(36,119,78,.12);
+        }
+        body { background: var(--admin-bg); color: var(--admin-text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; margin: 0; }
+
+        /* ── Navbar ── */
+        .admin-navbar { background: #ffffff; border-bottom: 1px solid var(--admin-border); position: sticky; top: 0; z-index: 100; padding: 0 1.5rem; }
+        .admin-nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; height: 60px; }
+        .admin-logo { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: #184b32; font-weight: 800; font-size: 1.05rem; flex-shrink: 0; }
+        .admin-logo-badge { font-size: .65rem; background: var(--admin-badge-bg); color: var(--admin-accent); padding: 2px 7px; border-radius: 4px; font-weight: 700; letter-spacing: .04em; }
+        .admin-nav-links { display: flex; list-style: none; margin: 0; padding: 0; gap: .35rem; flex: 1; overflow-x: auto; scrollbar-width: none; }
+        .admin-nav-links::-webkit-scrollbar { display: none; }
+        .admin-nav-link { display: flex; align-items: center; gap: .4rem; padding: .45rem .85rem; border-radius: 8px; text-decoration: none; color: var(--admin-muted); font-size: .875rem; font-weight: 500; white-space: nowrap; transition: background .15s, color .15s; }
+        .admin-nav-link:hover { background: #edf4f0; color: #184b32; }
+        .admin-nav-link.active { background: #e2ece7; color: #184b32; font-weight: 700; }
+        .admin-nav-link .badge { background: var(--admin-red); color: #fff; font-size: .7rem; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+        .admin-nav-right { display: flex; align-items: center; gap: .85rem; flex-shrink: 0; }
+        .admin-nav-user { font-size: .85rem; color: #184b32; font-weight: 600; }
+        .btn-nav-logout { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: .35rem .85rem; border-radius: 7px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+        .btn-nav-logout:hover { background: #fee2e2; }
+
+        /* ── Page ── */
+        .admin-page { max-width: 1300px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+        .admin-page-title { font-size: 1.75rem; font-weight: 800; margin: 0 0 .3rem; background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .admin-page-subtitle { color: var(--admin-muted); font-size: .9rem; margin: 0 0 2rem; }
+
+        /* ── Toolbar ── */
+        .toolbar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .toolbar-right { margin-left: auto; display: flex; gap: .5rem; }
+        .search-box { background: var(--admin-surface); border: 1px solid var(--admin-border); color: var(--admin-text); padding: .5rem .9rem; border-radius: 8px; font-size: .875rem; outline: none; min-width: 220px; }
+        .search-box:focus { border-color: var(--admin-accent); }
+        .filter-select { background: var(--admin-surface); border: 1px solid var(--admin-border); color: var(--admin-text); padding: .5rem .9rem; border-radius: 8px; font-size: .875rem; outline: none; cursor: pointer; }
+        .filter-select:focus { border-color: var(--admin-accent); }
+        .btn-action { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; transition: opacity .15s, transform .1s; }
+        .btn-action:hover { opacity: .88; transform: translateY(-1px); }
+        .btn-action:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+        .btn-green  { background: rgba(34,197,94,.15);  color: var(--admin-green); border: 1px solid rgba(34,197,94,.3); }
+        .btn-red    { background: rgba(239,68,68,.15);  color: var(--admin-red);   border: 1px solid rgba(239,68,68,.3); }
+        .btn-indigo { background: var(--admin-badge-bg); color: var(--admin-accent); border: 1px solid rgba(99,102,241,.3); }
+        .btn-amber  { background: rgba(245,158,11,.15); color: var(--admin-amber); border: 1px solid rgba(245,158,11,.3); }
+
+        /* ── Table ── */
+        .table-wrap { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 14px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+        thead th { padding: .85rem 1.25rem; text-align: left; font-size: .78rem; font-weight: 600; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--admin-border); background: #f8fbfa; }
+        tbody tr { border-bottom: 1px solid var(--admin-border); transition: background .1s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f0f7f3; }
+        td { padding: .85rem 1.25rem; vertical-align: middle; }
+        .user-name { font-weight: 600; color: var(--admin-text); }
+        .user-email { font-size: .8rem; color: var(--admin-muted); }
+        .chip { display: inline-block; font-size: .72rem; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+        .chip-etudiant  { background: rgba(36,119,78,.12); color: #184b32; border: 1px solid rgba(36,119,78,.25); }
+        .chip-recruteur { background: rgba(46,156,101,.12); color: #20754b; border: 1px solid rgba(46,156,101,.25); }
+        .chip-admin     { background: rgba(217,119,6,.12); color: #b45309; border: 1px solid rgba(217,119,6,.25); }
+        .chip-actif     { background: rgba(34,197,94,.12); color: var(--admin-green); border: 1px solid rgba(34,197,94,.2); }
+        .chip-suspendu  { background: rgba(239,68,68,.12); color: var(--admin-red); border: 1px solid rgba(239,68,68,.2); }
+        .table-actions { display: flex; gap: .4rem; }
+        .btn-sm { padding: .3rem .7rem; font-size: .78rem; border-radius: 6px; }
+
+        /* ── Empty / Loading ── */
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--admin-muted); }
+        .spinner { width: 32px; height: 32px; border: 3px solid var(--admin-border); border-top-color: var(--admin-accent); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-center { display: flex; justify-content: center; padding: 3rem; }
+
+        /* ── Modals ── */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(6px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity .2s; }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-box { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 18px; padding: 2rem 2.25rem; max-width: 540px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.5); transform: translateY(16px) scale(.97); transition: transform .2s; max-height: 90vh; overflow-y: auto; }
+        .modal-overlay.open .modal-box { transform: none; }
+        .modal-title { font-size: 1.25rem; font-weight: 800; margin: 0 0 1.5rem; }
+        .modal-row { margin-bottom: 1.1rem; }
+        .modal-label { font-size: .8rem; font-weight: 600; color: var(--admin-muted); margin-bottom: .35rem; display: block; }
+        .modal-input { width: 100%; background: var(--admin-surface); border: 1px solid var(--admin-border); color: var(--admin-text); padding: .6rem .9rem; border-radius: 8px; font-size: .875rem; outline: none; box-sizing: border-box; }
+        .modal-input:focus { border-color: var(--admin-accent); }
+        .modal-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; }
+        .detail-row { display: flex; justify-content: space-between; padding: .6rem 0; border-bottom: 1px solid var(--admin-border); font-size: .875rem; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-key { color: var(--admin-muted); font-weight: 500; }
+        .detail-val { font-weight: 600; text-align: right; }
+        .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--admin-surface); border: 1px solid var(--admin-border); color: var(--admin-text); padding: .75rem 1.25rem; border-radius: 10px; font-size: .875rem; z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,.4); animation: toastIn .3s ease; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+    </style>
+<style id="admin-sidebar-overrides">
+    .admin-navbar, .admin-nav-inner, .admin-nav-links, .admin-nav-link,
+    .admin-nav-right, .admin-logo, .admin-logo-badge, .btn-nav-logout { display: none !important; }
+    body { background: #f6faf8; }
+    .admin-page { padding: 1.75rem 2rem 4rem; }
+    @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
+</style>
+</head>
+<body class="has-sidebar">
+<script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+<aside class="app-sidebar" id="app-sidebar" aria-label="Navigation administration">
+    <div class="sidebar-brand">
+        <a href="/admin-dashboard.html" class="sidebar-logo">
+            <span class="sidebar-logo-icon">
+                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="13" stroke="url(#asg1)" stroke-width="2"/>
+                    <path d="M8 14l4 4 8-8" stroke="url(#asg1)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="asg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#5cd498"/><stop offset="1" stop-color="#2e8b5d"/></linearGradient></defs>
+                </svg>
+            </span>
+            <div class="sidebar-logo-text">
+                <span class="sidebar-logo-title">Matching<strong>CV</strong></span>
+                <span class="sidebar-portal-tag"><span class="sidebar-tag-dot"></span> Espace Admin</span>
+            </div>
+        </a>
+        <div style="display:flex;align-items:center;gap:.3rem;">
+            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Epingler la barre">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"/></svg>
+            </button>
+            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu lateral">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Menu Principal</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item"><a href="/admin-dashboard.html" class="sidebar-link " title="Tableau de bord"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="sidebar-link-label">Tableau de bord</span></a></li>
+                <li class="sidebar-item"><a href="/admin-moderation.html" class="sidebar-link " title="Moderation"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span class="sidebar-link-label">Moderation</span><span id="sidebar-badge-moderation" style="display:none;background:#dc2626;color:#fff;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;margin-left:auto;"></span></a></li>
+                <li class="sidebar-item"><a href="/admin-competences.html" class="sidebar-link " title="Referentiel"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="sidebar-link-label">Referentiel</span></a></li>
+                <li class="sidebar-item"><a href="/admin-utilisateurs.html" class="sidebar-link active" title="Utilisateurs"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-link-label">Utilisateurs</span></a></li>
+                <li class="sidebar-item"><a href="/admin-offres.html" class="sidebar-link " title="Offres"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="sidebar-link-label">Offres</span></a></li>
+                <li class="sidebar-item"><a href="/admin-stats.html" class="sidebar-link " title="Statistiques"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="sidebar-link-label">Statistiques</span></a></li>
+                <li class="sidebar-item"><a href="/admin-journal.html" class="sidebar-link " title="Journal d'audit"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="sidebar-link-label">Journal</span></a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Compte</div>
+            <ul class="sidebar-list">
+                <li class="sidebar-item"><a href="/index.html" class="sidebar-link" title="Site principal"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sidebar-link-label">Site principal</span></a></li>
+                <li class="sidebar-item"><button class="sidebar-link" id="btn-sidebar-logout" title="Deconnexion" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;font-family:inherit;"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="sidebar-link-label" style="color:#dc2626;">Deconnexion</span></button></li>
+            </ul>
+        </div>
+    </nav>
+</aside>
+<div class="app-main-layout">
+    <header class="app-topbar">
+        <div class="topbar-left">
+            <button class="topbar-toggle" id="topbar-sidebar-toggle" aria-label="Ouvrir le menu lateral">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="topbar-breadcrumb">
+                <span class="topbar-bc-root">MatchingCV</span>
+                <span class="topbar-bc-sep">/</span>
+                <span class="topbar-bc-current">Utilisateurs</span>
+            </div>
+            <span style="font-size:.62rem;background:rgba(36,119,78,.12);color:#184b32;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.06em;margin-left:6px;">ADMIN</span>
+        </div>
+        <div class="topbar-right">
+            <div class="nav-cta" id="topbar-nav-cta">
+                <span id="nav-user-name" style="display:none;"></span>
+                <button id="nav-logout" style="display:none;"></button>
+            </div>
+            <span style="font-size:.84rem;color:#184b32;font-weight:600;" id="nav-admin-name">Administrateur</span>
+            <button style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:.35rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;" id="btn-topbar-logout">Deconnexion</button>
+        </div>
+    </header>
+<!-- ── CONTENU ── -->
+<main class="admin-page">
+    <header style="margin-bottom:2rem;">
+        <h1 class="admin-page-title">Gestion des utilisateurs</h1>
+        <p class="admin-page-subtitle">Consultez, suspendez, réactivez et créez des comptes administrateurs.</p>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input class="search-box" type="search" id="search-input" placeholder="Rechercher par nom, email, entreprise…" />
+        <select class="filter-select" id="filter-role">
+            <option value="">Tous les rôles</option>
+            <option value="ETUDIANT">Étudiant</option>
+            <option value="RECRUTEUR">Recruteur</option>
+            <option value="ADMIN">Admin</option>
+        </select>
+        <select class="filter-select" id="filter-actif">
+            <option value="">Tous les statuts</option>
+            <option value="true">Actif</option>
+            <option value="false">Suspendu</option>
+        </select>
+        <div class="toolbar-right">
+            <button class="btn-action btn-indigo" id="btn-creer-admin">➕ Créer un admin</button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>Rôle</th>
+                    <th>Organisation</th>
+                    <th>Statut</th>
+                    <th>Inscription</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-tbody">
+                <tr><td colspan="6"><div class="loading-center"><div class="spinner"></div></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p id="users-count" style="font-size:.8rem;color:var(--admin-muted);margin-top:.75rem;text-align:right"></p>
+</main>
+
+<!-- ── Modal fiche détaillée ── -->
+<div class="modal-overlay" id="modal-detail" role="dialog" aria-modal="true" aria-labelledby="modal-detail-title">
+    <div class="modal-box">
+        <h2 class="modal-title" id="modal-detail-title">Fiche utilisateur</h2>
+        <div id="modal-detail-content"></div>
+        <div class="modal-actions">
+            <button class="btn-action btn-indigo" id="detail-action-btn" style="display:none"></button>
+            <button class="btn-action" style="background:var(--admin-surface);color:var(--admin-text);border:1px solid var(--admin-border);" id="detail-close">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Modal créer admin ── -->
+<div class="modal-overlay" id="modal-creer-admin" role="dialog" aria-modal="true" aria-labelledby="modal-creer-title">
+    <div class="modal-box">
+        <h2 class="modal-title" id="modal-creer-title">Créer un compte administrateur</h2>
+        <div class="modal-row">
+            <label class="modal-label" for="adm-prenom">Prénom *</label>
+            <input class="modal-input" type="text" id="adm-prenom" autocomplete="given-name" />
+        </div>
+        <div class="modal-row">
+            <label class="modal-label" for="adm-nom">Nom *</label>
+            <input class="modal-input" type="text" id="adm-nom" autocomplete="family-name" />
+        </div>
+        <div class="modal-row">
+            <label class="modal-label" for="adm-email">Email *</label>
+            <input class="modal-input" type="email" id="adm-email" autocomplete="email" />
+        </div>
+        <div class="modal-row">
+            <label class="modal-label" for="adm-password">Mot de passe *</label>
+            <input class="modal-input" type="password" id="adm-password" autocomplete="new-password" />
+            <small style="color:var(--admin-muted);font-size:.75rem;margin-top:.3rem;display:block">Le mot de passe ne sera plus affiché après création.</small>
+        </div>
+        <p id="creer-error" style="color:var(--admin-red);font-size:.85rem;display:none;margin-top:.5rem"></p>
+        <div class="modal-actions">
+            <button class="btn-action btn-indigo" id="btn-creer-submit">Créer l'administrateur</button>
+            <button class="btn-action" style="background:var(--admin-surface);color:var(--admin-text);border:1px solid var(--admin-border);" id="btn-creer-cancel">Annuler</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/notifications.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    const MVN_API = '/api/admin';
+    const user = MatchingCVSession.read();
+    const adminId = user ? user.id : null;
+    if (user) {
+        document.getElementById('nav-admin-name').textContent = (user.prenom || '') + ' ' + (user.nom || '');
+        if (window.NotificationBell) NotificationBell.init({ userId: user.id, role: 'ADMIN' });
+    }
+    document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
+
+    // Badge modération
+    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+        if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
+    }).catch(() => {});
+
+    // ── State ──
+    let allUsers = [];
+    let currentDetailUser = null;
+
+    function fmt(dt) {
+        if (!dt) return '—';
+        return new Date(dt).toLocaleDateString('fr-FR');
+    }
+    function roleChip(r) {
+        if (r === 'ETUDIANT') return '<span class="chip chip-etudiant">Étudiant</span>';
+        if (r === 'RECRUTEUR') return '<span class="chip chip-recruteur">Recruteur</span>';
+        return '<span class="chip chip-admin">Admin</span>';
+    }
+
+    // ── Load users ──
+    function loadUsers() {
+        const q = document.getElementById('search-input').value.trim();
+        const role = document.getElementById('filter-role').value;
+        const actif = document.getElementById('filter-actif').value;
+
+        const params = new URLSearchParams();
+        if (q)    params.set('query', q);
+        if (role) params.set('role', role);
+        if (actif !== '') params.set('actif', actif);
+
+        fetch(`${MVN_API}/utilisateurs?${params}`)
+            .then(r => r.json())
+            .then(data => {
+                allUsers = data;
+                renderTable(data);
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('users-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">Erreur de chargement.</td></tr>';
+            });
+    }
+
+    function renderTable(users) {
+        const tbody = document.getElementById('users-tbody');
+        document.getElementById('users-count').textContent = `${users.length} utilisateur(s)`;
+        if (!users.length) {
+            tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Aucun utilisateur trouvé.</div></td></tr>';
+            return;
+        }
+        tbody.innerHTML = users.map(u => {
+            const statusChip = u.actif
+                ? '<span class="chip chip-actif">Actif</span>'
+                : '<span class="chip chip-suspendu">Suspendu</span>';
+            const org = u.organisation || '—';
+            const toggleLabel = u.actif ? 'Suspendre' : 'Réactiver';
+            const toggleClass = u.actif ? 'btn-red' : 'btn-green';
+            return `<tr>
+                <td>
+                    <div class="user-name">${escHtml(u.prenom || '')} ${escHtml(u.nom || '')}</div>
+                    <div class="user-email">${escHtml(u.email || '')}</div>
+                </td>
+                <td>${roleChip(u.role)}</td>
+                <td style="color:var(--admin-muted)">${escHtml(org)}</td>
+                <td>${statusChip}</td>
+                <td style="color:var(--admin-muted)">${fmt(u.dateInscription)}</td>
+                <td>
+                    <div class="table-actions">
+                        <button class="btn-action btn-indigo btn-sm" onclick="openDetail(${u.id})">Fiche</button>
+                        <button class="btn-action ${toggleClass} btn-sm" onclick="toggleStatut(${u.id}, ${!u.actif})">${toggleLabel}</button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function escHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // ── Toggle statut ──
+    window.toggleStatut = function(id, actif) {
+        const endpoint = actif ? 'reactiver' : 'suspendre';
+        fetch(`${MVN_API}/utilisateurs/${id}/${endpoint}`, {
+            method: 'PATCH',
+            headers: { 'X-Admin-Id': String(adminId) }
+        }).then(r => {
+            if (!r.ok) throw new Error('Erreur ' + r.status);
+            showToast(actif ? 'Utilisateur réactivé' : 'Utilisateur suspendu');
+            loadUsers();
+        }).catch(e => { showToast('Erreur : ' + e.message, true); });
+    };
+
+    // ── Fiche détaillée ──
+    window.openDetail = function(id) {
+        fetch(`${MVN_API}/utilisateurs/${id}`)
+            .then(r => r.json())
+            .then(d => {
+                currentDetailUser = d;
+                const content = document.getElementById('modal-detail-content');
+                const rows = [
+                    ['ID', d.id],
+                    ['Prénom', d.prenom || '—'],
+                    ['Nom', d.nom || '—'],
+                    ['Email', d.email || '—'],
+                    ['Rôle', d.role || '—'],
+                    ['Statut', d.actif ? 'Actif' : 'Suspendu'],
+                    ['Inscription', fmt(d.dateInscription)],
+                ];
+                if (d.role === 'ETUDIANT') {
+                    rows.push(['Filière', d.filiere || '—']);
+                    rows.push(['Établissement', d.etablissement || '—']);
+                    rows.push(['Compétences', d.nbCompetences || 0]);
+                    rows.push(['Projets', d.nbProjets || 0]);
+                    rows.push(['Candidatures', d.nbCandidatures || 0]);
+                } else if (d.role === 'RECRUTEUR') {
+                    rows.push(['Entreprise', d.nomEntreprise || '—']);
+                    rows.push(['Secteur', d.secteurActivite || '—']);
+                    rows.push(['Offres publiées', d.nbOffres || 0]);
+                    rows.push(['Candidatures reçues', d.nbCandidaturesRecues || 0]);
+                }
+                content.innerHTML = rows.map(([k, v]) =>
+                    `<div class="detail-row"><span class="detail-key">${escHtml(String(k))}</span><span class="detail-val">${escHtml(String(v))}</span></div>`
+                ).join('');
+
+                const btn = document.getElementById('detail-action-btn');
+                btn.style.display = '';
+                if (d.actif) {
+                    btn.textContent = 'Suspendre';
+                    btn.className = 'btn-action btn-red';
+                    btn.onclick = () => { closeModal('modal-detail'); toggleStatut(d.id, false); };
+                } else {
+                    btn.textContent = 'Réactiver';
+                    btn.className = 'btn-action btn-green';
+                    btn.onclick = () => { closeModal('modal-detail'); toggleStatut(d.id, true); };
+                }
+                openModal('modal-detail');
+            })
+            .catch(e => showToast('Erreur chargement fiche : ' + e.message, true));
+    };
+
+    // ── Créer admin ──
+    document.getElementById('btn-creer-admin').addEventListener('click', () => openModal('modal-creer-admin'));
+    document.getElementById('btn-creer-cancel').addEventListener('click', () => closeModal('modal-creer-admin'));
+    document.getElementById('btn-creer-submit').addEventListener('click', () => {
+        const prenom = document.getElementById('adm-prenom').value.trim();
+        const nom    = document.getElementById('adm-nom').value.trim();
+        const email  = document.getElementById('adm-email').value.trim();
+        const pwd    = document.getElementById('adm-password').value;
+        const errEl  = document.getElementById('creer-error');
+        errEl.style.display = 'none';
+
+        if (!prenom || !nom || !email || !pwd) {
+            errEl.textContent = 'Tous les champs sont obligatoires.';
+            errEl.style.display = '';
+            return;
+        }
+
+        fetch(`${MVN_API}/utilisateurs/admin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(adminId) },
+            body: JSON.stringify({ prenom, nom, email, motDePasse: pwd })
+        }).then(r => {
+            if (!r.ok) return r.json().then(j => { throw new Error(j.message || 'Erreur ' + r.status); });
+            return r.json();
+        }).then(() => {
+            closeModal('modal-creer-admin');
+            document.getElementById('adm-prenom').value = '';
+            document.getElementById('adm-nom').value = '';
+            document.getElementById('adm-email').value = '';
+            document.getElementById('adm-password').value = '';
+            showToast('Administrateur créé');
+            loadUsers();
+        }).catch(e => { errEl.textContent = e.message; errEl.style.display = ''; });
+    });
+
+    // ── Helpers ──
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    document.getElementById('detail-close').addEventListener('click', () => closeModal('modal-detail'));
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+        m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+    });
+
+    function showToast(msg, isError = false) {
+        const t = document.createElement('div');
+        t.className = 'toast';
+        if (isError) t.style.borderColor = 'rgba(239,68,68,.5)';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 4000);
+    }
+
+    // ── Filters ──
+    let debounce;
+    document.getElementById('search-input').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(loadUsers, 350); });
+    document.getElementById('filter-role').addEventListener('change', loadUsers);
+    document.getElementById('filter-actif').addEventListener('change', loadUsers);
+
+    loadUsers();
+})();
+</script>
+</div>
+<!-- end app-main-layout -->
+<script src="/js/sidebar.js?v=2.0"></script>
+<script>
+(function(){
+    var user = MatchingCVSession.read();
+    if(user){
+        var el = document.getElementById('nav-admin-name');
+        if(el) el.textContent = ((user.prenom||'') + ' ' + (user.nom||'')).trim() || 'Administrateur';
+        if(window.NotificationBell) NotificationBell.init({userId:user.id,role:'ADMIN'});
+    }
+    function doLogout(){ MatchingCVSession.logout(); }
+    var b1 = document.getElementById('btn-topbar-logout');
+    var b2 = document.getElementById('btn-sidebar-logout');
+    if(b1) b1.addEventListener('click', doLogout);
+    if(b2) b2.addEventListener('click', doLogout);
+    // Badge moderation
+    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+        var badge = document.getElementById('sidebar-badge-moderation');
+        if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
+    }).catch(()=>{});
+})();
+</script>
+</body>
+</html>
+

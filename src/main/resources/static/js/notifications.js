@@ -97,6 +97,11 @@ window.NotificationBell = (() => {
                     <line x1="15" y1="9" x2="9" y2="15"></line>
                     <line x1="9" y1="9" x2="15" y2="15"></line>
                 </svg>`;
+            case 'COMPETENCE_A_MODERER':
+                return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>`;
             case 'COMPETENCE_VALIDEE':
                 return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
@@ -612,7 +617,7 @@ window.NotificationBell = (() => {
             container = document.querySelector(options.containerSelector);
         }
         if (!container) {
-            container = document.querySelector('.nav-cta') || document.querySelector('.navbar .nav-inner');
+            container = document.querySelector('.admin-nav-right') || document.querySelector('.nav-cta') || document.querySelector('.navbar .nav-inner');
         }
 
         if (container) {
@@ -649,7 +654,7 @@ window.NotificationBell = (() => {
 document.addEventListener('DOMContentLoaded', () => {
     if (window.MatchingCVSession) {
         const user = window.MatchingCVSession.read();
-        if (user && (user.role === 'ETUDIANT' || user.role === 'RECRUTEUR')) {
+        if (user && (user.role === 'ETUDIANT' || user.role === 'RECRUTEUR' || user.role === 'ADMIN')) {
             window.NotificationBell.init({ userId: user.id });
         }
     }

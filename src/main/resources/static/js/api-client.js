@@ -14,7 +14,9 @@
         const response=await nativeFetch(input,{...options,headers,credentials:'same-origin'});
         if(url.pathname==='/api/auth/connexion' || url.pathname==='/api/auth/logout')csrfPromise=null;
         if(response.status===401 && !url.pathname.startsWith('/api/auth/')) {
-            localStorage.removeItem('matchingcv_user');location.replace('/login.html');
+            localStorage.removeItem('matchingcv_user');
+            const target = location.pathname.startsWith('/admin-') ? '/admin-login.html' : '/login.html';
+            location.replace(target);
         }
         return response;
     };

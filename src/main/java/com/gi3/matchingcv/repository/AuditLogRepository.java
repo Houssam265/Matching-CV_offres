@@ -13,4 +13,8 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     List<AuditLog> findByAdminIdOrderByDateActionDesc(Long adminId);
 
     List<AuditLog> findByActionAndDateActionBetween(String action, LocalDateTime start, LocalDateTime end);
+
+    List<AuditLog> findAllByOrderByDateActionDesc();
+
+    List<AuditLog> findByActionOrderByDateActionDesc(String action);
 }

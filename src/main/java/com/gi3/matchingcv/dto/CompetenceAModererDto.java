@@ -1,6 +1,7 @@
 package com.gi3.matchingcv.dto;
 
 import com.gi3.matchingcv.model.Competence;
+import com.gi3.matchingcv.model.enums.Role;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public record CompetenceAModererDto(
         StatutCompetence statut,
         Long proposeeParId,
         String proposeeParNom,
+        Role proposeeParRole,
         LocalDateTime dateProposition,
 
         /** Nombre total d'utilisations dans profils, projets, expériences, offres. */
@@ -30,6 +32,9 @@ public record CompetenceAModererDto(
         String propNom = (c.getProposeePar() != null)
                 ? c.getProposeePar().getPrenom() + " " + c.getProposeePar().getNom()
                 : null;
+        Role propRole = (c.getProposeePar() != null)
+                ? c.getProposeePar().getRole()
+                : null;
         return new CompetenceAModererDto(
                 c.getId(),
                 c.getNom(),
@@ -39,6 +44,7 @@ public record CompetenceAModererDto(
                 c.getStatut(),
                 c.getProposeePar() != null ? c.getProposeePar().getId() : null,
                 propNom,
+                propRole,
                 c.getDateCreation(),
                 usages,
                 doublons

@@ -128,6 +128,10 @@
 
                 </form>
 
+                <div style="text-align:center;margin-top:1.5rem;font-size:.8rem;">
+                    <a href="/admin-login.html" class="auth-link" style="opacity:.65;">Espace administration</a>
+                </div>
+
 
 
             </div>
@@ -145,7 +149,7 @@
             if (u && u.role) {
                 var espace = new URLSearchParams(location.search).get('espace');
                 var expected = espace === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT';
-                if (espace && u.role !== expected) {
+                if (espace && u.role !== 'ADMIN' && u.role !== expected) {
                     document.addEventListener('DOMContentLoaded', function () {
                         showAlert('login-alert', 'Une session est déjà ouverte dans un autre espace. Déconnectez-vous avant de changer de compte.', 'info');
                         var button = document.createElement('button');
@@ -162,7 +166,8 @@
                 }
                 window.location.replace(
                     u.role === 'ETUDIANT' ? '/dashboard-etudiant.html' :
-                    u.role === 'RECRUTEUR' ? '/dashboard-recruteur.html' : '/competences.html'
+                    u.role === 'RECRUTEUR' ? '/dashboard-recruteur.html' :
+                    u.role === 'ADMIN' ? '/admin-dashboard.html' : '/index.html'
                 );
             }
         })();
