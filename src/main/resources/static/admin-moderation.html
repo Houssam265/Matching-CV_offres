@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/js/api-client.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Modération des compétences — Espace Administrateur Matching CV-Offres" />
@@ -399,8 +400,8 @@
     .admin-page { padding: 1.75rem 2rem 4rem; }
     @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
 </style>
-</head>
-<body class="has-sidebar">
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -499,7 +500,7 @@
 <!-- ── MODALE VALIDER ── -->
 <div class="modal-overlay" id="modal-valider" role="dialog" aria-modal="true" aria-labelledby="modal-valider-title">
     <div class="modal">
-        <h2 class="modal-title" id="modal-valider-title">✓ Valider la compétence</h2>
+        <h2 class="modal-title" id="modal-valider-title"> Valider la compétence</h2>
         <div class="form-group">
             <label class="form-label" for="val-nom">Nom (modifiable)</label>
             <input class="form-input" type="text" id="val-nom" autocomplete="off" />
@@ -514,7 +515,7 @@
         </div>
         <div class="modal-actions">
             <button class="btn-modal-cancel" id="val-cancel">Annuler</button>
-            <button class="btn-modal-ok green" id="val-confirm">✓ Valider</button>
+            <button class="btn-modal-ok green" id="val-confirm"> Valider</button>
         </div>
     </div>
 </div>
@@ -522,7 +523,7 @@
 <!-- ── MODALE REJETER ── -->
 <div class="modal-overlay" id="modal-rejeter" role="dialog" aria-modal="true" aria-labelledby="modal-rejeter-title">
     <div class="modal">
-        <h2 class="modal-title" id="modal-rejeter-title">✗ Rejeter la compétence</h2>
+        <h2 class="modal-title" id="modal-rejeter-title"> Rejeter la compétence</h2>
         <p style="color:var(--admin-muted); font-size:.9rem; margin-bottom:1rem;">
             La compétence sera marquée <strong>REJETÉE</strong> et son auteur sera notifié.
         </p>
@@ -532,7 +533,7 @@
         </div>
         <div class="modal-actions">
             <button class="btn-modal-cancel" id="rej-cancel">Annuler</button>
-            <button class="btn-modal-ok red" id="rej-confirm">✗ Rejeter</button>
+            <button class="btn-modal-ok red" id="rej-confirm"> Rejeter</button>
         </div>
     </div>
 </div>
@@ -540,7 +541,7 @@
 <!-- ── MODALE FUSIONNER ── -->
 <div class="modal-overlay" id="modal-fusionner" role="dialog" aria-modal="true" aria-labelledby="modal-fusionner-title">
     <div class="modal">
-        <h2 class="modal-title" id="modal-fusionner-title">⚡ Fusionner avec une compétence validée</h2>
+        <h2 class="modal-title" id="modal-fusionner-title"> Fusionner avec une compétence validée</h2>
         <p style="color:var(--admin-muted); font-size:.875rem; margin-bottom:1rem;" id="fus-source-info"></p>
         <div class="form-group">
             <label class="form-label" for="fus-search">Rechercher la compétence cible (VALIDÉE)</label>
@@ -553,7 +554,7 @@
         </div>
         <div class="modal-actions">
             <button class="btn-modal-cancel" id="fus-cancel">Annuler</button>
-            <button class="btn-modal-ok green" id="fus-confirm" disabled>⚡ Fusionner</button>
+            <button class="btn-modal-ok green" id="fus-confirm" disabled> Fusionner</button>
         </div>
     </div>
 </div>
@@ -561,7 +562,7 @@
 <script>
 (() => {
     // ── Session ──
-    const session = MatchingCVSession.getSession();
+    const session = MatchingCVSession.getUser();
     const adminId = session?.id ?? null;
     if (session?.prenom) {
         document.getElementById('nav-admin-name').textContent = session.prenom + ' ' + (session.nom ?? '');
@@ -619,7 +620,7 @@
             }
         } catch (e) {
             document.getElementById('mod-zone').innerHTML =
-                `<div class="mod-empty"><p>Erreur de chargement : ${e}</p></div>`;
+                `<div class="mod-empty"><p>Erreur de chargement : ${adminEscapeHtml(e)}</p></div>`;
         }
     }
 
@@ -650,7 +651,7 @@
 
         const doublonsHtml = c.doublonsPotentiels?.length
             ? c.doublonsPotentiels.map(d =>
-                `<span class="meta-chip chip-doublon" title="Doublon potentiel">⚠ ${esc(d)}</span>`).join('')
+                `<span class="meta-chip chip-doublon" title="Doublon potentiel"> ${esc(d)}</span>`).join('')
             : '';
 
         const synsText = c.synonymes?.length
@@ -890,7 +891,7 @@
     if(b1) b1.addEventListener('click', doLogout);
     if(b2) b2.addEventListener('click', doLogout);
     // Badge moderation
-    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list=>{
         var badge = document.getElementById('sidebar-badge-moderation');
         if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
     }).catch(()=>{});

@@ -93,8 +93,8 @@
         .admin-topbar-right { display: flex; align-items: center; gap: .75rem; }
         .admin-nav-user { font-size: .84rem; color: #184b32; font-weight: 600; }
     </style>
-</head>
-<body class="has-sidebar">
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
 <!-- ── SIDEBAR LATÉRALE ADMIN ── -->
@@ -318,7 +318,7 @@
     // Moderation badge
     function loadBadge() {
         fetch('/api/admin/competences/a-moderer')
-            .then(r => r.json())
+            .then(adminReadJson)
             .then(list => {
                 const badge = document.getElementById('sidebar-badge-moderation');
                 if (list.length > 0) { badge.textContent = list.length; badge.style.display = 'inline-block'; }
@@ -328,8 +328,8 @@
     // Load KPIs
     function loadKpis() {
         Promise.all([
-            fetch('/api/admin/stats').then(r => r.json()),
-            fetch('/api/admin/competences/a-moderer').then(r => r.json())
+            fetch('/api/admin/statistiques').then(adminReadJson),
+            fetch('/api/admin/competences/a-moderer').then(adminReadJson)
         ]).then(([stats, aModerer]) => {
             const grid = document.getElementById('kpi-grid');
             const parRole = stats.utilisateursParRole || {};
@@ -362,7 +362,7 @@
                     <div class="kpi-value">${nbCandidatures}</div>
                 </a>
                 <div class="kpi-card">
-                    <div class="kpi-top"><span class="kpi-label">Étudiants</span>
+                    <div class="kpi-top"><span class="kpi-label">Utilisateurs</span>
                     <span class="kpi-icon-pill"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span></div>
                     <div class="kpi-value">${parRole.ETUDIANT || 0}</div>
                 </div>
@@ -390,8 +390,8 @@
 
     // Load recent activity
     function loadActivity() {
-        fetch('/api/admin/journal')
-            .then(r => r.json())
+        fetch('/api/admin/audit-logs')
+            .then(adminReadJson)
             .then(logs => {
                 const list = document.getElementById('activity-list');
                 if (!logs.length) {
@@ -403,8 +403,8 @@
                     const time = isNaN(d) ? '—' : d.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
                     return `<div class="activity-row">
                         <span class="activity-time">${time}</span>
-                        <span class="activity-action">${log.action || log.typeAction || ''}</span>
-                        <span class="activity-cible">${log.cible || log.details || ''}</span>
+                        <span class="activity-action">${adminEscapeHtml(log.action || log.typeAction || '')}</span>
+                        <span class="activity-cible">${adminEscapeHtml(log.cible || log.details || '')}</span>
                     </div>`;
                 }).join('');
             }).catch(() => {

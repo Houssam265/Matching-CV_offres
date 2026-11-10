@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/js/api-client.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Statistiques globales — Espace Administrateur Matching CV-Offres" />
@@ -93,8 +94,8 @@
     .admin-page { padding: 1.75rem 2rem 4rem; }
     @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
 </style>
-</head>
-<body class="has-sidebar">
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -190,7 +191,7 @@
     }
     document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
 
-    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list => {
         if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
     }).catch(() => {});
 
@@ -240,7 +241,7 @@
                     <span>Répartition des utilisateurs</span>
                     <span class="stats-card-badge">${totalUsers} comptes</span>
                 </div>
-                ${renderBar('Étudiants', roles.ETUDIANT || 0, Math.max(totalUsers, 1), 'var(--admin-accent)')}
+                ${renderBar('Utilisateurs', roles.ETUDIANT || 0, Math.max(totalUsers, 1), 'var(--admin-accent)')}
                 ${renderBar('Recruteurs', roles.RECRUTEUR || 0, Math.max(totalUsers, 1), 'var(--admin-accent2)')}
                 ${renderBar('Administrateurs', roles.ADMIN || 0, Math.max(totalUsers, 1), 'var(--admin-amber)')}
             </div>
@@ -285,7 +286,7 @@
         <!-- Écart du marché -->
         <div class="stats-card" style="margin-top:1.5rem">
             <div class="stats-card-title">
-                <span>⚖️ Écart du marché — Compétences les plus demandées vs possédées (Top 15)</span>
+                <span> Écart du marché — Compétences les plus demandées vs possédées (Top 15)</span>
             </div>
             <div class="table-wrap">
                 <table>
@@ -293,7 +294,7 @@
                         <tr>
                             <th>Compétence</th>
                             <th style="text-align:center">Demandées (Offres)</th>
-                            <th style="text-align:center">Possédées (Étudiants)</th>
+                            <th style="text-align:center">Possédées (Utilisateurs)</th>
                             <th style="text-align:center">Tension / Écart</th>
                         </tr>
                     </thead>
@@ -363,8 +364,8 @@
         return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
-    fetch('/api/admin/stats')
-        .then(r => r.json())
+    fetch('/api/admin/statistiques')
+        .then(adminReadJson)
         .then(data => renderStats(data))
         .catch(err => {
             console.error(err);
@@ -389,7 +390,7 @@
     if(b1) b1.addEventListener('click', doLogout);
     if(b2) b2.addEventListener('click', doLogout);
     // Badge moderation
-    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list=>{
         var badge = document.getElementById('sidebar-badge-moderation');
         if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
     }).catch(()=>{});

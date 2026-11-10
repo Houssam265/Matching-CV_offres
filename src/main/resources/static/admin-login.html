@@ -302,8 +302,8 @@
             .al-form-panel { padding: 2.5rem 1.5rem; }
         }
     </style>
-</head>
-<body>
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<body><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
     <a class="skip-link" href="#al-form" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Aller au formulaire</a>
 
     <!-- NAVBAR -->
@@ -470,7 +470,7 @@
                 const resp = await fetch('/api/auth/connexion', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, motDePasse })
+                    body: JSON.stringify({ email, motDePasse, role: 'ADMIN' })
                 });
 
                 let data;

@@ -37,7 +37,7 @@
 
 
 
-            <div class="nav-cta"><a href="/index.html" class="auth-link">Choisir un espace</a></div>
+            <div class="nav-cta"><a href="/index.html" class="auth-link">Accueil</a></div>
             <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-expanded="false">
                 <span></span><span></span><span></span>
             </button>
@@ -58,7 +58,7 @@
         <section class="auth-panel-right">
             <div class="auth-form-container">
 
-                <div class="portal-context"><span id="portal-label">Votre compte</span><a href="/index.html">Changer d’espace</a></div>
+                <div class="portal-context"><span>Utilisateur ou recruteur : connectez-vous avec votre compte.</span></div>
                 <div class="auth-form-header">
                     <h1 class="auth-form-title">Connectez-vous</h1>
                     <p class="auth-form-subtitle">
@@ -140,30 +140,13 @@
     </main>
 
     <script src="/js/auth.js"></script>
-    <script src="/js/portal.js" defer></script>
+
     <script src="/js/session.js"></script>
     <script>
         // Rediriger si déjà connecté
         (function() {
             var u = MatchingCVSession.read();
             if (u && u.role) {
-                var espace = new URLSearchParams(location.search).get('espace');
-                var expected = espace === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT';
-                if (espace && u.role !== 'ADMIN' && u.role !== expected) {
-                    document.addEventListener('DOMContentLoaded', function () {
-                        showAlert('login-alert', 'Une session est déjà ouverte dans un autre espace. Déconnectez-vous avant de changer de compte.', 'info');
-                        var button = document.createElement('button');
-                        button.type = 'button';
-                        button.className = 'auth-link';
-                        button.textContent = 'Se déconnecter';
-                        button.addEventListener('click', function () {
-                            MatchingCVSession.logout();
-                        });
-                        document.getElementById('login-alert').appendChild(button);
-                        document.getElementById('btn-login').disabled = true;
-                    });
-                    return;
-                }
                 window.location.replace(
                     u.role === 'ETUDIANT' ? '/dashboard-etudiant.html' :
                     u.role === 'RECRUTEUR' ? '/dashboard-recruteur.html' :

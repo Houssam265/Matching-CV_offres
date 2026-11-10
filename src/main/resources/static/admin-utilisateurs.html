@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/js/api-client.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Gestion des utilisateurs — Espace Administrateur Matching CV-Offres" />
@@ -119,8 +120,8 @@
     .admin-page { padding: 1.75rem 2rem 4rem; }
     @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
 </style>
-</head>
-<body class="has-sidebar">
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -204,7 +205,7 @@
         <input class="search-box" type="search" id="search-input" placeholder="Rechercher par nom, email, entreprise…" />
         <select class="filter-select" id="filter-role">
             <option value="">Tous les rôles</option>
-            <option value="ETUDIANT">Étudiant</option>
+            <option value="ETUDIANT">Utilisateur</option>
             <option value="RECRUTEUR">Recruteur</option>
             <option value="ADMIN">Admin</option>
         </select>
@@ -214,7 +215,7 @@
             <option value="false">Suspendu</option>
         </select>
         <div class="toolbar-right">
-            <button class="btn-action btn-indigo" id="btn-creer-admin">➕ Créer un admin</button>
+            <button class="btn-action btn-indigo" id="btn-creer-admin"> Créer un admin</button>
         </div>
     </div>
 
@@ -295,7 +296,7 @@
     document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
 
     // Badge modération
-    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list => {
         if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
     }).catch(() => {});
 
@@ -308,7 +309,7 @@
         return new Date(dt).toLocaleDateString('fr-FR');
     }
     function roleChip(r) {
-        if (r === 'ETUDIANT') return '<span class="chip chip-etudiant">Étudiant</span>';
+        if (r === 'ETUDIANT') return '<span class="chip chip-etudiant">Utilisateur</span>';
         if (r === 'RECRUTEUR') return '<span class="chip chip-recruteur">Recruteur</span>';
         return '<span class="chip chip-admin">Admin</span>';
     }
@@ -320,12 +321,12 @@
         const actif = document.getElementById('filter-actif').value;
 
         const params = new URLSearchParams();
-        if (q)    params.set('query', q);
+        if (q)    params.set('q', q);
         if (role) params.set('role', role);
         if (actif !== '') params.set('actif', actif);
 
         fetch(`${MVN_API}/utilisateurs?${params}`)
-            .then(r => r.json())
+            .then(adminReadJson)
             .then(data => {
                 allUsers = data;
                 renderTable(data);
@@ -375,10 +376,11 @@
 
     // ── Toggle statut ──
     window.toggleStatut = function(id, actif) {
-        const endpoint = actif ? 'reactiver' : 'suspendre';
-        fetch(`${MVN_API}/utilisateurs/${id}/${endpoint}`, {
+        if (!confirm(actif ? 'Réactiver ce compte ?' : 'Suspendre ce compte ?')) return;
+        fetch(`${MVN_API}/utilisateurs/${id}/statut`, {
             method: 'PATCH',
-            headers: { 'X-Admin-Id': String(adminId) }
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(adminId) },
+            body: JSON.stringify({ actif })
         }).then(r => {
             if (!r.ok) throw new Error('Erreur ' + r.status);
             showToast(actif ? 'Utilisateur réactivé' : 'Utilisateur suspendu');
@@ -389,7 +391,7 @@
     // ── Fiche détaillée ──
     window.openDetail = function(id) {
         fetch(`${MVN_API}/utilisateurs/${id}`)
-            .then(r => r.json())
+            .then(adminReadJson)
             .then(d => {
                 currentDetailUser = d;
                 const content = document.getElementById('modal-detail-content');
@@ -451,6 +453,7 @@
             return;
         }
 
+        if (!document.getElementById('adm-email').reportValidity()) return;
         fetch(`${MVN_API}/utilisateurs/admin`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(adminId) },
@@ -513,7 +516,7 @@
     if(b1) b1.addEventListener('click', doLogout);
     if(b2) b2.addEventListener('click', doLogout);
     // Badge moderation
-    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list=>{
         var badge = document.getElementById('sidebar-badge-moderation');
         if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
     }).catch(()=>{});

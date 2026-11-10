@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/js/api-client.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Gestion des offres — Espace Administrateur Matching CV-Offres" />
@@ -105,8 +106,8 @@
     .admin-page { padding: 1.75rem 2rem 4rem; }
     @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
 </style>
-</head>
-<body class="has-sidebar">
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -250,7 +251,7 @@
     }
     document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
 
-    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list => {
         if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
     }).catch(() => {});
 
@@ -276,12 +277,12 @@
         const domaine = document.getElementById('filter-domaine').value;
 
         const params = new URLSearchParams();
-        if (q) params.set('query', q);
+        if (q) params.set('q', q);
         if (statut) params.set('statut', statut);
         if (domaine) params.set('domaine', domaine);
 
         fetch(`${MVN_API}/offres?${params}`)
-            .then(r => r.json())
+            .then(adminReadJson)
             .then(data => {
                 allOffres = data;
 
@@ -313,14 +314,14 @@
                     <div style="font-weight:600">${escHtml(o.titre || '—')}</div>
                     <div style="font-size:.78rem;color:var(--admin-muted)">${escHtml(o.typeContrat || '')} · ${escHtml(o.localisation || '')}</div>
                 </td>
-                <td style="color:var(--admin-muted)">${escHtml(o.nomEntreprise || '—')}</td>
+                <td style="color:var(--admin-muted)">${escHtml(o.entreprise || '—')}</td>
                 <td style="color:var(--admin-muted)">${escHtml(o.domaine || '—')}</td>
                 <td>${statutChip(o.statut)}</td>
                 <td style="color:var(--admin-muted)">${fmt(o.datePublication)}</td>
                 <td style="text-align:center;font-weight:600">${o.nbCandidatures != null ? o.nbCandidatures : '—'}</td>
                 <td>
                     ${canClose
-                        ? `<button class="btn-action btn-red btn-sm" onclick="openCloturer(${o.id}, '${escHtml(o.titre || '')}')">Clôturer</button>`
+                        ? `<button class="btn-action btn-red btn-sm" data-title="${escHtml(o.titre || '')}" onclick="openCloturer(${o.id}, this.dataset.title)">Clôturer</button>`
                         : '<span style="color:var(--admin-muted);font-size:.8rem">—</span>'}
                 </td>
             </tr>`;
@@ -393,7 +394,7 @@
     if(b1) b1.addEventListener('click', doLogout);
     if(b2) b2.addEventListener('click', doLogout);
     // Badge moderation
-    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list=>{
         var badge = document.getElementById('sidebar-badge-moderation');
         if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
     }).catch(()=>{});

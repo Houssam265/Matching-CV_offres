@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/js/api-client.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Journal d'audit — Espace Administrateur Matching CV-Offres" />
@@ -91,8 +92,8 @@
     .admin-page { padding: 1.75rem 2rem 4rem; }
     @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
 </style>
-</head>
-<body class="has-sidebar">
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -220,7 +221,7 @@
     }
     document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
 
-    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list => {
         if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
     }).catch(() => {});
 
@@ -253,11 +254,11 @@
         const action = document.getElementById('filter-action').value;
 
         const params = new URLSearchParams();
-        if (query) params.set('query', query);
+        if (query) params.set('q', query);
         if (action) params.set('action', action);
 
-        fetch(`/api/admin/journal?${params}`)
-            .then(r => r.json())
+        fetch(`/api/admin/audit-logs?${params}`)
+            .then(adminReadJson)
             .then(logs => {
                 const tbody = document.getElementById('journal-tbody');
                 document.getElementById('journal-count').textContent = `${logs.length} entrée(s) trouvée(s)`;
@@ -306,7 +307,7 @@
     if(b1) b1.addEventListener('click', doLogout);
     if(b2) b2.addEventListener('click', doLogout);
     // Badge moderation
-    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list=>{
         var badge = document.getElementById('sidebar-badge-moderation');
         if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
     }).catch(()=>{});

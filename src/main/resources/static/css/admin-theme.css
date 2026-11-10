@@ -1,0 +1,26 @@
+/* Admin-only presentation using the shared forest-green palette. */
+:root{--admin-bg:#f6f8f6;--admin-card:#fff;--admin-surface:#eef4ef;--admin-border:#dce7df;--admin-accent:#24774e;--admin-accent2:#24774e;--admin-text:#203c2b;--admin-muted:#607567;--admin-badge-bg:#e6f1e9}
+body.admin-portal,.admin-portal .app-main-layout{background:#f6f8f6;color:#203c2b;font-family:Inter,'Segoe UI',Arial,sans-serif}
+.admin-portal main,.admin-portal .admin-page{width:100%;max-width:1320px;box-sizing:border-box;padding:2rem clamp(1rem,3vw,2.5rem) 3rem;margin:0 auto}
+.admin-portal h1,.admin-portal .admin-page-title{font-size:clamp(1.5rem,2.5vw,2rem);letter-spacing:-.035em;background:none;-webkit-text-fill-color:#203c2b;color:#203c2b;line-height:1.2}
+.admin-portal .admin-page-subtitle{line-height:1.65;max-width:760px;color:#607567}
+.admin-portal .stat-card,.admin-portal .table-card,.admin-portal .chart-card,.admin-portal .admin-card,.admin-portal .panel{background:#fff;border:1px solid #dce7df;border-radius:14px;box-shadow:0 2px 8px #173c2506}
+.admin-portal .toolbar{gap:.75rem;padding:1rem;background:#fff;border:1px solid #dce7df;border-radius:12px}
+.admin-portal input,.admin-portal select,.admin-portal textarea{font-family:inherit;box-sizing:border-box;max-width:100%}
+.admin-portal input:not([type=checkbox]):not([type=radio]):not([type=file]),.admin-portal select,.admin-portal textarea{background:#fff;color:#203c2b;border:1px solid #bed0c4;border-radius:8px;padding:.7rem .85rem}
+.admin-portal button{font-family:inherit;cursor:pointer}.admin-portal button:disabled{opacity:.55;cursor:not-allowed}
+.admin-portal :focus-visible{outline:3px solid #4b9466;outline-offset:3px}
+.admin-portal .btn-primary,.admin-portal .btn-green{background:#24774e;color:#fff;border-color:#24774e;box-shadow:none}
+.admin-portal table{width:100%;border-collapse:collapse;font-size:.875rem}.admin-portal th{background:#f0f5f1;color:#526a59;font-size:.75rem;letter-spacing:.03em}.admin-portal th,.admin-portal td{padding:1rem;border-bottom:1px solid #e5ede7}.admin-portal tbody tr:hover{background:#f8fbf8}
+.admin-portal .admin-table-scroll{max-width:100%;overflow:auto;border:1px solid #dce7df;border-radius:12px;background:white}
+.admin-portal .modal-overlay{padding:1rem;box-sizing:border-box;background:#102e1f88;backdrop-filter:blur(3px)}
+.admin-portal .modal,.admin-portal .modal-box,.admin-portal .modal-content{max-width:min(640px,100%);max-height:88vh;overflow:auto;border:1px solid #dce7df;border-radius:16px;background:#fff;color:#203c2b;box-shadow:0 18px 60px #102e1f22}
+.admin-portal .app-topbar{gap:1rem}.admin-portal .topbar-right{gap:.75rem}.admin-portal .btn-nav-logout{background:#fff;border-color:#dce7df;color:#245739}
+.admin-portal .sidebar-footer{display:none!important}.admin-portal .tab-bar{overflow:auto;white-space:nowrap}.admin-portal .tab-btn{flex-shrink:0}
+.admin-portal .admin-error-banner{padding:1rem;border-radius:10px;background:#fff2ed;color:#913b27;border:1px solid #f0d3c6;margin:1rem 0}
+@media(max-width:700px){.admin-portal .toolbar{align-items:stretch}.admin-portal .toolbar>*{max-width:100%}.admin-portal .admin-nav-user{display:none}.admin-portal .stat-grid,.admin-portal .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-portal .topbar-breadcrumb{font-size:.8rem}.admin-portal td,.admin-portal th{padding:.75rem}.admin-portal .admin-table-scroll table{min-width:650px}}
+@media(prefers-reduced-motion:reduce){.admin-portal *{animation:none!important;scroll-behavior:auto!important}}
+.admin-portal .app-main-layout,.admin-portal main,.admin-portal .admin-page{min-width:0}.admin-portal .toolbar-right{flex-wrap:wrap}@media(max-width:700px){.admin-portal .toolbar-right{margin-left:0}.admin-portal .search-box{min-width:0;width:100%}}
+
+.admin-portal .stats-grid-2{grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr))}.admin-portal .stats-card{min-width:0;background:#fff;border:1px solid #dce7df;border-radius:14px}.admin-portal .table-wrap{max-width:100%;overflow:auto}.admin-portal .admin-hero{border-radius:16px;background:#184b32;padding:2rem}.admin-portal .admin-hero-title{color:white;-webkit-text-fill-color:white}.admin-portal .kpi-icon-pill.blue,.admin-portal .kpi-icon-pill.purple{background:#e6f1e9;color:#24774e}@media(max-width:700px){.admin-portal .activity-row{flex-wrap:wrap}.admin-portal .bar-label{width:90px}.admin-portal .admin-hero{padding:1.5rem}}
+.admin-portal .btn-indigo{background:#24774e;color:#fff}.admin-portal #btn-sidebar-logout{display:none}.admin-portal .modal-row[hidden]{display:none}

@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/js/api-client.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Référentiel des compétences — Espace Administrateur Matching CV-Offres" />
@@ -121,8 +122,8 @@
     .admin-page { padding: 1.75rem 2rem 4rem; }
     @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
 </style>
-</head>
-<body class="has-sidebar">
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -320,7 +321,7 @@
     }
     document.getElementById('nav-logout').addEventListener('click', () => { MatchingCVSession.logout(); window.location.href = '/login.html'; });
 
-    fetch('/api/admin/competences/a-moderer').then(r => r.json()).then(list => {
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list => {
         if (list.length) { const b = document.getElementById('nav-badge-moderation'); b.textContent = list.length; b.style.display = ''; }
     }).catch(() => {});
 
@@ -341,7 +342,7 @@
 
     function loadCompetences() {
         fetch('/api/competences')
-            .then(r => r.json())
+            .then(adminReadJson)
             .then(list => {
                 allCompetences = list;
                 updateBadges();
@@ -409,7 +410,7 @@
                 <td>${statutBadge(c.statut)}</td>
                 <td style="text-align:right">
                     <div style="display:inline-flex;gap:.4rem">
-                        <button class="btn-action btn-indigo btn-sm" onclick="openEdit(${c.id})">✏️ Modifier</button>
+                        <button class="btn-action btn-indigo btn-sm" onclick="openEdit(${c.id})"> Modifier</button>
                         <button class="btn-action btn-surface btn-sm" onclick="openModifier(${c.id})">Modifier</button>
                         <button class="btn-action btn-red btn-sm" onclick="supprimerComp(${c.id})">Supprimer</button>
                     </div>
@@ -441,7 +442,7 @@
                 loadCompetences();
             } else if (r.status === 409) {
                 const j = await r.json().catch(() => ({}));
-                showToast('Impossible : ' + (j.message || 'La compétence est déjà utilisée par des étudiants ou des offres.'), true);
+                showToast('Impossible : ' + (j.message || 'La compétence est déjà utilisée par des utilisateurs ou des offres.'), true);
             } else {
                 const j = await r.json().catch(() => ({}));
                 showToast('Erreur : ' + (j.message || r.statusText), true);
@@ -452,6 +453,7 @@
     // ── Créer / Modifier Modal ──
     window.openEdit = function(id) {
         editingCompetenceId = id;
+        document.getElementById('comp-synonymes').closest('.modal-row').hidden = false;
         const comp = allCompetences.find(c => c.id === id);
         if (!comp) return;
 
@@ -465,6 +467,7 @@
 
     document.getElementById('btn-creer-modal').addEventListener('click', () => {
         editingCompetenceId = null;
+        document.getElementById('comp-synonymes').closest('.modal-row').hidden = true;
         document.getElementById('modal-competence-title').textContent = 'Créer une compétence';
         document.getElementById('comp-nom').value = '';
         document.getElementById('comp-categorie').value = '';
@@ -536,11 +539,11 @@
             method: 'POST',
             headers: { 'X-Admin-Id': String(adminId) },
             body: formData
-        }).then(r => r.json()).then(res => {
+        }).then(adminReadJson).then(res => {
             const rap = document.getElementById('import-rapport');
             rap.innerHTML = `<strong>Rapport d'import :</strong><br/>
                 Compétences créées : <strong>${res.creees || 0}</strong><br/>
-                ⚠️ Ignorées (doublons ou invalides) : <strong>${res.ignorees || 0}</strong>`;
+                 Ignorées (doublons ou invalides) : <strong>${res.ignorees || 0}</strong>`;
             rap.style.display = '';
             showToast('Import terminé !');
             loadCompetences();
@@ -588,7 +591,7 @@
     if(b1) b1.addEventListener('click', doLogout);
     if(b2) b2.addEventListener('click', doLogout);
     // Badge moderation
-    fetch('/api/admin/competences/a-moderer').then(r=>r.json()).then(list=>{
+    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list=>{
         var badge = document.getElementById('sidebar-badge-moderation');
         if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
     }).catch(()=>{});

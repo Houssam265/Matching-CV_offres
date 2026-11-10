@@ -144,25 +144,12 @@ function initLoginPage() {
             const res = await fetch('/api/auth/connexion', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ email, motDePasse, role: new URLSearchParams(location.search).get('espace') === 'admin' ? 'ADMIN' : (new URLSearchParams(location.search).get('espace') === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT') })
+                body: JSON.stringify({ email, motDePasse })
             });
 
             const data = await res.json().catch(() => null);
 
             if (res.ok && data) {
-                const espace = new URLSearchParams(window.location.search).get('espace');
-                const expectedRole = espace === 'recruteur' ? 'RECRUTEUR' : 'ETUDIANT';
-                if (data.role !== 'ADMIN' && data.role !== expectedRole) {
-                    const destination = data.role === 'RECRUTEUR' ? 'recruteur' : 'utilisateur';
-                    showAlert('login-alert', `Ce compte appartient à l’espace ${destination}. Changez d’espace pour vous connecter.`, 'danger');
-                    document.getElementById('login-password').value = '';
-                    const link = document.createElement('a');
-                    link.className = 'auth-link portal-error-link';
-                    link.href = `/login.html?espace=${destination}`;
-                    link.textContent = `Accéder à l’espace ${destination}`;
-                    document.getElementById('login-alert').appendChild(link);
-                    return;
-                }
                 // Sauvegarde de la session en localStorage
                 localStorage.setItem('matchingcv_user', JSON.stringify({
                     id: data.id,
