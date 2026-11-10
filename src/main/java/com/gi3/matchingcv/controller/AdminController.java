@@ -52,11 +52,21 @@ public class AdminController {
     // LOT 1 — MODÉRATION DES COMPÉTENCES
     // ──────────────────────────────────────────────────────────────────────────
 
-    /** File EN_ATTENTE avec usage et doublons détectés. */
+    /** File EN_ATTENTE de la plus ancienne à la plus récente avec filtres rôle et recherche. */
     // TODO sécurité : réservé ADMIN
-    @GetMapping("/competences/a-moderer")
-    public ResponseEntity<List<CompetenceAModererDto>> listerAModerer() {
-        return ResponseEntity.ok(adminCompetenceService.listerAModerer());
+    @GetMapping({"/moderation", "/competences/a-moderer"})
+    public ResponseEntity<List<CompetenceAModererDto>> listerModeration(
+            @RequestParam(required = false) Role role,
+            @RequestParam(required = false) String recherche) {
+        return ResponseEntity.ok(adminCompetenceService.listerAModerer(role, recherche));
+    }
+
+    /** Nombre de compétences EN_ATTENTE pour le badge de menu. */
+    // TODO sécurité : réservé ADMIN
+    @GetMapping("/moderation/count")
+    public ResponseEntity<Map<String, Object>> countModeration() {
+        long count = adminCompetenceService.countAModerer();
+        return ResponseEntity.ok(Map.of("count", count));
     }
 
     /**
@@ -64,7 +74,7 @@ public class AdminController {
      * catégorie et synonymes.
      */
     // TODO sécurité : réservé ADMIN
-    @PatchMapping("/competences/{id}/valider")
+    @RequestMapping(value = "/competences/{id}/valider", method = {RequestMethod.POST, RequestMethod.PATCH})
     public ResponseEntity<?> valider(
             @PathVariable Long id,
             @RequestHeader(value = "X-Admin-Id", required = false) Long adminId,
@@ -76,8 +86,12 @@ public class AdminController {
             List<String> syn = body != null ? (List<String>) body.get("synonymes") : null;
             Competence c = adminCompetenceService.validerAvecModifications(id, nom, cat, syn, adminId);
             return ResponseEntity.ok(c);
+        } catch (com.gi3.matchingcv.exception.CompetenceDejaTraiteeException | com.gi3.matchingcv.exception.CompetenceDejaExistanteException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -87,7 +101,7 @@ public class AdminController {
      * Rejette une compétence EN_ATTENTE avec un motif optionnel.
      */
     // TODO sécurité : réservé ADMIN
-    @PatchMapping("/competences/{id}/rejeter")
+    @RequestMapping(value = "/competences/{id}/rejeter", method = {RequestMethod.POST, RequestMethod.PATCH})
     public ResponseEntity<?> rejeter(
             @PathVariable Long id,
             @RequestHeader(value = "X-Admin-Id", required = false) Long adminId,
@@ -96,29 +110,65 @@ public class AdminController {
             String motif = body != null ? body.get("motif") : null;
             Competence c = adminCompetenceService.rejeterAvecMotif(id, motif, adminId);
             return ResponseEntity.ok(c);
+        } catch (com.gi3.matchingcv.exception.CompetenceDejaTraiteeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
     /**
-     * Fusionne la compétence source dans la cible (transaction unique).
+     * Fusionne la compétence source {id} dans la cible (cibleId).
+     */
+    // TODO sécurité : réservé ADMIN
+    @PostMapping("/competences/{id}/fusionner")
+    public ResponseEntity<?> fusionnerParId(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "X-Admin-Id", required = false) Long adminId) {
+        try {
+            Object rawCible = body != null ? body.get("cibleId") : null;
+            if (rawCible == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "cibleId est requis."));
+            }
+            Long cibleId = (rawCible instanceof Number n) ? n.longValue() : Long.parseLong(rawCible.toString());
+            adminCompetenceService.fusionner(id, cibleId, adminId);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Fusion effectuée avec succès.", "cibleId", cibleId));
+        } catch (com.gi3.matchingcv.exception.CompetenceDejaTraiteeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Fusionne la compétence source dans la cible (compatibilité avec corps {sourceId, cibleId}).
      */
     // TODO sécurité : réservé ADMIN
     @PostMapping("/competences/fusionner")
     public ResponseEntity<?> fusionner(
-            @RequestBody Map<String, Long> body,
+            @RequestBody Map<String, Object> body,
             @RequestHeader(value = "X-Admin-Id", required = false) Long adminId) {
         try {
-            Long sourceId = body.get("sourceId");
-            Long cibleId  = body.get("cibleId");
-            if (sourceId == null || cibleId == null) {
+            Object rawSource = body != null ? body.get("sourceId") : null;
+            Object rawCible  = body != null ? body.get("cibleId") : null;
+            if (rawSource == null || rawCible == null) {
                 return ResponseEntity.badRequest().body(Map.of("message", "sourceId et cibleId sont requis."));
             }
+            Long sourceId = (rawSource instanceof Number n) ? n.longValue() : Long.parseLong(rawSource.toString());
+            Long cibleId  = (rawCible instanceof Number n) ? n.longValue() : Long.parseLong(rawCible.toString());
             adminCompetenceService.fusionner(sourceId, cibleId, adminId);
             return ResponseEntity.ok(Map.of("message", "Fusion effectuée avec succès."));
+        } catch (com.gi3.matchingcv.exception.CompetenceDejaTraiteeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
         } catch (IllegalArgumentException e) {
@@ -130,35 +180,49 @@ public class AdminController {
 
     /** Validation groupée de plusieurs compétences EN_ATTENTE. */
     // TODO sécurité : réservé ADMIN
-    @PostMapping("/competences/valider-groupes")
-    public ResponseEntity<?> validerGroupes(
-            @RequestBody Map<String, Object> body,
+    @PostMapping({"/competences/valider-lot", "/competences/valider-groupes"})
+    public ResponseEntity<?> validerLot(
+            @RequestBody Object body,
             @RequestHeader(value = "X-Admin-Id", required = false) Long adminId) {
-        @SuppressWarnings("unchecked")
-        List<Integer> idsRaw = (List<Integer>) body.get("ids");
-        if (idsRaw == null || idsRaw.isEmpty()) {
+        List<Long> ids = extraireIds(body);
+        if (ids.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("message", "La liste d'identifiants est vide."));
         }
-        List<Long> ids = idsRaw.stream().map(Integer::longValue).toList();
         adminCompetenceService.validerGroupes(ids, adminId);
-        return ResponseEntity.ok(Map.of("message", ids.size() + " compétences traitées."));
+        return ResponseEntity.ok(Map.of("success", true, "message", ids.size() + " compétences traitées.", "count", ids.size()));
     }
 
     /** Rejet groupé avec motif commun. */
     // TODO sécurité : réservé ADMIN
-    @PostMapping("/competences/rejeter-groupes")
-    public ResponseEntity<?> rejeterGroupes(
-            @RequestBody Map<String, Object> body,
+    @PostMapping({"/competences/rejeter-lot", "/competences/rejeter-groupes"})
+    public ResponseEntity<?> rejeterLot(
+            @RequestBody Object body,
             @RequestHeader(value = "X-Admin-Id", required = false) Long adminId) {
-        @SuppressWarnings("unchecked")
-        List<Integer> idsRaw = (List<Integer>) body.get("ids");
-        if (idsRaw == null || idsRaw.isEmpty()) {
+        List<Long> ids = extraireIds(body);
+        if (ids.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("message", "La liste d'identifiants est vide."));
         }
-        List<Long> ids = idsRaw.stream().map(Integer::longValue).toList();
-        String motif = (String) body.get("motif");
+        String motif = null;
+        if (body instanceof Map<?, ?> map && map.get("motif") instanceof String m) {
+            motif = m;
+        }
         adminCompetenceService.rejeterGroupes(ids, motif, adminId);
-        return ResponseEntity.ok(Map.of("message", ids.size() + " compétences traitées."));
+        return ResponseEntity.ok(Map.of("success", true, "message", ids.size() + " compétences traitées.", "count", ids.size()));
+    }
+
+    private List<Long> extraireIds(Object body) {
+        if (body instanceof List<?> list) {
+            return list.stream()
+                    .filter(Number.class::isInstance)
+                    .map(n -> ((Number) n).longValue())
+                    .toList();
+        } else if (body instanceof Map<?, ?> map && map.get("ids") instanceof List<?> list) {
+            return list.stream()
+                    .filter(Number.class::isInstance)
+                    .map(n -> ((Number) n).longValue())
+                    .toList();
+        }
+        return List.of();
     }
 
     // ──────────────────────────────────────────────────────────────────────────

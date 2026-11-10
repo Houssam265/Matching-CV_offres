@@ -2,6 +2,7 @@ package com.gi3.matchingcv.service;
 
 import com.gi3.matchingcv.dto.*;
 import com.gi3.matchingcv.event.CompetenceStatutChangeEvent;
+import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
 import com.gi3.matchingcv.model.*;
 import com.gi3.matchingcv.model.enums.*;
 import com.gi3.matchingcv.repository.*;
@@ -137,12 +138,14 @@ class AdminServiceTest {
             Competence source = new Competence();
             source.setId(sourceId);
             source.setNom("Springboot");
+            source.setStatut(StatutCompetence.EN_ATTENTE);
             source.setProposeePar(auteur);
             source.setSynonymes(new ArrayList<>(List.of("SpringBoot 3")));
 
             Competence cible = new Competence();
             cible.setId(cibleId);
             cible.setNom("Spring Boot");
+            cible.setStatut(StatutCompetence.VALIDEE);
             cible.setSynonymes(new ArrayList<>(List.of("Spring")));
 
             when(competenceRepository.findById(sourceId)).thenReturn(Optional.of(source));
@@ -257,13 +260,292 @@ class AdminServiceTest {
             comp.setStatut(StatutCompetence.EN_ATTENTE);
 
             when(competenceRepository.findById(compId)).thenReturn(Optional.of(comp));
-            when(competenceService.changerStatut(compId, StatutCompetence.REJETEE)).thenReturn(comp);
+            when(competenceService.changerStatut(compId, StatutCompetence.REJETEE, motif)).thenReturn(comp);
 
             adminCompetenceService.rejeterAvecMotif(compId, motif, adminId);
 
-            verify(competenceService).changerStatut(compId, StatutCompetence.REJETEE);
+            verify(competenceService).changerStatut(compId, StatutCompetence.REJETEE, motif);
             verify(notificationService, never()).notifier(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
             verify(auditService).journaliser(eq(adminId), eq("REJETER_COMPETENCE"), anyString(), eq(motif));
+        }
+
+        @Test
+        @DisplayName("Validation tel quel : conserve le nom, la catégorie et délègue à competenceService.changerStatut()")
+        void testValiderTelQuel() {
+            Long compId = 18L;
+            Long adminId = 1L;
+
+            Competence comp = new Competence();
+            comp.setId(compId);
+            comp.setNom("PostgreSQL");
+            comp.setCategorie("Base de données");
+            comp.setStatut(StatutCompetence.EN_ATTENTE);
+
+            when(competenceRepository.findById(compId)).thenReturn(Optional.of(comp));
+            when(competenceService.changerStatut(compId, StatutCompetence.VALIDEE)).thenReturn(comp);
+
+            adminCompetenceService.validerAvecModifications(compId, null, null, null, adminId);
+
+            assertThat(comp.getNom()).isEqualTo("PostgreSQL");
+            assertThat(comp.getCategorie()).isEqualTo("Base de données");
+            verify(competenceService).changerStatut(compId, StatutCompetence.VALIDEE);
+            verify(auditService).journaliser(eq(adminId), eq("VALIDER_COMPETENCE"), anyString(), isNull());
+        }
+
+        @Test
+        @DisplayName("Validation avec modification : collision de nom refusée avec 409 (CompetenceDejaExistanteException)")
+        void testValiderAvecCollisionNom_Refuse409() {
+            Long compId = 19L;
+            Long adminId = 1L;
+
+            Competence comp = new Competence();
+            comp.setId(compId);
+            comp.setNom("Spring Boot 3");
+            comp.setStatut(StatutCompetence.EN_ATTENTE);
+
+            Competence existante = new Competence();
+            existante.setId(25L);
+            existante.setNom("Spring Boot");
+            existante.setNomNormalise("springboot");
+
+            when(competenceRepository.findById(compId)).thenReturn(Optional.of(comp));
+            when(competenceRepository.findByNomNormalise("springboot")).thenReturn(Optional.of(existante));
+
+            assertThatThrownBy(() -> adminCompetenceService.validerAvecModifications(
+                    compId, "Spring Boot", "Backend", null, adminId))
+                    .isInstanceOf(CompetenceDejaExistanteException.class)
+                    .hasMessageContaining("Une compétence existe déjà avec ce nom (« Spring Boot »)");
+
+            verify(competenceService, never()).changerStatut(anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("Décision déjà prise : retourne 409 (CompetenceDejaTraiteeException) si la compétence n'est plus EN_ATTENTE")
+        void testDecisionDejaPrise_Refuse409() {
+            Long compId = 21L;
+            Long cibleId = 22L;
+            Long adminId = 1L;
+
+            Competence comp = new Competence();
+            comp.setId(compId);
+            comp.setNom("Vue.js");
+            comp.setStatut(StatutCompetence.VALIDEE); // déjà validée
+
+            // La cible doit aussi être mockée pour que la fusion atteigne le check de statut de la source
+            Competence cible = new Competence();
+            cible.setId(cibleId);
+            cible.setNom("Vue");
+            cible.setStatut(StatutCompetence.VALIDEE);
+
+            when(competenceRepository.findById(compId)).thenReturn(Optional.of(comp));
+            when(competenceRepository.findById(cibleId)).thenReturn(Optional.of(cible));
+
+            // 1. Validation impossible
+            assertThatThrownBy(() -> adminCompetenceService.validerAvecModifications(compId, null, null, null, adminId))
+                    .isInstanceOf(com.gi3.matchingcv.exception.CompetenceDejaTraiteeException.class)
+                    .hasMessageContaining("déjà été traitée");
+
+            // 2. Rejet impossible
+            assertThatThrownBy(() -> adminCompetenceService.rejeterAvecMotif(compId, "motif", adminId))
+                    .isInstanceOf(com.gi3.matchingcv.exception.CompetenceDejaTraiteeException.class)
+                    .hasMessageContaining("déjà été traitée");
+
+            // 3. Fusion impossible (source déjà traitée)
+            assertThatThrownBy(() -> adminCompetenceService.fusionner(compId, cibleId, adminId))
+                    .isInstanceOf(com.gi3.matchingcv.exception.CompetenceDejaTraiteeException.class)
+                    .hasMessageContaining("déjà été traitée");
+        }
+
+        @Test
+        @DisplayName("Fusion : la cible ne peut être ni EN_ATTENTE ni REJETEE")
+        void testFusionCibleInvalide() {
+            Long sourceId = 30L;
+            Long cibleId = 31L;
+            Long adminId = 1L;
+
+            Competence source = new Competence();
+            source.setId(sourceId);
+            source.setNom("ReactJS");
+            source.setStatut(StatutCompetence.EN_ATTENTE);
+
+            Competence cible = new Competence();
+            cible.setId(cibleId);
+            cible.setNom("React");
+            cible.setStatut(StatutCompetence.EN_ATTENTE); // cible non validée !
+
+            when(competenceRepository.findById(sourceId)).thenReturn(Optional.of(source));
+            when(competenceRepository.findById(cibleId)).thenReturn(Optional.of(cible));
+
+            assertThatThrownBy(() -> adminCompetenceService.fusionner(sourceId, cibleId, adminId))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("La compétence cible doit être validée");
+
+            verify(competenceRepository, never()).delete(source);
+        }
+
+        @Test
+        @DisplayName("Actions groupées : valider-lot et rejeter-lot traitent chaque élément")
+        void testActionsGroupees() {
+            Long adminId = 1L;
+
+            Competence c1 = new Competence();
+            c1.setId(101L);
+            c1.setNom("Git");
+            c1.setStatut(StatutCompetence.EN_ATTENTE);
+
+            Competence c2 = new Competence();
+            c2.setId(102L);
+            c2.setNom("GitLab");
+            c2.setStatut(StatutCompetence.EN_ATTENTE);
+
+            when(competenceRepository.findById(101L)).thenReturn(Optional.of(c1));
+            when(competenceRepository.findById(102L)).thenReturn(Optional.of(c2));
+            when(competenceService.changerStatut(eq(101L), eq(StatutCompetence.VALIDEE))).thenReturn(c1);
+            when(competenceService.changerStatut(eq(102L), eq(StatutCompetence.VALIDEE))).thenReturn(c2);
+
+            adminCompetenceService.validerGroupes(List.of(101L, 102L), adminId);
+
+            verify(competenceService).changerStatut(101L, StatutCompetence.VALIDEE);
+            verify(competenceService).changerStatut(102L, StatutCompetence.VALIDEE);
+
+            // Rejet en lot
+            Competence c3 = new Competence();
+            c3.setId(103L);
+            c3.setNom("Invalide1");
+            c3.setStatut(StatutCompetence.EN_ATTENTE);
+
+            Competence c4 = new Competence();
+            c4.setId(104L);
+            c4.setNom("Invalide2");
+            c4.setStatut(StatutCompetence.EN_ATTENTE);
+
+            when(competenceRepository.findById(103L)).thenReturn(Optional.of(c3));
+            when(competenceRepository.findById(104L)).thenReturn(Optional.of(c4));
+            when(competenceService.changerStatut(eq(103L), eq(StatutCompetence.REJETEE), eq("Hors sujet"))).thenReturn(c3);
+            when(competenceService.changerStatut(eq(104L), eq(StatutCompetence.REJETEE), eq("Hors sujet"))).thenReturn(c4);
+
+            adminCompetenceService.rejeterGroupes(List.of(103L, 104L), "Hors sujet", adminId);
+
+            verify(competenceService).changerStatut(103L, StatutCompetence.REJETEE, "Hors sujet");
+            verify(competenceService).changerStatut(104L, StatutCompetence.REJETEE, "Hors sujet");
+        }
+
+        @Test
+        @DisplayName("File de modération : ordre du plus ancien au plus récent, filtres et détection des doublons probables")
+        void testFileDeModerationEtDoublonsProbables() {
+            LocalDateTime t0 = LocalDateTime.of(2026, 1, 1, 10, 0);
+            LocalDateTime t1 = LocalDateTime.of(2026, 1, 2, 10, 0);
+            LocalDateTime t2 = LocalDateTime.of(2026, 1, 3, 10, 0);
+
+            Etudiant etu = new Etudiant();
+            etu.setId(1L);
+            etu.setRole(Role.ETUDIANT);
+            etu.setNom("Martin");
+            etu.setPrenom("Paul");
+
+            Recruteur rec = new Recruteur();
+            rec.setId(2L);
+            rec.setRole(Role.RECRUTEUR);
+            rec.setNom("Dupont");
+            rec.setPrenom("Claire");
+
+            Competence c1 = new Competence();
+            c1.setId(1L);
+            c1.setNom("ReactJS");
+            c1.setNomNormalise("reactjs");
+            c1.setCategorie("Frontend");
+            c1.setStatut(StatutCompetence.EN_ATTENTE);
+            c1.setDateProposition(t2); // la plus récente
+            c1.setProposeePar(etu);
+
+            Competence c2 = new Competence();
+            c2.setId(2L);
+            c2.setNom("TypeScrip");
+            c2.setNomNormalise("typescrip");
+            c2.setCategorie("Langage");
+            c2.setStatut(StatutCompetence.EN_ATTENTE);
+            c2.setDateProposition(t0); // la plus ancienne
+            c2.setProposeePar(rec);
+
+            Competence c3 = new Competence();
+            c3.setId(3L);
+            c3.setNom("Vue 3");
+            c3.setNomNormalise("vue 3");
+            c3.setCategorie("Frontend");
+            c3.setStatut(StatutCompetence.EN_ATTENTE);
+            c3.setDateProposition(t1); // intermédiaire
+            c3.setProposeePar(etu);
+
+            // Compétences validées pour la détection de doublons
+            Competence val1 = new Competence();
+            val1.setId(50L);
+            val1.setNom("React");
+            val1.setNomNormalise("react");
+            val1.setStatut(StatutCompetence.VALIDEE);
+            val1.setSynonymes(List.of("React.js"));
+
+            Competence val2 = new Competence();
+            val2.setId(51L);
+            val2.setNom("TypeScript");
+            val2.setNomNormalise("typescript");
+            val2.setStatut(StatutCompetence.VALIDEE);
+
+            when(competenceRepository.findByStatut(StatutCompetence.EN_ATTENTE)).thenReturn(new ArrayList<>(List.of(c1, c2, c3)));
+            when(competenceRepository.findByStatut(StatutCompetence.VALIDEE)).thenReturn(List.of(val1, val2));
+
+            when(entityManager.createNativeQuery(anyString())).thenReturn(nativeQuery);
+            when(nativeQuery.setParameter(anyString(), any())).thenReturn(nativeQuery);
+            when(nativeQuery.getSingleResult()).thenReturn(0L);
+
+            // 1. Liste complète sans filtre : tri de la plus ancienne à la plus récente (c2, c3, c1)
+            List<CompetenceAModererDto> file = adminCompetenceService.listerAModerer(null, null);
+            assertThat(file).hasSize(3);
+            assertThat(file.get(0).id()).isEqualTo(2L); // t0
+            assertThat(file.get(1).id()).isEqualTo(3L); // t1
+            assertThat(file.get(2).id()).isEqualTo(1L); // t2
+
+            // Vérification des doublons probables détectés pour "ReactJS" (doit détecter "React" par inclusion/préfixe)
+            CompetenceAModererDto reactDto = file.stream().filter(d -> d.id().equals(1L)).findFirst().orElseThrow();
+            assertThat(reactDto.doublonsProbables()).contains("React");
+
+            // Vérification des doublons probables pour "TypeScrip" (doit détecter "TypeScript" par distance/préfixe)
+            CompetenceAModererDto tsDto = file.stream().filter(d -> d.id().equals(2L)).findFirst().orElseThrow();
+            assertThat(tsDto.doublonsProbables()).contains("TypeScript");
+
+            // 2. Filtre par rôle ETUDIANT (doit exclure c2 qui est proposé par un recruteur)
+            when(competenceRepository.findByStatut(StatutCompetence.EN_ATTENTE)).thenReturn(new ArrayList<>(List.of(c1, c2, c3)));
+            List<CompetenceAModererDto> etuFile = adminCompetenceService.listerAModerer(Role.ETUDIANT, null);
+            assertThat(etuFile).hasSize(2);
+            assertThat(etuFile).extracting(CompetenceAModererDto::id).containsExactly(3L, 1L);
+
+            // 3. Filtre par recherche "react"
+            when(competenceRepository.findByStatut(StatutCompetence.EN_ATTENTE)).thenReturn(new ArrayList<>(List.of(c1, c2, c3)));
+            List<CompetenceAModererDto> searchFile = adminCompetenceService.listerAModerer(null, "react");
+            assertThat(searchFile).hasSize(1);
+            assertThat(searchFile.get(0).nom()).isEqualTo("ReactJS");
+        }
+
+        @Test
+        @DisplayName("Re-proposition d'une compétence rejetée : refuse avec message clair contenant le motif de rejet")
+        void testRepropositionCompetenceRejeteeAfficheMotif() {
+            Etudiant etudiant = new Etudiant();
+            etudiant.setId(10L);
+
+            Competence rejetee = new Competence();
+            rejetee.setId(90L);
+            rejetee.setNom("Fortran");
+            rejetee.setNomNormalise("fortran");
+            rejetee.setStatut(StatutCompetence.REJETEE);
+            rejetee.setMotifRejet("Technologie obsolète pour ce cursus");
+
+            when(competenceRepository.countByProposeePar_IdAndStatut(eq(10L), eq(StatutCompetence.EN_ATTENTE))).thenReturn(0L);
+            when(competenceRepository.findByNomNormalise("fortran")).thenReturn(Optional.of(rejetee));
+
+            assertThatThrownBy(() -> competenceServiceImpl.proposer("Fortran", "Langage", etudiant))
+                    .isInstanceOf(CompetenceDejaExistanteException.class)
+                    .hasMessageContaining("Cette compétence a été rejetée pour le motif suivant : Technologie obsolète pour ce cursus");
+
+            verify(competenceRepository, never()).save(any());
         }
 
         @Test

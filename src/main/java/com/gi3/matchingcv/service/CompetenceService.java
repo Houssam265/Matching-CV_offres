@@ -116,4 +116,6 @@ public interface CompetenceService {
      * @return la compétence mise à jour
      */
     Competence changerStatut(Long id, com.gi3.matchingcv.model.enums.StatutCompetence nouveauStatut);
+
+    Competence changerStatut(Long id, com.gi3.matchingcv.model.enums.StatutCompetence nouveauStatut, String motif);
 }

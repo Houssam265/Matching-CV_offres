@@ -245,4 +245,30 @@ class NotificationListenerTest {
 
         assertThat(msgCaptor.getValue()).contains("ignorée dans le calcul du score");
     }
+
+    @Test
+    @DisplayName("onCompetenceStatutChange : notifie l'étudiant avec le motif de rejet inclus")
+    void onCompetenceStatutChange_rejetee_avecMotif() {
+        CompetenceStatutChangeEvent event = new CompetenceStatutChangeEvent(
+                7L, "Piratage", StatutCompetence.EN_ATTENTE, StatutCompetence.REJETEE, 1L, "Non conforme à la charte");
+
+        listener.onCompetenceStatutChange(event);
+
+        ArgumentCaptor<String> msgCaptor = ArgumentCaptor.forClass(String.class);
+        verify(notificationService).notifier(
+                eq(1L),
+                eq(TypeNotification.COMPETENCE_REJETEE),
+                contains("Piratage"),
+                msgCaptor.capture(),
+                eq("/dashboard-etudiant.html"),
+                isNull(),
+                isNull(),
+                eq(7L),
+                isNull(),
+                isNull()
+        );
+
+        assertThat(msgCaptor.getValue()).contains("Non conforme à la charte");
+        assertThat(msgCaptor.getValue()).contains("ignorée dans le calcul du score");
+    }
 }

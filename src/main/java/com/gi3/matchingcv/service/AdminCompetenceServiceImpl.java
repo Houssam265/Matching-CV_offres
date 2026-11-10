@@ -1,6 +1,8 @@
 package com.gi3.matchingcv.service;
 
 import com.gi3.matchingcv.dto.CompetenceAModererDto;
+import com.gi3.matchingcv.exception.CompetenceDejaExistanteException;
+import com.gi3.matchingcv.exception.CompetenceDejaTraiteeException;
 import com.gi3.matchingcv.model.*;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.model.enums.TypeExigence;
@@ -67,14 +69,49 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
     @Override
     @Transactional(readOnly = true)
     public List<CompetenceAModererDto> listerAModerer() {
+        return listerAModerer(null, null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CompetenceAModererDto> listerAModerer(com.gi3.matchingcv.model.enums.Role role, String recherche) {
         List<Competence> enAttente = competenceRepository.findByStatut(StatutCompetence.EN_ATTENTE);
-        List<Competence> validees  = competenceRepository.findByStatut(StatutCompetence.VALIDEE);
+        // Trier de la plus ancienne à la plus récente
+        enAttente.sort(Comparator.comparing(
+                (Competence c) -> c.getDateProposition() != null ? c.getDateProposition() : (c.getDateCreation() != null ? c.getDateCreation() : java.time.LocalDateTime.MIN)
+        ).thenComparing(c -> c.getId() != null ? c.getId() : 0L));
+
+        if (role != null) {
+            enAttente = enAttente.stream()
+                    .filter(c -> c.getProposeePar() != null && c.getProposeePar().getRole() == role)
+                    .collect(Collectors.toList());
+        }
+
+        if (recherche != null && !recherche.isBlank()) {
+            String q = recherche.trim().toLowerCase();
+            String qNorm = Competence.normaliserNom(q);
+            enAttente = enAttente.stream().filter(c -> {
+                boolean nomMatch = c.getNom() != null && c.getNom().toLowerCase().contains(q);
+                boolean catMatch = c.getCategorie() != null && c.getCategorie().toLowerCase().contains(q);
+                boolean normMatch = qNorm != null && c.getNomNormalise() != null && c.getNomNormalise().contains(qNorm);
+                boolean synMatch = c.getSynonymes() != null && c.getSynonymes().stream().anyMatch(s -> s.toLowerCase().contains(q));
+                return nomMatch || catMatch || normMatch || synMatch;
+            }).collect(Collectors.toList());
+        }
+
+        List<Competence> validees = competenceRepository.findByStatut(StatutCompetence.VALIDEE);
 
         return enAttente.stream().map(c -> {
             long usages = compterUsages(c.getId());
             List<String> doublons = trouverDoublonsPotentiels(c, validees);
             return CompetenceAModererDto.from(c, usages, doublons);
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countAModerer() {
+        return competenceRepository.countByStatut(StatutCompetence.EN_ATTENTE);
     }
 
     /** Compte toutes les utilisations d'une compétence dans les tables de jointure. */
@@ -97,20 +134,46 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
 
     /**
      * Détecte les compétences VALIDEE dont le nomNormalise contient ou est contenu
-     * par le nomNormalise de la compétence candidate (doublon probable).
+     * par le nomNormalise de la compétence candidate, ou partagent le même début,
+     * ou égalité avec un synonyme existant (doublon probable).
      */
     private List<String> trouverDoublonsPotentiels(Competence candidate, List<Competence> validees) {
         String cn = candidate.getNomNormalise();
-        if (cn == null) return List.of();
+        if (cn == null || cn.isBlank()) return List.of();
+        String cNom = candidate.getNom() != null ? candidate.getNom().trim().toLowerCase() : "";
+
         return validees.stream()
                 .filter(v -> v.getNomNormalise() != null)
                 .filter(v -> !v.getId().equals(candidate.getId()))
                 .filter(v -> {
                     String vn = v.getNomNormalise();
-                    return vn.equals(cn) || vn.contains(cn) || cn.contains(vn)
-                            || levenshtein(cn, vn) <= 2;
+                    // 1. Égalité ou inclusion réciproque
+                    if (vn.equals(cn) || vn.contains(cn) || cn.contains(vn)) {
+                        return true;
+                    }
+                    // 2. Même début (préfixe commun d'au moins 3-4 caractères)
+                    if (cn.length() >= 3 && vn.length() >= 3) {
+                        String prefixC = cn.substring(0, Math.min(4, cn.length()));
+                        String prefixV = vn.substring(0, Math.min(4, vn.length()));
+                        if (cn.startsWith(prefixV) || vn.startsWith(prefixC)) {
+                            return true;
+                        }
+                    }
+                    // 3. Égalité avec un synonyme existant
+                    if (v.getSynonymes() != null) {
+                        for (String syn : v.getSynonymes()) {
+                            if (syn != null && !syn.isBlank()) {
+                                String synNorm = Competence.normaliserNom(syn);
+                                if (synNorm != null && (synNorm.equals(cn) || syn.trim().equalsIgnoreCase(cNom))) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    return levenshtein(cn, vn) <= 2;
                 })
                 .map(Competence::getNom)
+                .distinct()
                 .limit(5)
                 .collect(Collectors.toList());
     }
@@ -124,9 +187,24 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
                                                List<String> synonymes, Long adminId) {
         Competence c = competenceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Compétence introuvable : " + id));
+
+        if (c.getStatut() != StatutCompetence.EN_ATTENTE) {
+            throw new CompetenceDejaTraiteeException("Cette compétence a déjà été traitée.");
+        }
+
         if (nom != null && !nom.isBlank()) {
-            c.setNom(nom.trim());
-            c.setNomNormalise(Competence.normaliserNom(nom.trim()));
+            String nomTrim = nom.trim();
+            String norm = Competence.normaliserNom(nomTrim);
+            if (!nomTrim.equalsIgnoreCase(c.getNom())) {
+                Optional<Competence> existante = competenceRepository.findByNomNormalise(norm);
+                if (existante.isPresent() && !existante.get().getId().equals(id)) {
+                    throw new CompetenceDejaExistanteException(
+                            "Une compétence existe déjà avec ce nom (« " + existante.get().getNom() + " »). Vous pouvez fusionner cette proposition avec la compétence existante."
+                    );
+                }
+            }
+            c.setNom(nomTrim);
+            c.setNomNormalise(norm);
         }
         if (categorie != null) {
             c.setCategorie(categorie.isBlank() ? null : categorie.trim());
@@ -147,8 +225,18 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
     public Competence rejeterAvecMotif(Long id, String motif, Long adminId) {
         Competence c = competenceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Compétence introuvable : " + id));
+
+        if (c.getStatut() != StatutCompetence.EN_ATTENTE) {
+            throw new CompetenceDejaTraiteeException("Cette compétence a déjà été traitée.");
+        }
+
+        if (motif != null && !motif.isBlank()) {
+            c.setMotifRejet(motif.trim());
+            competenceRepository.save(c);
+        }
+
         // Délègue à CompetenceService pour déclencher l'événement et la notification à l'auteur
-        Competence saved = competenceService.changerStatut(id, StatutCompetence.REJETEE);
+        Competence saved = competenceService.changerStatut(id, StatutCompetence.REJETEE, motif);
         String details = (motif != null && !motif.isBlank()) ? motif : null;
         auditService.journaliser(adminId, "REJETER_COMPETENCE",
                 "Compétence #" + id + " '" + c.getNom() + "'", details);
@@ -168,6 +256,13 @@ public class AdminCompetenceServiceImpl implements AdminCompetenceService {
                 .orElseThrow(() -> new EntityNotFoundException("Compétence source introuvable : " + sourceId));
         Competence cible  = competenceRepository.findById(cibleId)
                 .orElseThrow(() -> new EntityNotFoundException("Compétence cible introuvable : " + cibleId));
+
+        if (source.getStatut() != StatutCompetence.EN_ATTENTE) {
+            throw new CompetenceDejaTraiteeException("Cette compétence a déjà été traitée.");
+        }
+        if (cible.getStatut() != StatutCompetence.VALIDEE) {
+            throw new IllegalArgumentException("La compétence cible doit être validée (ni en attente ni rejetée).");
+        }
 
         // 1. Re-pointer les tables many-to-many (etudiant_competence, projet_competence, experience_competence)
         for (String table : List.of("etudiant_competence", "projet_competence", "experience_competence")) {

@@ -16,6 +16,19 @@ public interface AdminCompetenceService {
     /** File de modération : toutes les compétences EN_ATTENTE avec usage et doublons. */
     List<CompetenceAModererDto> listerAModerer();
 
+    /** File de modération filtrée par rôle de l'auteur et mot-clé de recherche. */
+    List<CompetenceAModererDto> listerAModerer(com.gi3.matchingcv.model.enums.Role role, String recherche);
+
+    /** Nombre de compétences actuellement EN_ATTENTE de modération. */
+    long countAModerer();
+
+    /**
+     * Valide une compétence EN_ATTENTE telle quelle sans modification.
+     */
+    default Competence valider(Long id, Long adminId) {
+        return validerAvecModifications(id, null, null, null, adminId);
+    }
+
     /**
      * Valide une compétence EN_ATTENTE après modifications éventuelles.
      * Délègue à {@link CompetenceService#changerStatut} pour l'événement et la notification.

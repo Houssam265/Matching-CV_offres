@@ -23,4 +23,8 @@ body.admin-portal,.admin-portal .app-main-layout{background:#f6f8f6;color:#203c2
 .admin-portal .app-main-layout,.admin-portal main,.admin-portal .admin-page{min-width:0}.admin-portal .toolbar-right{flex-wrap:wrap}@media(max-width:700px){.admin-portal .toolbar-right{margin-left:0}.admin-portal .search-box{min-width:0;width:100%}}
 
 .admin-portal .stats-grid-2{grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr))}.admin-portal .stats-card{min-width:0;background:#fff;border:1px solid #dce7df;border-radius:14px}.admin-portal .table-wrap{max-width:100%;overflow:auto}.admin-portal .admin-hero{border-radius:16px;background:#184b32;padding:2rem}.admin-portal .admin-hero-title{color:white;-webkit-text-fill-color:white}.admin-portal .kpi-icon-pill.blue,.admin-portal .kpi-icon-pill.purple{background:#e6f1e9;color:#24774e}@media(max-width:700px){.admin-portal .activity-row{flex-wrap:wrap}.admin-portal .bar-label{width:90px}.admin-portal .admin-hero{padding:1.5rem}}
+body.has-sidebar:not(.sidebar-pinned) .app-topbar {
+    padding-left: calc(var(--sidebar-w-expanded) - var(--sidebar-w-collapsed) + 2rem);
+    transition: padding-left 0.25s ease;
+}
 .admin-portal .btn-indigo{background:#24774e;color:#fff}.admin-portal #btn-sidebar-logout{display:none}.admin-portal .modal-row[hidden]{display:none}

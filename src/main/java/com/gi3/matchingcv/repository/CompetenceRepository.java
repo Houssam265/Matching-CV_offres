@@ -17,5 +17,9 @@ public interface CompetenceRepository extends JpaRepository<Competence, Long> {
 
     List<Competence> findByStatut(StatutCompetence statut);
 
+    List<Competence> findByStatutOrderByDatePropositionAscDateCreationAscIdAsc(StatutCompetence statut);
+
+    long countByStatut(StatutCompetence statut);
+
     long countByProposeePar_IdAndStatut(Long utilisateurId, StatutCompetence statut);
 }

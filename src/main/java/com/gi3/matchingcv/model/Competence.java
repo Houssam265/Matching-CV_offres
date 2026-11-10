@@ -56,6 +56,12 @@ public class Competence {
     @Column(name = "date_creation")
     private java.time.LocalDateTime dateCreation;
 
+    @Column(name = "date_proposition")
+    private java.time.LocalDateTime dateProposition;
+
+    @Column(name = "motif_rejet")
+    private String motifRejet;
+
 
 
     /**
@@ -82,6 +88,9 @@ public class Competence {
         }
         if (this.dateCreation == null) {
             this.dateCreation = java.time.LocalDateTime.now();
+        }
+        if (this.statut == StatutCompetence.EN_ATTENTE && this.dateProposition == null) {
+            this.dateProposition = this.dateCreation;
         }
     }
 }

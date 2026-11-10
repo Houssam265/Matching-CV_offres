@@ -1,7 +1,7 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<script src="/js/api-client.js"></script>
+    <script src="/js/api-client.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Modération des compétences — Espace Administrateur Matching CV-Offres" />
@@ -13,19 +13,19 @@
     <link rel="stylesheet" href="/css/sidebar.css?v=3" />
     <link rel="stylesheet" href="/css/navigation.css?v=3" />
     <link rel="stylesheet" href="/css/notifications.css" />
+    <link rel="stylesheet" href="/css/admin-theme.css" />
     <link rel="icon" href="/favicon.svg" />
     <script src="/js/session.js"></script>
     <!-- TODO sécurité : vérification du rôle ADMIN côté serveur -->
     <script>MatchingCVSession.protect('ADMIN');</script>
     <style>
-        /* ── Variables ── */
         :root {
             --admin-bg:       #f6faf8;
             --admin-surface:  #edf4f0;
             --admin-card:     #ffffff;
             --admin-border:   #dce9e2;
             --admin-accent:   #24774e;
-            --admin-accent2:  #20754b;
+            --admin-accent-hover: #1e6642;
             --admin-green:    #2e9c65;
             --admin-red:      #dc2626;
             --admin-amber:    #d97706;
@@ -42,188 +42,184 @@
             margin: 0;
         }
 
-        /* ── Navbar admin multi-onglets ── */
-        .admin-navbar {
-            background: #ffffff;
-            border-bottom: 1px solid var(--admin-border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 0 1.5rem;
+        /* Dégagement de la topbar pour ne jamais être cachée sous le menu latéral non épinglé */
+        body.has-sidebar:not(.sidebar-pinned) .app-topbar {
+            padding-left: calc(var(--sidebar-w-expanded) - var(--sidebar-w-collapsed) + 2rem);
+            transition: padding-left 0.25s ease;
         }
-        .admin-nav-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            height: 60px;
-        }
-        .admin-logo {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            text-decoration: none;
-            color: #184b32;
-            font-weight: 800;
-            font-size: 1.05rem;
-            flex-shrink: 0;
-            margin-right: .5rem;
-        }
-        .admin-logo-badge {
-            font-size: .65rem;
-            background: var(--admin-badge-bg);
-            color: var(--admin-accent);
-            padding: 2px 7px;
-            border-radius: 5px;
-            font-weight: 700;
-            letter-spacing: .04em;
-            border: 1px solid rgba(36,119,78,.25);
-        }
-        .admin-nav-links {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            gap: .25rem;
-            flex: 1;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-        .admin-nav-links::-webkit-scrollbar { display: none; }
-        .admin-nav-link {
-            display: flex;
-            align-items: center;
-            gap: .4rem;
-            padding: .45rem .85rem;
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--admin-muted);
-            font-size: .875rem;
-            font-weight: 500;
-            white-space: nowrap;
-            transition: background .15s, color .15s;
-        }
-        .admin-nav-link:hover { background: #edf4f0; color: #184b32; }
-        .admin-nav-link.active { background: #e2ece7; color: #184b32; font-weight: 700; }
-        .admin-nav-link .badge {
-            background: var(--admin-red);
-            color: #fff;
-            font-size: .7rem;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 10px;
-            min-width: 18px;
-            text-align: center;
-        }
-        .admin-nav-right {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            flex-shrink: 0;
-        }
-        .admin-nav-user {
-            font-size: .85rem;
-            color: var(--admin-muted);
-        }
-        .btn-nav-logout {
-            background: rgba(239,68,68,.12);
-            color: var(--admin-red);
-            border: 1px solid rgba(239,68,68,.25);
-            padding: .35rem .85rem;
-            border-radius: 7px;
-            font-size: .8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background .15s;
-        }
-        .btn-nav-logout:hover { background: rgba(239,68,68,.22); }
 
-        /* ── Page layout ── */
         .admin-page {
-            max-width: 1200px;
+            max-width: 1240px;
             margin: 0 auto;
-            padding: 2rem 1.5rem 4rem;
+            padding: 2rem 2rem 4rem;
         }
+
         .admin-page-header {
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
         }
         .admin-page-title {
             font-size: 1.75rem;
             font-weight: 800;
-            margin: 0 0 .3rem;
-            background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #184b32;
+            letter-spacing: -.03em;
+            margin: 0 0 .35rem;
         }
         .admin-page-subtitle {
             color: var(--admin-muted);
-            font-size: .9rem;
+            font-size: .92rem;
             margin: 0;
         }
 
-        /* ── Toolbar ── */
+        /* ── Barre de filtres & recherche ── */
+        .mod-controls-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+            background: #ffffff;
+            border: 1px solid var(--admin-border);
+            border-radius: 12px;
+            padding: .75rem 1rem;
+            box-shadow: 0 1px 4px rgba(20,64,42,0.03);
+        }
+
+        .mod-search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 240px;
+        }
+        .mod-search-icon {
+            position: absolute;
+            left: .75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--admin-muted);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+        .mod-search-input {
+            width: 100%;
+            padding: .5rem .8rem .5rem 2.25rem;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: .86rem;
+            color: var(--admin-text);
+            background: #fbfdfc;
+            outline: none;
+            transition: border-color .15s, background .15s;
+            box-sizing: border-box;
+        }
+        .mod-search-input:focus {
+            border-color: var(--admin-accent);
+            background: #ffffff;
+        }
+
+        .mod-filter-pills {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        .mod-pill-btn {
+            background: #f1f5f3;
+            border: 1px solid var(--admin-border);
+            color: var(--admin-muted);
+            padding: .35rem .75rem;
+            border-radius: 20px;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .mod-pill-btn:hover {
+            color: var(--admin-text);
+            background: #e7efe9;
+        }
+        .mod-pill-btn.active {
+            background: var(--admin-accent);
+            color: #ffffff;
+            border-color: var(--admin-accent);
+        }
+
+        /* ── Toolbar actions groupées ── */
         .mod-toolbar {
             display: flex;
             align-items: center;
             gap: .75rem;
             flex-wrap: wrap;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
+            padding: .6rem .8rem;
+            background: #f8faf9;
+            border: 1px dashed var(--admin-border);
+            border-radius: 10px;
         }
         .mod-toolbar-count {
             font-size: .85rem;
             color: var(--admin-muted);
+            font-weight: 600;
             margin-left: auto;
         }
+
+        /* Boutons d'action */
         .btn-action {
             display: inline-flex;
             align-items: center;
             gap: .4rem;
-            padding: .5rem 1rem;
+            padding: .45rem .85rem;
             border-radius: 8px;
-            font-size: .85rem;
+            font-size: .82rem;
             font-weight: 600;
             cursor: pointer;
-            border: none;
-            transition: opacity .15s, transform .1s;
+            border: 1px solid transparent;
+            transition: all .15s;
+            font-family: inherit;
         }
-        .btn-action:hover { opacity: .88; transform: translateY(-1px); }
-        .btn-action:active { transform: scale(.97); }
-        .btn-action:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-        .btn-green  { background: rgba(34,197,94,.15);  color: var(--admin-green); border: 1px solid rgba(34,197,94,.3); }
-        .btn-red    { background: rgba(239,68,68,.15);  color: var(--admin-red);   border: 1px solid rgba(239,68,68,.3); }
-        .btn-amber  { background: rgba(245,158,11,.15); color: var(--admin-amber); border: 1px solid rgba(245,158,11,.3); }
-        .btn-indigo { background: var(--admin-badge-bg); color: var(--admin-accent); border: 1px solid rgba(99,102,241,.3); }
-
-        /* ── Empty state ── */
-        .mod-empty {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--admin-muted);
+        .btn-action:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }
-        .mod-empty svg { margin-bottom: 1rem; opacity: .35; }
-        .mod-empty h3 { color: var(--admin-text); font-size: 1.1rem; margin: 0 0 .5rem; }
+        .btn-action:active:not(:disabled) { transform: scale(.98); }
+        .btn-action:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
-        /* ── Cards ── */
+        .btn-green  { background: #15803d; color: #ffffff; border-color: #15803d; }
+        .btn-green:hover:not(:disabled) { background: #166534; }
+        .btn-outline-green { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+        .btn-outline-green:hover:not(:disabled) { background: #dcfce7; }
+        .btn-red    { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+        .btn-red:hover:not(:disabled) { background: #fee2e2; }
+        .btn-amber  { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+        .btn-amber:hover:not(:disabled) { background: #fef3c7; }
+        .btn-outline { background: #ffffff; color: var(--admin-text); border-color: var(--admin-border); }
+        .btn-outline:hover:not(:disabled) { background: #f6faf8; }
+
+        /* ── Grid & Cards ── */
         .mod-grid {
             display: grid;
-            gap: 1rem;
+            gap: .9rem;
         }
         .mod-card {
-            background: var(--admin-card);
+            background: #ffffff;
             border: 1px solid var(--admin-border);
-            border-radius: 14px;
-            padding: 1.25rem 1.5rem;
-            transition: border-color .2s, box-shadow .2s;
+            border-radius: 12px;
+            padding: 1.15rem 1.35rem;
+            transition: border-color .15s, box-shadow .15s, transform .15s;
+            box-shadow: 0 1px 4px rgba(20,64,42,0.03);
         }
         .mod-card:hover {
-            border-color: rgba(99,102,241,.35);
-            box-shadow: 0 4px 24px rgba(0,0,0,.35);
+            border-color: #a7cfba;
+            box-shadow: 0 4px 14px rgba(20,64,42,0.06);
         }
         .mod-card.selected {
             border-color: var(--admin-accent);
-            box-shadow: 0 0 0 2px rgba(99,102,241,.18);
+            background: #fafdfb;
+            box-shadow: 0 0 0 2px rgba(36,119,78,0.15);
         }
         .mod-card-top {
             display: flex;
@@ -231,57 +227,153 @@
             gap: 1rem;
         }
         .mod-card-check {
-            margin-top: 3px;
-            width: 17px;
-            height: 17px;
+            margin-top: .35rem;
+            width: 18px;
+            height: 18px;
             cursor: pointer;
             accent-color: var(--admin-accent);
             flex-shrink: 0;
         }
         .mod-card-body { flex: 1; min-width: 0; }
+        .mod-card-header {
+            display: flex;
+            align-items: baseline;
+            gap: .65rem;
+            flex-wrap: wrap;
+            margin-bottom: .4rem;
+        }
         .mod-card-name {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: var(--admin-text);
-            margin: 0 0 .2rem;
+            color: #184b32;
+            margin: 0;
         }
         .mod-card-meta {
             display: flex;
             flex-wrap: wrap;
-            gap: .5rem;
+            gap: .45rem;
+            align-items: center;
             margin-bottom: .6rem;
         }
+
         .meta-chip {
-            font-size: .75rem;
-            padding: 2px 9px;
-            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            font-size: .76rem;
+            padding: 2px 8px;
+            border-radius: 6px;
             font-weight: 500;
+            line-height: 1.4;
         }
-        .chip-categorie { background: rgba(99,102,241,.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,.25); }
-        .chip-auteur    { background: rgba(34,211,238,.1);  color: #67e8f9; border: 1px solid rgba(34,211,238,.2); }
-        .chip-date      { background: rgba(148,163,184,.1); color: var(--admin-muted); border: 1px solid rgba(148,163,184,.15); }
-        .chip-usage     { background: rgba(245,158,11,.1);  color: #fbbf24; border: 1px solid rgba(245,158,11,.2); }
-        .chip-doublon   { background: rgba(239,68,68,.12);  color: #fca5a5; border: 1px solid rgba(239,68,68,.25); font-size: .72rem; }
+        .chip-categorie { background: #edf4f0; color: #1c4330; border: 1px solid #dce9e2; font-weight: 600; }
+        .chip-auteur    { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .chip-auteur.recruteur { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+        .chip-date      { background: #f8faf9; color: var(--admin-muted); border: 1px solid #e2ece6; }
+        .chip-usage     { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 600; }
+
+        .mod-card-doublons {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            flex-wrap: wrap;
+            margin-bottom: .65rem;
+            padding: .4rem .65rem;
+            background: #fff8f8;
+            border: 1px solid #fee2e2;
+            border-radius: 8px;
+            font-size: .78rem;
+            color: #991b1b;
+        }
+        .chip-doublon {
+            background: #ffffff;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: .75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .chip-doublon:hover {
+            background: #dc2626;
+            color: #ffffff;
+            border-color: #dc2626;
+            transform: translateY(-1px);
+        }
 
         .mod-card-synonymes {
             font-size: .8rem;
             color: var(--admin-muted);
-            margin-bottom: .7rem;
+            margin-bottom: .75rem;
         }
-        .mod-card-synonymes span { font-style: italic; }
+        .mod-card-synonymes span { font-weight: 600; color: var(--admin-text); }
 
         .mod-card-actions {
             display: flex;
             gap: .5rem;
             flex-wrap: wrap;
+            margin-top: .4rem;
         }
+
+        /* ── États : Vide / Erreur / Chargement ── */
+        .mod-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #ffffff;
+            border: 1px solid var(--admin-border);
+            border-radius: 14px;
+            color: var(--admin-muted);
+        }
+        .mod-empty svg { margin-bottom: 1rem; color: #2e9c65; }
+        .mod-empty h3 { color: #184b32; font-size: 1.15rem; font-weight: 700; margin: 0 0 .4rem; }
+        .mod-empty p { font-size: .88rem; margin: 0; }
+
+        .mod-error-card {
+            background: #ffffff;
+            border: 1px solid #fecaca;
+            border-left: 4px solid #dc2626;
+            border-radius: 12px;
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 8px rgba(220,38,38,0.06);
+        }
+        .mod-error-body { flex: 1; min-width: 240px; }
+        .mod-error-title { color: #991b1b; font-size: 1rem; font-weight: 700; margin: 0 0 .25rem; }
+        .mod-error-msg { color: #7f1d1d; font-size: .86rem; margin: 0; }
+
+        .loading-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 1rem;
+            color: var(--admin-muted);
+            font-size: .88rem;
+        }
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #dce9e2;
+            border-top-color: var(--admin-accent);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            margin-bottom: .85rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ── Modales ── */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,.7);
-            backdrop-filter: blur(6px);
+            background: rgba(14, 38, 26, 0.55);
+            backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -289,27 +381,43 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity .2s;
+            padding: 1rem;
+            box-sizing: border-box;
         }
         .modal-overlay.open { opacity: 1; pointer-events: all; }
         .modal {
-            background: var(--admin-surface);
+            background: #ffffff;
             border: 1px solid var(--admin-border);
-            border-radius: 18px;
-            padding: 2rem;
-            width: min(520px, 94vw);
+            border-radius: 16px;
+            padding: 1.75rem 2rem;
+            width: min(520px, 100%);
             max-height: 90vh;
             overflow-y: auto;
-            transform: translateY(16px) scale(.97);
+            transform: translateY(12px) scale(.98);
             transition: transform .2s;
+            box-shadow: 0 20px 40px rgba(14, 38, 26, 0.18);
         }
         .modal-overlay.open .modal { transform: translateY(0) scale(1); }
         .modal-title {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            margin: 0 0 1.25rem;
-            color: var(--admin-text);
+            color: #184b32;
+            margin: 0 0 1rem;
         }
-        .form-group { margin-bottom: 1rem; }
+        .modal-alert {
+            padding: .65rem .85rem;
+            border-radius: 8px;
+            font-size: .82rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .modal-alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+        .form-group { margin-bottom: 1.1rem; }
         .form-label {
             display: block;
             font-size: .82rem;
@@ -321,45 +429,93 @@
             width: 100%;
             background: #ffffff;
             border: 1px solid var(--admin-border);
-            border-radius: 9px;
+            border-radius: 8px;
             color: var(--admin-text);
-            padding: .6rem .9rem;
-            font-size: .9rem;
+            padding: .6rem .85rem;
+            font-size: .88rem;
             font-family: inherit;
+            outline: none;
             transition: border-color .15s;
             box-sizing: border-box;
         }
         .form-input:focus, .form-textarea:focus {
-            outline: none;
             border-color: var(--admin-accent);
+            box-shadow: 0 0 0 2px rgba(36,119,78,0.12);
         }
         .form-textarea { min-height: 80px; resize: vertical; }
+
         .modal-actions {
             display: flex;
-            gap: .75rem;
+            gap: .65rem;
             justify-content: flex-end;
             margin-top: 1.5rem;
         }
         .btn-modal-cancel {
-            padding: .55rem 1.1rem;
+            padding: .5rem 1rem;
             border-radius: 8px;
             border: 1px solid var(--admin-border);
-            background: transparent;
+            background: #ffffff;
             color: var(--admin-muted);
-            font-size: .875rem;
+            font-size: .85rem;
             font-weight: 600;
             cursor: pointer;
+            font-family: inherit;
         }
+        .btn-modal-cancel:hover { background: #f6faf8; }
         .btn-modal-ok {
-            padding: .55rem 1.4rem;
+            padding: .5rem 1.25rem;
             border-radius: 8px;
             border: none;
-            font-size: .875rem;
+            font-size: .85rem;
             font-weight: 700;
             cursor: pointer;
+            font-family: inherit;
+            color: #ffffff;
         }
-        .btn-modal-ok.green { background: var(--admin-green); color: #fff; }
-        .btn-modal-ok.red   { background: var(--admin-red);   color: #fff; }
+        .btn-modal-ok.green { background: #15803d; }
+        .btn-modal-ok.green:hover:not(:disabled) { background: #166534; }
+        .btn-modal-ok.red { background: #dc2626; }
+        .btn-modal-ok.red:hover:not(:disabled) { background: #b91c1c; }
+        .btn-modal-ok:disabled { opacity: .5; cursor: not-allowed; }
+
+        /* Suggestions de fusion */
+        .fus-suggestions-list {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            padding: .4rem;
+            background: #fafcfb;
+            margin-bottom: .85rem;
+        }
+        .fus-sugg-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: .45rem .65rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            background: #ffffff;
+            font-size: .82rem;
+            font-weight: 600;
+            color: #184b32;
+            cursor: pointer;
+            text-align: left;
+            transition: all .12s;
+        }
+        .fus-sugg-btn:hover {
+            background: #edf6f1;
+            border-color: #b8deca;
+        }
+        .fus-sugg-btn.active {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #15803d;
+        }
 
         /* ── Toast ── */
         #toast-container {
@@ -372,37 +528,27 @@
             gap: .5rem;
         }
         .toast {
-            padding: .75rem 1.25rem;
-            border-radius: 10px;
-            font-size: .875rem;
+            padding: .75rem 1.2rem;
+            border-radius: 8px;
+            font-size: .85rem;
             font-weight: 600;
-            max-width: 340px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
             animation: toastIn .2s ease;
         }
-        .toast.success { background: rgba(34,197,94,.2); color: var(--admin-green); border: 1px solid rgba(34,197,94,.3); }
-        .toast.error   { background: rgba(239,68,68,.2); color: var(--admin-red);   border: 1px solid rgba(239,68,68,.3); }
-        @keyframes toastIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        /* ── Spinner ── */
-        .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.2); border-top-color: var(--admin-accent); border-radius: 50%; animation: spin .7s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-center { display: flex; justify-content: center; padding: 3rem 0; }
-
-        @media (max-width: 640px) {
-            .admin-page { padding: 1.5rem 1rem 3rem; }
-            .mod-toolbar { gap: .5rem; }
-        }
+        .toast.success { background: #15803d; color: #ffffff; }
+        .toast.error   { background: #dc2626; color: #ffffff; }
+        @keyframes toastIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
-<style id="admin-sidebar-overrides">
-    .admin-navbar, .admin-nav-inner, .admin-nav-links, .admin-nav-link,
-    .admin-nav-right, .admin-logo, .admin-logo-badge, .btn-nav-logout { display: none !important; }
-    body { background: #f6faf8; }
-    .admin-page { padding: 1.75rem 2rem 4rem; }
-    @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
-</style>
-<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
-<body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
-<script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+</head>
+<body class="has-sidebar">
+<script>
+try {
+    document.body.classList.toggle('sidebar-pinned', localStorage.getItem('matchingcv_sidebar_pinned') !== 'false');
+} catch(e) {
+    document.body.classList.add('sidebar-pinned');
+}
+document.body.classList.add('navigation-loading');
+</script>
 
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 <aside class="app-sidebar" id="app-sidebar" aria-label="Navigation administration">
@@ -421,10 +567,10 @@
             </div>
         </a>
         <div style="display:flex;align-items:center;gap:.3rem;">
-            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Epingler la barre">
+            <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Épingler la barre">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a2 2 0 0 1 2-2 2 2 0 0 0 2-2V2H5v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v3.76z"/></svg>
             </button>
-            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu lateral">
+            <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu latéral">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -433,34 +579,35 @@
         <div class="sidebar-section">
             <div class="sidebar-section-title">Menu Principal</div>
             <ul class="sidebar-list">
-                <li class="sidebar-item"><a href="/admin-dashboard.html" class="sidebar-link " title="Tableau de bord"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="sidebar-link-label">Tableau de bord</span></a></li>
-                <li class="sidebar-item"><a href="/admin-moderation.html" class="sidebar-link active" title="Moderation"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span class="sidebar-link-label">Moderation</span><span id="sidebar-badge-moderation" style="display:none;background:#dc2626;color:#fff;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;margin-left:auto;"></span></a></li>
-                <li class="sidebar-item"><a href="/admin-competences.html" class="sidebar-link " title="Referentiel"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="sidebar-link-label">Referentiel</span></a></li>
-                <li class="sidebar-item"><a href="/admin-utilisateurs.html" class="sidebar-link " title="Utilisateurs"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-link-label">Utilisateurs</span></a></li>
-                <li class="sidebar-item"><a href="/admin-offres.html" class="sidebar-link " title="Offres"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="sidebar-link-label">Offres</span></a></li>
-                <li class="sidebar-item"><a href="/admin-stats.html" class="sidebar-link " title="Statistiques"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="sidebar-link-label">Statistiques</span></a></li>
-                <li class="sidebar-item"><a href="/admin-journal.html" class="sidebar-link " title="Journal d'audit"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="sidebar-link-label">Journal</span></a></li>
+                <li class="sidebar-item"><a href="/admin-dashboard.html" class="sidebar-link" title="Tableau de bord"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="sidebar-link-label">Tableau de bord</span></a></li>
+                <li class="sidebar-item"><a href="/admin-moderation.html" class="sidebar-link active" title="Modération"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span class="sidebar-link-label">Modération</span><span id="sidebar-badge-moderation" style="display:none;background:#dc2626;color:#fff;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;margin-left:auto;"></span></a></li>
+                <li class="sidebar-item"><a href="/admin-competences.html" class="sidebar-link" title="Référentiel"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="sidebar-link-label">Référentiel</span></a></li>
+                <li class="sidebar-item"><a href="/admin-utilisateurs.html" class="sidebar-link" title="Utilisateurs"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-link-label">Utilisateurs</span></a></li>
+                <li class="sidebar-item"><a href="/admin-offres.html" class="sidebar-link" title="Offres"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="sidebar-link-label">Offres</span></a></li>
+                <li class="sidebar-item"><a href="/admin-stats.html" class="sidebar-link" title="Statistiques"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="sidebar-link-label">Statistiques</span></a></li>
+                <li class="sidebar-item"><a href="/admin-journal.html" class="sidebar-link" title="Journal d'audit"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="sidebar-link-label">Journal</span></a></li>
             </ul>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-section-title">Compte</div>
             <ul class="sidebar-list">
                 <li class="sidebar-item"><a href="/index.html" class="sidebar-link" title="Site principal"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sidebar-link-label">Site principal</span></a></li>
-                <li class="sidebar-item"><button class="sidebar-link" id="btn-sidebar-logout" title="Deconnexion" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;font-family:inherit;"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="sidebar-link-label" style="color:#dc2626;">Deconnexion</span></button></li>
+                <li class="sidebar-item"><button class="sidebar-link" id="btn-sidebar-logout" title="Déconnexion" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;font-family:inherit;"><span class="sidebar-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="sidebar-link-label" style="color:#dc2626;">Déconnexion</span></button></li>
             </ul>
         </div>
     </nav>
 </aside>
+
 <div class="app-main-layout">
     <header class="app-topbar">
         <div class="topbar-left">
-            <button class="topbar-toggle" id="topbar-sidebar-toggle" aria-label="Ouvrir le menu lateral">
+            <button class="topbar-toggle" id="topbar-sidebar-toggle" aria-label="Ouvrir le menu latéral">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
             <div class="topbar-breadcrumb">
                 <span class="topbar-bc-root">MatchingCV</span>
                 <span class="topbar-bc-sep">/</span>
-                <span class="topbar-bc-current">Moderation</span>
+                <span class="topbar-bc-current">Modération</span>
             </div>
             <span style="font-size:.62rem;background:rgba(36,119,78,.12);color:#184b32;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.06em;margin-left:6px;">ADMIN</span>
         </div>
@@ -470,37 +617,64 @@
                 <button id="nav-logout" style="display:none;"></button>
             </div>
             <span style="font-size:.84rem;color:#184b32;font-weight:600;" id="nav-admin-name">Administrateur</span>
-            <button style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:.35rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;" id="btn-topbar-logout">Deconnexion</button>
+            <button style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:.35rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;" id="btn-topbar-logout">Déconnexion</button>
         </div>
     </header>
-<!-- ── CONTENU ── -->
-<main class="admin-page">
-    <header class="admin-page-header">
-        <h1 class="admin-page-title">Modération des compétences</h1>
-        <p class="admin-page-subtitle">File des compétences proposées en attente de validation.</p>
-    </header>
 
-    <!-- Toolbar actions groupées -->
-    <div class="mod-toolbar" id="mod-toolbar">
-        <button class="btn-action btn-green"  id="btn-valider-groupe"  disabled>Valider la sélection</button>
-        <button class="btn-action btn-red"    id="btn-rejeter-groupe"  disabled>Rejeter la sélection</button>
-        <button class="btn-action btn-indigo" id="btn-tout-selectionner">Tout sélectionner</button>
-        <span class="mod-toolbar-count" id="toolbar-count"></span>
-    </div>
+    <!-- ── CONTENU PRINCIPAL ── -->
+    <main class="admin-page">
+        <header class="admin-page-header">
+            <h1 class="admin-page-title">Modération des compétences</h1>
+            <p class="admin-page-subtitle">File des compétences proposées par les utilisateurs en attente de validation ou fusion.</p>
+        </header>
 
-    <!-- Zone principale -->
-    <section id="mod-zone">
-        <div class="loading-center"><div class="spinner"></div></div>
-    </section>
-</main>
+        <!-- Filtres & recherche -->
+        <div class="mod-controls-bar">
+            <div class="mod-search-wrap">
+                <span class="mod-search-icon" aria-hidden="true">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+                <input type="text" class="mod-search-input" id="mod-search" placeholder="Rechercher par nom, catégorie, synonyme…" autocomplete="off" />
+            </div>
+            <div class="mod-filter-pills" role="radiogroup" aria-label="Filtrer par rôle">
+                <button type="button" class="mod-pill-btn active" data-role="">Tous</button>
+                <button type="button" class="mod-pill-btn" data-role="ETUDIANT">Étudiants</button>
+                <button type="button" class="mod-pill-btn" data-role="RECRUTEUR">Recruteurs</button>
+            </div>
+        </div>
 
-<!-- ── TOAST ── -->
+        <!-- Toolbar actions groupées -->
+        <div class="mod-toolbar" id="mod-toolbar">
+            <button class="btn-action btn-green" id="btn-valider-groupe" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Valider la sélection
+            </button>
+            <button class="btn-action btn-red" id="btn-rejeter-groupe" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Rejeter la sélection
+            </button>
+            <button class="btn-action btn-outline" id="btn-tout-selectionner" disabled>Tout sélectionner</button>
+            <span class="mod-toolbar-count" id="toolbar-count">0 en attente</span>
+        </div>
+
+        <!-- Zone principale de la liste -->
+        <section id="mod-zone" aria-live="polite">
+            <div class="loading-center">
+                <div class="spinner"></div>
+                <span>Chargement de la file de modération…</span>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- ── TOAST CONTAINER ── -->
 <div id="toast-container" aria-live="polite"></div>
 
-<!-- ── MODALE VALIDER ── -->
+<!-- ── MODALE VALIDER (AVEC MODIFICATIONS OPTIONNELLES) ── -->
 <div class="modal-overlay" id="modal-valider" role="dialog" aria-modal="true" aria-labelledby="modal-valider-title">
     <div class="modal">
-        <h2 class="modal-title" id="modal-valider-title"> Valider la compétence</h2>
+        <h2 class="modal-title" id="modal-valider-title">Valider la compétence</h2>
+        <div class="modal-alert modal-alert-error" id="val-alert"></div>
         <div class="form-group">
             <label class="form-label" for="val-nom">Nom (modifiable)</label>
             <input class="form-input" type="text" id="val-nom" autocomplete="off" />
@@ -511,29 +685,29 @@
         </div>
         <div class="form-group">
             <label class="form-label" for="val-synonymes">Synonymes (séparés par des virgules)</label>
-            <input class="form-input" type="text" id="val-synonymes" placeholder="ex: JS, JavaScript ES6…" autocomplete="off" />
+            <input class="form-input" type="text" id="val-synonymes" placeholder="ex: JS, ES6, JavaScript…" autocomplete="off" />
         </div>
         <div class="modal-actions">
-            <button class="btn-modal-cancel" id="val-cancel">Annuler</button>
-            <button class="btn-modal-ok green" id="val-confirm"> Valider</button>
+            <button type="button" class="btn-modal-cancel" id="val-cancel">Annuler</button>
+            <button type="button" class="btn-modal-ok green" id="val-confirm">Confirmer la validation</button>
         </div>
     </div>
 </div>
 
-<!-- ── MODALE REJETER ── -->
+<!-- ── MODALE REJETER (AVEC MOTIF OPTIONNEL) ── -->
 <div class="modal-overlay" id="modal-rejeter" role="dialog" aria-modal="true" aria-labelledby="modal-rejeter-title">
     <div class="modal">
-        <h2 class="modal-title" id="modal-rejeter-title"> Rejeter la compétence</h2>
-        <p style="color:var(--admin-muted); font-size:.9rem; margin-bottom:1rem;">
-            La compétence sera marquée <strong>REJETÉE</strong> et son auteur sera notifié.
+        <h2 class="modal-title" id="modal-rejeter-title">Rejeter la compétence</h2>
+        <p style="color:var(--admin-muted); font-size:.875rem; margin:0 0 1rem; line-height:1.5;">
+            La compétence sera marquée <strong>REJETÉE</strong>. Son auteur recevra une notification incluant le motif. Elle restera conservée pour empêcher les ré-introductions répétées.
         </p>
         <div class="form-group">
-            <label class="form-label" for="rej-motif">Motif (optionnel)</label>
-            <textarea class="form-textarea" id="rej-motif" placeholder="Expliquez pourquoi cette compétence est rejetée…"></textarea>
+            <label class="form-label" for="rej-motif">Motif du rejet (optionnel mais recommandé)</label>
+            <textarea class="form-textarea" id="rej-motif" placeholder="ex: Nom trop générique, compétence déjà couverte par 'Docker'…"></textarea>
         </div>
         <div class="modal-actions">
-            <button class="btn-modal-cancel" id="rej-cancel">Annuler</button>
-            <button class="btn-modal-ok red" id="rej-confirm"> Rejeter</button>
+            <button type="button" class="btn-modal-cancel" id="rej-cancel">Annuler</button>
+            <button type="button" class="btn-modal-ok red" id="rej-confirm">Confirmer le rejet</button>
         </div>
     </div>
 </div>
@@ -541,104 +715,189 @@
 <!-- ── MODALE FUSIONNER ── -->
 <div class="modal-overlay" id="modal-fusionner" role="dialog" aria-modal="true" aria-labelledby="modal-fusionner-title">
     <div class="modal">
-        <h2 class="modal-title" id="modal-fusionner-title"> Fusionner avec une compétence validée</h2>
-        <p style="color:var(--admin-muted); font-size:.875rem; margin-bottom:1rem;" id="fus-source-info"></p>
-        <div class="form-group">
-            <label class="form-label" for="fus-search">Rechercher la compétence cible (VALIDÉE)</label>
-            <input class="form-input" type="text" id="fus-search" placeholder="Tapez le nom…" autocomplete="off" />
+        <h2 class="modal-title" id="modal-fusionner-title">Fusionner avec une compétence validée</h2>
+        <div class="modal-alert modal-alert-error" id="fus-alert"></div>
+        <p style="color:var(--admin-muted); font-size:.86rem; margin:0 0 1rem; line-height:1.5;" id="fus-source-info">
+            Toutes les utilisations (listes, projets, expériences, offres) seront redirigées vers la compétence cible en une seule transaction. L'ancien nom sera ajouté aux synonymes.
+        </p>
+
+        <!-- Doublons probables pré-suggérés -->
+        <div id="fus-doublons-container" style="display:none; margin-bottom:1rem;">
+            <label class="form-label">Doublons probables détectés (cliquez pour sélectionner) :</label>
+            <div id="fus-doublons-chips" style="display:flex; flex-wrap:wrap; gap:.4rem;"></div>
         </div>
-        <div id="fus-suggestions" style="display:none; margin-bottom:.75rem;"></div>
+
         <div class="form-group">
-            <label class="form-label">Cible sélectionnée</label>
-            <div id="fus-cible-display" style="color:var(--admin-muted); font-size:.9rem; font-style:italic;">Aucune</div>
+            <label class="form-label" for="fus-search">Rechercher parmi les compétences validées</label>
+            <input class="form-input" type="text" id="fus-search" placeholder="Tapez le nom de la compétence cible…" autocomplete="off" />
         </div>
+        <div class="fus-suggestions-list" id="fus-suggestions" style="display:none;"></div>
+        
+        <div class="form-group" style="margin-top:.75rem;">
+            <label class="form-label">Cible sélectionnée :</label>
+            <div id="fus-cible-display" style="color:#184b32; font-weight:700; font-size:.95rem;">Aucune cible choisie</div>
+        </div>
+
         <div class="modal-actions">
-            <button class="btn-modal-cancel" id="fus-cancel">Annuler</button>
-            <button class="btn-modal-ok green" id="fus-confirm" disabled> Fusionner</button>
+            <button type="button" class="btn-modal-cancel" id="fus-cancel">Annuler</button>
+            <button type="button" class="btn-modal-ok green" id="fus-confirm" disabled>Confirmer la fusion</button>
         </div>
     </div>
 </div>
 
+<script src="/js/sidebar.js?v=2.0"></script>
+<script src="/js/notifications.js"></script>
 <script>
 (() => {
+    'use strict';
+
     // ── Session ──
-    const session = MatchingCVSession.getUser();
+    const session = MatchingCVSession.read();
     const adminId = session?.id ?? null;
-    if (session?.prenom) {
-        document.getElementById('nav-admin-name').textContent = session.prenom + ' ' + (session.nom ?? '');
+    if (session) {
+        const nomAdmin = ((session.prenom || '') + ' ' + (session.nom || '')).trim() || 'Administrateur';
+        const el = document.getElementById('nav-admin-name');
+        if (el) el.textContent = nomAdmin;
+        if (window.NotificationBell) {
+            NotificationBell.init({ userId: session.id, role: 'ADMIN' });
+        }
     }
 
-    document.getElementById('nav-logout').onclick = () => {
-        MatchingCVSession.clearSession();
-        location.href = '/connexion.html';
-    };
+    const doLogout = () => { MatchingCVSession.logout(); };
+    document.getElementById('btn-topbar-logout')?.addEventListener('click', doLogout);
+    document.getElementById('btn-sidebar-logout')?.addEventListener('click', doLogout);
 
-    // ── API helpers ──
+    // ── API Helpers ──
     const apiHeaders = () => {
         const h = { 'Content-Type': 'application/json' };
         if (adminId) h['X-Admin-Id'] = String(adminId);
         return h;
     };
 
-    const api = (method, url, body) => fetch(url, {
-        method,
-        headers: apiHeaders(),
-        body: body != null ? JSON.stringify(body) : undefined
-    }).then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(d.message ?? 'Erreur')));
+    async function apiRequest(method, url, body) {
+        const resp = await fetch(url, {
+            method,
+            headers: apiHeaders(),
+            body: body != null ? JSON.stringify(body) : undefined
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+            const err = new Error(data.message || 'Erreur lors du traitement de la requête.');
+            err.status = resp.status;
+            throw err;
+        }
+        return data;
+    }
 
     // ── Toast ──
-    const toast = (msg, type = 'success') => {
+    function toast(msg, type = 'success') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
         const el = document.createElement('div');
         el.className = 'toast ' + type;
         el.textContent = msg;
-        document.getElementById('toast-container').appendChild(el);
+        container.appendChild(el);
         setTimeout(() => el.remove(), 3500);
-    };
+    }
+
+    function escapeHtml(s) {
+        if (s == null) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
 
     // ── État ──
     let competences = [];
     let selected = new Set();
-    let pendingId = null;
-    let fusCibleId = null;
-    let allValidees = [];
+    let currentRoleFilter = '';
+    let currentSearchQuery = '';
+    let allValideesCache = null;
 
-    // ── Chargement ──
-    async function charger() {
-        document.getElementById('mod-zone').innerHTML =
-            '<div class="loading-center"><div class="spinner"></div></div>';
-        try {
-            competences = await api('GET', '/api/admin/competences/a-moderer');
-            selected.clear();
-            renderCards();
-            // Badge navbar
-            const badge = document.getElementById('nav-badge-moderation');
-            if (competences.length > 0) {
-                badge.textContent = competences.length;
-                badge.style.display = '';
-            } else {
-                badge.style.display = 'none';
-            }
-        } catch (e) {
-            document.getElementById('mod-zone').innerHTML =
-                `<div class="mod-empty"><p>Erreur de chargement : ${adminEscapeHtml(e)}</p></div>`;
+    // Éléments DOM
+    const zone = document.getElementById('mod-zone');
+    const toolbarCount = document.getElementById('toolbar-count');
+    const btnValiderGroupe = document.getElementById('btn-valider-groupe');
+    const btnRejeterGroupe = document.getElementById('btn-rejeter-groupe');
+    const btnToutSelectionner = document.getElementById('btn-tout-selectionner');
+    const searchInput = document.getElementById('mod-search');
+
+    // ── Badge Sidebar ──
+    function updateSidebarBadge(count) {
+        const badge = document.getElementById('sidebar-badge-moderation');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.textContent = '0';
+            badge.style.display = 'none';
         }
     }
 
-    function renderCards() {
-        const zone = document.getElementById('mod-zone');
-        if (!competences.length) {
+    // ── Chargement de la file ──
+    async function charger() {
+        zone.innerHTML = `
+            <div class="loading-center">
+                <div class="spinner"></div>
+                <span>Chargement de la file de modération…</span>
+            </div>
+        `;
+        selected.clear();
+        updateToolbar();
+
+        try {
+            const params = new URLSearchParams();
+            if (currentRoleFilter) params.append('role', currentRoleFilter);
+            if (currentSearchQuery) params.append('recherche', currentSearchQuery);
+            const queryStr = params.toString() ? '?' + params.toString() : '';
+
+            competences = await apiRequest('GET', '/api/admin/moderation' + queryStr);
+            renderQueue();
+
+            // Actualise le badge via le count global
+            const countData = await apiRequest('GET', '/api/admin/moderation/count').catch(() => ({ count: competences.length }));
+            updateSidebarBadge(countData.count ?? competences.length);
+        } catch (e) {
+            renderErrorState(e.message || 'Une erreur est survenue lors du chargement des compétences.');
+        }
+    }
+
+    function renderErrorState(message) {
+        zone.innerHTML = `
+            <div class="mod-error-card">
+                <div class="mod-error-body">
+                    <h3 class="mod-error-title">Impossible de charger la file</h3>
+                    <p class="mod-error-msg">${escapeHtml(message)}</p>
+                </div>
+                <button type="button" class="btn-action btn-green" id="btn-reessayer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Réessayer
+                </button>
+            </div>
+        `;
+        document.getElementById('btn-reessayer')?.addEventListener('click', charger);
+    }
+
+    function renderQueue() {
+        if (!competences || !competences.length) {
             zone.innerHTML = `
-            <div class="mod-empty">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <h3>File vide — tout est modéré !</h3>
-                <p>Aucune compétence n'attend de validation pour le moment.</p>
-            </div>`;
+                <div class="mod-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <h3>Aucune compétence en attente</h3>
+                    <p>${currentRoleFilter || currentSearchQuery ? 'Aucun résultat ne correspond aux filtres appliqués.' : 'Toutes les propositions ont été modérées. La file est à jour.'}</p>
+                </div>
+            `;
             updateToolbar();
             return;
         }
-        zone.innerHTML = `<div class="mod-grid" id="mod-grid"></div>`;
+
+        zone.innerHTML = '<div class="mod-grid" id="mod-grid"></div>';
         const grid = document.getElementById('mod-grid');
         competences.forEach(c => grid.appendChild(buildCard(c)));
         updateToolbar();
@@ -649,133 +908,212 @@
         el.className = 'mod-card';
         el.dataset.id = c.id;
 
-        const doublonsHtml = c.doublonsPotentiels?.length
-            ? c.doublonsPotentiels.map(d =>
-                `<span class="meta-chip chip-doublon" title="Doublon potentiel"> ${esc(d)}</span>`).join('')
-            : '';
+        // Doublons probables (cliquables pour lancer la fusion pré-remplie)
+        const doublons = c.doublonsProbables || c.doublonsPotentiels || [];
+        const doublonsHtml = doublons.length > 0 ? `
+            <div class="mod-card-doublons">
+                <span style="font-weight:700;">Doublons probables :</span>
+                ${doublons.map(d => `<button type="button" class="chip-doublon" data-action="quick-fusion" data-id="${c.id}" data-cible-nom="${escapeHtml(d)}" title="Fusionner directement dans « ${escapeHtml(d)} »">${escapeHtml(d)}</button>`).join('')}
+            </div>
+        ` : '';
 
-        const synsText = c.synonymes?.length
-            ? `<div class="mod-card-synonymes">Synonymes : <span>${esc(c.synonymes.join(', '))}</span></div>`
-            : '';
+        // Synonymes
+        const syns = c.synonymes || [];
+        const synsHtml = syns.length > 0 ? `
+            <div class="mod-card-synonymes">Synonymes : <span>${escapeHtml(syns.join(', '))}</span></div>
+        ` : '';
 
-        const dateStr = c.dateProposition ? new Date(c.dateProposition).toLocaleDateString('fr-FR') : '—';
-        const usageStr = c.usages > 0 ? `${c.usages} utilisation${c.usages > 1 ? 's' : ''}` : 'Non utilisée';
+        // Dates et usages
+        const dateVal = c.dateProposition || c.dateCreation;
+        const dateStr = dateVal ? new Date(dateVal).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+        const usageCount = c.usage != null ? c.usage : (c.usages || 0);
+        const usageLabel = usageCount === 0 ? 'Non utilisée' : `${usageCount} utilisation${usageCount > 1 ? 's' : ''}`;
+
+        // Auteur
+        const auteurNom = c.proposeeParNom || (c.proposeePar ? (c.proposeePar.prenom + ' ' + c.proposeePar.nom).trim() : null);
+        const auteurRole = c.proposeeParRole || (c.proposeePar ? c.proposeePar.role : null);
+        const roleLabel = auteurRole === 'RECRUTEUR' ? 'Recruteur' : 'Étudiant';
+        const auteurClass = auteurRole === 'RECRUTEUR' ? 'chip-auteur recruteur' : 'chip-auteur';
 
         el.innerHTML = `
-        <div class="mod-card-top">
-            <input type="checkbox" class="mod-card-check" aria-label="Sélectionner ${esc(c.nom)}" data-id="${c.id}" />
-            <div class="mod-card-body">
-                <h3 class="mod-card-name">${esc(c.nom)}</h3>
-                <div class="mod-card-meta">
-                    ${c.categorie ? `<span class="meta-chip chip-categorie">${esc(c.categorie)}</span>` : ''}
-                    ${c.proposeeParNom ? `<span class="meta-chip chip-auteur">Proposée par ${esc(c.proposeeParNom)}</span>` : ''}
-                    <span class="meta-chip chip-date">${dateStr}</span>
-                    <span class="meta-chip chip-usage">${usageStr}</span>
+            <div class="mod-card-top">
+                <input type="checkbox" class="mod-card-check" aria-label="Sélectionner ${escapeHtml(c.nom)}" data-id="${c.id}" />
+                <div class="mod-card-body">
+                    <div class="mod-card-header">
+                        <h3 class="mod-card-name">${escapeHtml(c.nom)}</h3>
+                        ${c.categorie ? `<span class="meta-chip chip-categorie">${escapeHtml(c.categorie)}</span>` : ''}
+                    </div>
+                    <div class="mod-card-meta">
+                        ${auteurNom ? `<span class="meta-chip ${auteurClass}">${escapeHtml(auteurNom)} &bull; ${roleLabel}</span>` : ''}
+                        <span class="meta-chip chip-date">${dateStr}</span>
+                        <span class="meta-chip chip-usage">${usageLabel}</span>
+                    </div>
                     ${doublonsHtml}
-                </div>
-                ${synsText}
-                <div class="mod-card-actions">
-                    <button class="btn-action btn-green" data-action="valider" data-id="${c.id}">Valider</button>
-                    <button class="btn-action btn-red"   data-action="rejeter" data-id="${c.id}">Rejeter</button>
-                    <button class="btn-action btn-amber" data-action="fusionner" data-id="${c.id}">Fusionner</button>
+                    ${synsHtml}
+                    <div class="mod-card-actions">
+                        <button type="button" class="btn-action btn-green" data-action="valider" data-id="${c.id}">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Valider
+                        </button>
+                        <button type="button" class="btn-action btn-outline-green" data-action="modifier-valider" data-id="${c.id}">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Modifier & Valider
+                        </button>
+                        <button type="button" class="btn-action btn-red" data-action="rejeter" data-id="${c.id}">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            Rejeter
+                        </button>
+                        <button type="button" class="btn-action btn-amber" data-action="fusionner" data-id="${c.id}">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                            Fusionner
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>`;
+        `;
 
-        // Checkbox
-        el.querySelector('.mod-card-check').addEventListener('change', e => {
-            if (e.target.checked) { selected.add(c.id); el.classList.add('selected'); }
-            else { selected.delete(c.id); el.classList.remove('selected'); }
+        // Checkbox sélection
+        const cb = el.querySelector('.mod-card-check');
+        cb.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                selected.add(c.id);
+                el.classList.add('selected');
+            } else {
+                selected.delete(c.id);
+                el.classList.remove('selected');
+            }
             updateToolbar();
         });
 
-        // Boutons d'action inline
+        // Actions
         el.querySelectorAll('[data-action]').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const action = btn.dataset.action;
                 const id = parseInt(btn.dataset.id, 10);
                 const comp = competences.find(x => x.id === id);
-                if (action === 'valider')   openModalValider(comp);
-                if (action === 'rejeter')   openModalRejeter(id);
+                if (action === 'valider') validerTelQuel(id, comp?.nom);
+                if (action === 'modifier-valider') openModalValider(comp);
+                if (action === 'rejeter') openModalRejeter(id);
                 if (action === 'fusionner') openModalFusionner(comp);
+                if (action === 'quick-fusion') {
+                    const cibleNom = btn.dataset.cibleNom;
+                    openModalFusionner(comp, cibleNom);
+                }
             });
         });
 
         return el;
     }
 
-    function esc(s) {
-        if (s == null) return '';
-        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
     function updateToolbar() {
         const n = selected.size;
-        document.getElementById('btn-valider-groupe').disabled = n === 0;
-        document.getElementById('btn-rejeter-groupe').disabled = n === 0;
-        document.getElementById('toolbar-count').textContent =
-            n > 0 ? `${n} sélectionnée${n > 1 ? 's' : ''}` : `${competences.length} en attente`;
+        const total = competences.length;
+
+        btnValiderGroupe.disabled = (n === 0);
+        btnRejeterGroupe.disabled = (n === 0);
+        btnToutSelectionner.disabled = (total === 0);
+
+        if (n > 0) {
+            toolbarCount.textContent = `${n} sélectionnée${n > 1 ? 's' : ''} sur ${total}`;
+        } else {
+            toolbarCount.textContent = `${total} en attente`;
+        }
+
+        const allSelected = total > 0 && n === total;
+        btnToutSelectionner.textContent = allSelected ? 'Tout désélectionner' : 'Tout sélectionner';
     }
 
     // ── Tout sélectionner ──
-    document.getElementById('btn-tout-selectionner').onclick = () => {
-        const all = competences.map(c => c.id);
-        const allSelected = all.every(id => selected.has(id));
+    btnToutSelectionner.addEventListener('click', () => {
+        if (!competences.length) return;
+        const allIds = competences.map(c => c.id);
+        const allSelected = allIds.every(id => selected.has(id));
+
         document.querySelectorAll('.mod-card-check').forEach(cb => {
             cb.checked = !allSelected;
-            const id = parseInt(cb.dataset.id, 10);
             const card = cb.closest('.mod-card');
-            if (!allSelected) { selected.add(id); card.classList.add('selected'); }
-            else { selected.delete(id); card.classList.remove('selected'); }
+            const id = parseInt(cb.dataset.id, 10);
+            if (!allSelected) {
+                selected.add(id);
+                card?.classList.add('selected');
+            } else {
+                selected.delete(id);
+                card?.classList.remove('selected');
+            }
         });
         updateToolbar();
-    };
+    });
 
-    // ── Actions groupées ──
-    document.getElementById('btn-valider-groupe').onclick = async () => {
-        if (!selected.size) return;
-        if (!confirm(`Valider ${selected.size} compétence(s) ?`)) return;
+    // ── Validation directe (tel quel) ──
+    async function validerTelQuel(id, nom) {
         try {
-            await api('POST', '/api/admin/competences/valider-groupes', { ids: [...selected] });
-            toast(`${selected.size} compétence(s) validée(s).`);
+            await apiRequest('POST', `/api/admin/competences/${id}/valider`, {});
+            toast(`Compétence « ${nom || id} » validée.`);
             charger();
-        } catch (e) { toast('Erreur : ' + e, 'error'); }
-    };
+        } catch (e) {
+            toast(e.message, 'error');
+            if (e.status === 409) charger();
+        }
+    }
 
-    document.getElementById('btn-rejeter-groupe').onclick = () => {
-        if (!selected.size) return;
-        pendingId = [...selected]; // array
-        document.getElementById('rej-motif').value = '';
-        openModal('modal-rejeter');
-    };
-
-    // ── Modale Valider ──
-    let valCompId = null;
-
+    // ── Modale Valider avec modifications ──
+    let currentValComp = null;
     function openModalValider(comp) {
-        valCompId = comp.id;
-        document.getElementById('val-nom').value = comp.nom ?? '';
-        document.getElementById('val-categorie').value = comp.categorie ?? '';
-        document.getElementById('val-synonymes').value = comp.synonymes?.join(', ') ?? '';
+        if (!comp) return;
+        currentValComp = comp;
+        document.getElementById('val-alert').style.display = 'none';
+        document.getElementById('val-nom').value = comp.nom || '';
+        document.getElementById('val-categorie').value = comp.categorie || '';
+        document.getElementById('val-synonymes').value = (comp.synonymes || []).join(', ');
         openModal('modal-valider');
     }
 
     document.getElementById('val-cancel').onclick = () => closeModal('modal-valider');
     document.getElementById('val-confirm').onclick = async () => {
-        const nom  = document.getElementById('val-nom').value.trim();
-        const cat  = document.getElementById('val-categorie').value.trim();
-        const syns = document.getElementById('val-synonymes').value.split(',').map(s => s.trim()).filter(Boolean);
+        if (!currentValComp) return;
+        const nom = document.getElementById('val-nom').value.trim();
+        const categorie = document.getElementById('val-categorie').value.trim();
+        const synonymes = document.getElementById('val-synonymes').value
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean);
+
+        const alertBox = document.getElementById('val-alert');
+        alertBox.style.display = 'none';
+
         try {
-            await api('PATCH', `/api/admin/competences/${valCompId}/valider`, { nom, categorie: cat, synonymes: syns });
+            await apiRequest('POST', `/api/admin/competences/${currentValComp.id}/valider`, {
+                nom: nom || currentValComp.nom,
+                categorie: categorie || null,
+                synonymes
+            });
             closeModal('modal-valider');
-            toast('Compétence validée.');
+            toast('Compétence validée avec succès.');
             charger();
-        } catch (e) { toast('Erreur : ' + e, 'error'); }
+        } catch (e) {
+            alertBox.textContent = e.message;
+            alertBox.style.display = 'block';
+            if (e.status === 409 && e.message.includes('fusionner')) {
+                // Propose bouton pour fusionner directement
+                const btnFus = document.createElement('button');
+                btnFus.className = 'btn-action btn-amber';
+                btnFus.style.marginTop = '.5rem';
+                btnFus.textContent = 'Ouvrir la fusion';
+                btnFus.onclick = () => {
+                    closeModal('modal-valider');
+                    openModalFusionner(currentValComp, nom);
+                };
+                alertBox.appendChild(document.createElement('br'));
+                alertBox.appendChild(btnFus);
+            }
+        }
     };
 
     // ── Modale Rejeter ──
-    function openModalRejeter(id) {
-        pendingId = id;
+    let pendingRejectTarget = null; // ID unique ou tableau d'IDs
+    function openModalRejeter(target) {
+        pendingRejectTarget = target;
         document.getElementById('rej-motif').value = '';
         openModal('modal-rejeter');
     }
@@ -784,117 +1122,230 @@
     document.getElementById('rej-confirm').onclick = async () => {
         const motif = document.getElementById('rej-motif').value.trim();
         try {
-            if (Array.isArray(pendingId)) {
-                await api('POST', '/api/admin/competences/rejeter-groupes', { ids: pendingId, motif });
-                toast(`${pendingId.length} compétence(s) rejetée(s).`);
+            if (Array.isArray(pendingRejectTarget)) {
+                await apiRequest('POST', '/api/admin/competences/rejeter-lot', {
+                    ids: pendingRejectTarget,
+                    motif: motif || null
+                });
+                toast(`${pendingRejectTarget.length} compétence(s) rejetée(s).`);
             } else {
-                await api('PATCH', `/api/admin/competences/${pendingId}/rejeter`, { motif });
+                await apiRequest('POST', `/api/admin/competences/${pendingRejectTarget}/rejeter`, {
+                    motif: motif || null
+                });
                 toast('Compétence rejetée.');
             }
             closeModal('modal-rejeter');
             charger();
-        } catch (e) { toast('Erreur : ' + e, 'error'); }
+        } catch (e) {
+            toast(e.message, 'error');
+            if (e.status === 409) {
+                closeModal('modal-rejeter');
+                charger();
+            }
+        }
+    };
+
+    // ── Actions groupées ──
+    btnValiderGroupe.onclick = async () => {
+        if (!selected.size) return;
+        if (!confirm(`Confirmez-vous la validation groupée de ${selected.size} compétence(s) ?`)) return;
+        try {
+            await apiRequest('POST', '/api/admin/competences/valider-lot', { ids: [...selected] });
+            toast(`${selected.size} compétence(s) validée(s).`);
+            charger();
+        } catch (e) {
+            toast(e.message, 'error');
+        }
+    };
+
+    btnRejeterGroupe.onclick = () => {
+        if (!selected.size) return;
+        openModalRejeter([...selected]);
     };
 
     // ── Modale Fusionner ──
-    let fusSrcId = null;
+    let fusSrcComp = null;
+    let fusSelectedCibleId = null;
 
-    async function openModalFusionner(comp) {
-        fusSrcId = comp.id;
-        fusCibleId = null;
-        document.getElementById('fus-source-info').textContent =
-            `Compétence source : « ${comp.nom} » (sera supprimée après fusion).`;
-        document.getElementById('fus-search').value = '';
-        document.getElementById('fus-cible-display').textContent = 'Aucune';
-        document.getElementById('fus-suggestions').style.display = 'none';
-        document.getElementById('fus-confirm').disabled = true;
-        // Charger les compétences validées pour la recherche
-        if (!allValidees.length) {
+    async function ensureValideesLoaded() {
+        if (!allValideesCache) {
             try {
                 const resp = await fetch('/api/competences');
-                const all  = await resp.json();
-                allValidees = all.filter(c => c.statut === 'VALIDEE');
-            } catch {}
+                const list = await resp.json();
+                allValideesCache = list.filter(c => c.statut === 'VALIDEE');
+            } catch {
+                allValideesCache = [];
+            }
         }
+        return allValideesCache;
+    }
+
+    async function openModalFusionner(sourceComp, preselectedCibleNom = null) {
+        if (!sourceComp) return;
+        fusSrcComp = sourceComp;
+        fusSelectedCibleId = null;
+
+        document.getElementById('fus-alert').style.display = 'none';
+        document.getElementById('fus-source-info').innerHTML =
+            `Compétence source : <strong>« ${escapeHtml(sourceComp.nom)} »</strong> (sera supprimée après fusion).`;
+        document.getElementById('fus-search').value = '';
+        document.getElementById('fus-cible-display').textContent = 'Aucune cible choisie';
+        document.getElementById('fus-confirm').disabled = true;
+
+        const validees = await ensureValideesLoaded();
+
+        // Doublons probables pré-proposés
+        const doublons = sourceComp.doublonsProbables || sourceComp.doublonsPotentiels || [];
+        const doublonsContainer = document.getElementById('fus-doublons-container');
+        const doublonsChips = document.getElementById('fus-doublons-chips');
+
+        if (doublons.length > 0) {
+            doublonsContainer.style.display = 'block';
+            doublonsChips.innerHTML = doublons.map(nom => `
+                <button type="button" class="chip-doublon" style="background:#eef6f2;color:#184b32;border-color:#b8deca;font-size:.82rem;padding:3px 10px;" data-pick-nom="${escapeHtml(nom)}">
+                    ${escapeHtml(nom)}
+                </button>
+            `).join('');
+
+            doublonsChips.querySelectorAll('[data-pick-nom]').forEach(btn => {
+                btn.onclick = () => {
+                    const cible = validees.find(v => v.nom.toLowerCase() === btn.dataset.pickNom.toLowerCase());
+                    if (cible) {
+                        selectCible(cible.id, cible.nom);
+                    } else {
+                        document.getElementById('fus-search').value = btn.dataset.pickNom;
+                        filterSuggestions(btn.dataset.pickNom);
+                    }
+                };
+            });
+        } else {
+            doublonsContainer.style.display = 'none';
+        }
+
+        // Si une cible était pré-sélectionnée
+        if (preselectedCibleNom) {
+            const cible = validees.find(v => v.nom.toLowerCase() === preselectedCibleNom.toLowerCase());
+            if (cible) {
+                selectCible(cible.id, cible.nom);
+            } else {
+                document.getElementById('fus-search').value = preselectedCibleNom;
+                filterSuggestions(preselectedCibleNom);
+            }
+        }
+
         openModal('modal-fusionner');
     }
 
-    // Recherche côté client
-    document.getElementById('fus-search').addEventListener('input', () => {
-        const q = document.getElementById('fus-search').value.toLowerCase().trim();
-        if (!q) { document.getElementById('fus-suggestions').style.display = 'none'; return; }
-        const matches = allValidees.filter(c =>
-            c.nom?.toLowerCase().includes(q) && c.id !== fusSrcId).slice(0, 6);
+    function selectCible(cibleId, cibleNom) {
+        fusSelectedCibleId = cibleId;
+        document.getElementById('fus-cible-display').innerHTML = `« ${escapeHtml(cibleNom)} » <span style="font-weight:normal;color:#2e9c65;">(Prête pour fusion)</span>`;
+        document.getElementById('fus-confirm').disabled = false;
+        document.getElementById('fus-suggestions').style.display = 'none';
+    }
+
+    function filterSuggestions(query) {
         const box = document.getElementById('fus-suggestions');
-        if (!matches.length) { box.style.display = 'none'; return; }
-        box.style.display = '';
+        const q = query.trim().toLowerCase();
+        if (!q || !allValideesCache) {
+            box.style.display = 'none';
+            return;
+        }
+
+        const matches = allValideesCache
+            .filter(c => c.id !== fusSrcComp?.id && (
+                c.nom.toLowerCase().includes(q) ||
+                (c.synonymes && c.synonymes.some(s => s.toLowerCase().includes(q)))
+            ))
+            .slice(0, 8);
+
+        if (!matches.length) {
+            box.style.display = 'block';
+            box.innerHTML = '<div style="padding:.5rem;font-size:.8rem;color:var(--admin-muted);text-align:center;">Aucune compétence validée trouvée.</div>';
+            return;
+        }
+
+        box.style.display = 'block';
         box.innerHTML = matches.map(c => `
-            <button type="button" class="btn-action btn-indigo" style="width:100%;justify-content:flex-start;margin-bottom:.3rem;"
-                data-cible-id="${c.id}" data-cible-nom="${esc(c.nom)}">${esc(c.nom)}${c.categorie ? ` · <em>${esc(c.categorie)}</em>` : ''}
-            </button>`).join('');
-        box.querySelectorAll('[data-cible-id]').forEach(btn => {
+            <button type="button" class="fus-sugg-btn ${c.id === fusSelectedCibleId ? 'active' : ''}" data-cible-id="${c.id}" data-cible-nom="${escapeHtml(c.nom)}">
+                <span>${escapeHtml(c.nom)} ${c.categorie ? `<em style="font-size:.75rem;color:var(--admin-muted);font-weight:normal;">(${escapeHtml(c.categorie)})</em>` : ''}</span>
+                <span style="font-size:.72rem;color:#2e9c65;">Choisir</span>
+            </button>
+        `).join('');
+
+        box.querySelectorAll('.fus-sugg-btn').forEach(btn => {
             btn.onclick = () => {
-                fusCibleId = parseInt(btn.dataset.cibleId, 10);
-                document.getElementById('fus-cible-display').textContent = '« ' + btn.dataset.cibleNom + ' »';
-                document.getElementById('fus-confirm').disabled = false;
-                box.style.display = 'none';
-                document.getElementById('fus-search').value = '';
+                const id = parseInt(btn.dataset.cibleId, 10);
+                const nom = btn.dataset.cibleNom;
+                selectCible(id, nom);
             };
         });
+    }
+
+    document.getElementById('fus-search').addEventListener('input', (e) => {
+        filterSuggestions(e.target.value);
     });
 
     document.getElementById('fus-cancel').onclick = () => closeModal('modal-fusionner');
     document.getElementById('fus-confirm').onclick = async () => {
-        if (!fusCibleId) return;
+        if (!fusSrcComp || !fusSelectedCibleId) return;
+        const alertBox = document.getElementById('fus-alert');
+        alertBox.style.display = 'none';
+
         try {
-            await api('POST', '/api/admin/competences/fusionner', { sourceId: fusSrcId, cibleId: fusCibleId });
+            await apiRequest('POST', `/api/admin/competences/${fusSrcComp.id}/fusionner`, {
+                cibleId: fusSelectedCibleId
+            });
             closeModal('modal-fusionner');
-            toast('Fusion effectuée avec succès.');
-            allValidees = []; // reset cache
+            toast('Compétence fusionnée avec succès.');
+            allValideesCache = null; // invalide le cache
             charger();
-        } catch (e) { toast('Erreur : ' + e, 'error'); }
+        } catch (e) {
+            alertBox.textContent = e.message;
+            alertBox.style.display = 'block';
+        }
     };
 
-    // ── Helpers modal ──
+    // ── Gestionnaires de Modales ──
     function openModal(id) {
-        document.getElementById(id).classList.add('open');
+        document.getElementById(id)?.classList.add('open');
     }
     function closeModal(id) {
-        document.getElementById(id).classList.remove('open');
+        document.getElementById(id)?.classList.remove('open');
     }
-
-    // Fermeture sur clic fond
-    document.querySelectorAll('.modal-overlay').forEach(o => {
-        o.addEventListener('click', e => {
-            if (e.target === o) o.classList.remove('open');
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) overlay.classList.remove('open');
         });
     });
 
-    // ── Init ──
+    // ── Filtres de la barre ──
+    document.querySelectorAll('.mod-pill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.mod-pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentRoleFilter = btn.dataset.role || '';
+            charger();
+        });
+    });
+
+    let searchTimer = null;
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            currentSearchQuery = e.target.value.trim();
+            charger();
+        }, 300);
+    });
+
+    // ── Écoute en direct des notifications COMPETENCE_A_MODERER ──
+    window.addEventListener('matchingcv-notification', (e) => {
+        if (e.detail?.type === 'COMPETENCE_A_MODERER' || e.detail?.type?.includes('COMPETENCE')) {
+            charger();
+        }
+    });
+
+    // ── Initialisation ──
     charger();
-})();
-</script>
-</div>
-<!-- end app-main-layout -->
-<script src="/js/sidebar.js?v=2.0"></script>
-<script>
-(function(){
-    var user = MatchingCVSession.read();
-    if(user){
-        var el = document.getElementById('nav-admin-name');
-        if(el) el.textContent = ((user.prenom||'') + ' ' + (user.nom||'')).trim() || 'Administrateur';
-        if(window.NotificationBell) NotificationBell.init({userId:user.id,role:'ADMIN'});
-    }
-    function doLogout(){ MatchingCVSession.logout(); }
-    var b1 = document.getElementById('btn-topbar-logout');
-    var b2 = document.getElementById('btn-sidebar-logout');
-    if(b1) b1.addEventListener('click', doLogout);
-    if(b2) b2.addEventListener('click', doLogout);
-    // Badge moderation
-    fetch('/api/admin/competences/a-moderer').then(adminReadJson).then(list=>{
-        var badge = document.getElementById('sidebar-badge-moderation');
-        if(badge && list.length > 0){ badge.textContent = list.length; badge.style.display = 'inline-block'; }
-    }).catch(()=>{});
 })();
 </script>
 </body>

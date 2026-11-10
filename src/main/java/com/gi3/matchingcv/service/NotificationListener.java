@@ -187,8 +187,13 @@ public class NotificationListener {
         } else if (nouveauStatut == StatutCompetence.REJETEE) {
             type = TypeNotification.COMPETENCE_REJETEE;
             titre = "Compétence rejetée : " + event.competenceNom();
-            message = String.format("Votre compétence « %s » a été rejetée. Elle sera désormais ignorée dans le calcul du score de matching.",
-                    event.competenceNom());
+            if (event.motif() != null && !event.motif().isBlank()) {
+                message = String.format("Votre compétence « %s » a été rejetée pour le motif suivant : %s. Elle sera désormais ignorée dans le calcul du score de matching.",
+                        event.competenceNom(), event.motif().trim());
+            } else {
+                message = String.format("Votre compétence « %s » a été rejetée. Elle sera désormais ignorée dans le calcul du score de matching.",
+                        event.competenceNom());
+            }
         } else {
             return;
         }

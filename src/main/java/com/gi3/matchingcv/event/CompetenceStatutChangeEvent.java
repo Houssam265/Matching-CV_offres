@@ -7,5 +7,16 @@ public record CompetenceStatutChangeEvent(
         String competenceNom,
         StatutCompetence ancienStatut,
         StatutCompetence nouveauStatut,
-        Long proposeeParId
-) {}
+        Long proposeeParId,
+        String motif
+) {
+    public CompetenceStatutChangeEvent(
+            Long competenceId,
+            String competenceNom,
+            StatutCompetence ancienStatut,
+            StatutCompetence nouveauStatut,
+            Long proposeeParId
+    ) {
+        this(competenceId, competenceNom, ancienStatut, nouveauStatut, proposeeParId, null);
+    }
+}

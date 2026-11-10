@@ -162,7 +162,17 @@ public class CompetenceServiceImpl implements CompetenceService {
 
         String nomNormalise = Competence.normaliserNom(nomNettoye);
         competenceRepository.findByNomNormalise(nomNormalise).ifPresent(existante -> {
-            throw new CompetenceDejaExistanteException("Cette compétence existe déjà : " + existante.getNom());
+            if (existante.getStatut() == StatutCompetence.REJETEE) {
+                String motif = existante.getMotifRejet();
+                String msg = (motif != null && !motif.isBlank())
+                        ? "Cette compétence a été rejetée pour le motif suivant : " + motif.trim()
+                        : "Cette compétence a déjà été rejetée.";
+                throw new CompetenceDejaExistanteException(msg);
+            } else if (existante.getStatut() == StatutCompetence.EN_ATTENTE) {
+                throw new CompetenceDejaExistanteException("Cette compétence est déjà en attente de modération : " + existante.getNom());
+            } else {
+                throw new CompetenceDejaExistanteException("Cette compétence existe déjà : " + existante.getNom());
+            }
         });
 
         Competence competence = new Competence();
@@ -171,6 +181,7 @@ public class CompetenceServiceImpl implements CompetenceService {
         competence.setCategorie(categorie);
         competence.setStatut(StatutCompetence.EN_ATTENTE);
         competence.setProposeePar(proposeePar);
+        competence.setDateProposition(java.time.LocalDateTime.now());
         Competence saved = competenceRepository.save(competence);
 
         // Notification de tous les administrateurs (COMPETENCE_A_MODERER)
@@ -278,9 +289,17 @@ public class CompetenceServiceImpl implements CompetenceService {
 
     @Override
     public Competence changerStatut(Long id, StatutCompetence nouveauStatut) {
+        return changerStatut(id, nouveauStatut, null);
+    }
+
+    @Override
+    public Competence changerStatut(Long id, StatutCompetence nouveauStatut, String motif) {
         Competence competence = trouverParId(id);
         StatutCompetence ancien = competence.getStatut();
         competence.setStatut(nouveauStatut);
+        if (nouveauStatut == StatutCompetence.REJETEE && motif != null && !motif.isBlank()) {
+            competence.setMotifRejet(motif.trim());
+        }
         Competence saved = competenceRepository.save(competence);
 
         if (eventPublisher != null && ancien == StatutCompetence.EN_ATTENTE &&
@@ -291,7 +310,8 @@ public class CompetenceServiceImpl implements CompetenceService {
                     saved.getNom(),
                     ancien,
                     nouveauStatut,
-                    proposeeParId
+                    proposeeParId,
+                    motif
             ));
         }
 
