@@ -201,7 +201,7 @@
         @media(max-width:640px){.fr2{grid-template-columns:1fr;}.pcl{flex-direction:column;align-items:flex-start;}}
     </style>
     <link rel="stylesheet" href="/css/interface.css" />
-<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"></head>
+<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"><link rel="stylesheet" href="/css/theme.css"></head>
 <body class="has-sidebar"><script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 <a class="skip-link" href="#main-content">Aller au contenu</a>
 
@@ -271,7 +271,6 @@
                             </svg>
                         </span>
                         <span class="sidebar-link-label">Offres recommandées</span>
-                        <span class="sidebar-badge-ia">Match IA</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -310,7 +309,6 @@
                             </svg>
                         </span>
                         <span class="sidebar-link-label">Coach CV</span>
-                        <span class="sidebar-badge-new">Coach</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -441,7 +439,7 @@
             <div class="sv" id="se">0</div>
             <div class="ss">expériences professionnelles</div>
         </div>
-        <div class="sc" style="border-left:3px solid var(--teal);">
+        <div class="sc">
             <div class="sci" style="background:linear-gradient(135deg,rgba(46, 139, 93,.14),rgba(46, 156, 101,.08));color:var(--teal);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
             <div class="slb">Candidatures</div>
             <div class="sv" id="s-cand">0</div>
@@ -532,27 +530,6 @@
         </div>
     </section>
 
-    <!-- ACCÈS RAPIDE -->
-    <div class="sh"><div class="sh-t"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>Accès rapide</div></div>
-    <div class="qg">
-        <a href="/competences.html" class="qc">
-            <div class="qci it"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-            <h3>Mes comp&eacute;tences</h3>
-            <p>G&eacute;rez votre liste personnelle et proposez de nouvelles comp&eacute;tences.</p>
-            <span class="ql">Explorer <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </a>
-        <a href="/offres-recommandees.html" class="qc" id="card-offres-recommandees">
-            <div class="qci ig"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-            <h3>Offres Recommand&eacute;es</h3>
-            <p>Offres tri&eacute;es automatiquement selon votre score de matching personnalis&eacute;.</p>
-            <span class="ql">D&eacute;couvrir les offres <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </a>
-        <a href="/mes-candidatures.html" class="qc" id="card-candidatures">
-            <div class="qci ib"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-            <h3>Mes Candidatures</h3>
-            <p>Suivez l'état d'avancement de vos candidatures auprès des recruteurs.</p>
-            <span class="ql">Voir mes candidatures <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </a>
 </main>
 </div> <!-- /.app-main-layout -->
 

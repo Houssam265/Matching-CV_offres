@@ -1,0 +1,429 @@
+/* =============================================================================
+   theme.css — Thème commun des trois portails (Utilisateur, Recruteur, Admin)
+   Chargé en DERNIER sur chaque page. Les sélecteurs sont préfixés par :root
+   pour l'emporter sur les feuilles historiques sans multiplier les !important.
+   Règles : une police (Inter, 400–700), une palette, un en-tête de page clair,
+   des cartes blanches bordées, des boutons sobres, aucune animation de survol.
+   ============================================================================= */
+
+:root {
+    --ui-bg: #f5f7f5;
+    --ui-surface: #ffffff;
+    --ui-surface-2: #f2f6f3;
+    --ui-border: #dfe7e1;
+    --ui-border-strong: #c7d5cb;
+    --ui-text: #1d3326;
+    --ui-muted: #5c7064;
+    --ui-primary: #22744b;
+    --ui-primary-hover: #1a5c3b;
+    --ui-primary-soft: #e7f1ea;
+    --ui-danger: #b42318;
+    --ui-danger-soft: #fdeceb;
+    --ui-warning: #9a5b00;
+    --ui-warning-soft: #fdf3e1;
+    --ui-sidebar: #12301f;
+    --ui-radius: 12px;
+    --ui-radius-sm: 8px;
+    --ui-shadow: 0 1px 2px rgba(16, 40, 26, .05);
+    --ui-page-max: 1200px;
+    --ui-gutter: clamp(1rem, 3vw, 2rem);
+    --ui-font: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+:root body,
+:root body.has-sidebar,
+:root .app-main-layout,
+:root body.admin-portal,
+:root .admin-portal .app-main-layout {
+    background: var(--ui-bg);
+    color: var(--ui-text);
+    font-family: var(--ui-font);
+}
+:root body.has-sidebar :is(input, select, textarea, button) { font-family: inherit; }
+
+/* Titres : une seule couleur, graisse 700 maximum, pas de dégradé de texte. */
+:root body.has-sidebar :is(h1, h2, h3, h4) {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    letter-spacing: -.01em;
+}
+:root body.has-sidebar :is(h1, h2, h3, h4) span {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: inherit;
+}
+
+/* ── Barre du haut (identique sur les trois portails) ─────────────────────── */
+:root body.has-sidebar .app-topbar,
+:root body.has-sidebar:not(.sidebar-pinned) .app-topbar {
+    height: 64px;
+    min-height: 64px;
+    padding: 0 var(--ui-gutter);
+    background: var(--ui-surface);
+    border-bottom: 1px solid var(--ui-border);
+    box-shadow: none;
+}
+:root .topbar-breadcrumb { font-size: .875rem; }
+:root .topbar-bc-root { color: var(--ui-muted); }
+:root .topbar-bc-current { color: var(--ui-text); font-weight: 600; }
+:root .admin-topbar-badge,
+:root .topbar-status-badge { display: none !important; }
+:root .topbar-right { gap: .5rem; }
+:root .topbar-right .nav-cta { display: flex; align-items: center; gap: .5rem; }
+
+/* Boutons de la barre : même hauteur, même cadre. */
+:root body.has-sidebar :is(.topbar-logout, .topbar-btn-logout, .topbar-user-pill, a.topbar-user-pill, .notif-bell-btn) {
+    height: 40px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 0 .85rem;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    font-size: .875rem;
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: none;
+}
+:root body.has-sidebar :is(.topbar-logout, .topbar-btn-logout):hover,
+:root body.has-sidebar a.topbar-user-pill:hover { background: var(--ui-surface-2); border-color: var(--ui-border-strong); }
+:root body.has-sidebar :is(.topbar-logout, .topbar-btn-logout) svg { width: 16px; height: 16px; }
+:root body.has-sidebar .topbar-user-pill { padding-left: .3rem; }
+:root body.has-sidebar .topbar-user-pill-avatar {
+    width: 30px; height: 30px; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--ui-primary); color: #fff; font-size: .72rem; font-weight: 700;
+    box-shadow: none; border: 0;
+}
+:root body.has-sidebar .topbar-user-pill-avatar svg { width: 16px; height: 16px; }
+:root body.has-sidebar .topbar-user-pill-name { font-weight: 600; color: var(--ui-text); }
+:root body.has-sidebar .topbar-btn-action {
+    height: 40px; box-sizing: border-box; display: inline-flex; align-items: center; gap: .45rem;
+    padding: 0 1rem; border-radius: var(--ui-radius-sm);
+    background: var(--ui-primary); color: #fff; font-size: .875rem; font-weight: 600;
+    box-shadow: none; border: 1px solid var(--ui-primary); text-decoration: none;
+}
+:root body.has-sidebar .topbar-btn-action:hover { background: var(--ui-primary-hover); transform: none; }
+
+/* ── Barre latérale ───────────────────────────────────────────────────────── */
+:root .sidebar-badge-ia,
+:root .sidebar-badge-new,
+:root .app-sidebar:hover .sidebar-badge-ia,
+:root .app-sidebar:hover .sidebar-badge-new,
+:root body.has-sidebar.sidebar-pinned .sidebar-badge-ia,
+:root body.has-sidebar.sidebar-pinned .sidebar-badge-new,
+:root .app-sidebar.sidebar-open .sidebar-badge-ia,
+:root .app-sidebar.sidebar-open .sidebar-badge-new { display: none !important; }
+/* Compteur de notifications : masqué tant qu'il vaut 0 (voir sidebar.js). */
+:root body.has-sidebar .sidebar-badge-counter[hidden],
+:root body.has-sidebar .sidebar-link:not([data-has-notif="true"]) .sidebar-badge-counter { display: none !important; }
+/* Admin : la déconnexion est dans la barre du haut, comme sur les autres portails. */
+:root .admin-portal .sidebar-section:has(#btn-sidebar-logout) { display: none; }
+
+/* ── Zone de contenu : même largeur et mêmes marges partout ───────────────── */
+:root .app-main-layout > main,
+:root .app-main-layout > main.admin-page,
+:root .admin-portal main,
+:root .admin-portal .admin-page {
+    width: 100%;
+    max-width: var(--ui-page-max);
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 1.5rem var(--ui-gutter) 3rem;
+    background: transparent;
+    min-width: 0;
+}
+
+/* ── En-tête de page : titre sombre + sous-titre, sur fond clair ──────────── */
+:root .app-main-layout > :is(.dh, .ch, .nh, .reco-hero, .page-banner, .coach-page-hero, .profil-hero, .recruit-hero, .admin-hero),
+:root .app-main-layout :is(.dh, .ch, .nh, .reco-hero, .page-banner, .coach-page-hero, .profil-hero, .recruit-hero, .admin-hero) {
+    width: 100%;
+    max-width: var(--ui-page-max);
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 2rem var(--ui-gutter) .5rem;
+    background: transparent;
+    color: var(--ui-text);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 0;
+    overflow: visible;
+    position: relative;
+}
+:root :is(.dh, .ch, .nh, .reco-hero, .page-banner, .coach-page-hero, .profil-hero, .recruit-hero, .admin-hero)::before,
+:root :is(.dh, .ch, .nh, .reco-hero, .page-banner, .coach-page-hero, .profil-hero, .recruit-hero, .admin-hero)::after { display: none; }
+:root .workspace-hero-photo,
+:root .page-banner-grid,
+:root .page-breadcrumb,
+:root .recruit-hero-badge,
+:root .dbadge,
+:root .reco-badge { display: none !important; }
+:root :is(.dhi, .chi, .nhi, .reco-hero-inner, .page-banner-inner, .coach-hero-inner, .hero-inner, .recruit-hero-inner) {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+    flex-wrap: wrap;
+    position: static;
+    min-height: 0;
+}
+:root .recruit-hero-text { max-width: 760px; padding: 0; }
+/* Titres d'en-tête */
+:root :is(.dw, .ch-title, .nh-title, .reco-title, .page-title, .coach-hero-title, .admin-hero-title, .admin-page-title),
+:root .recruit-hero h1,
+:root .account-main > h1,
+:root .admin-page > header h1 {
+    margin: 0;
+    font-size: clamp(1.45rem, 2.2vw, 1.75rem);
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--ui-text);
+    background: none;
+    -webkit-text-fill-color: var(--ui-text);
+}
+:root :is(.dw, .ch-title, .nh-title, .reco-title, .page-title, .coach-hero-title, .admin-hero-title, .admin-page-title) span,
+:root .recruit-hero h1 span {
+    color: inherit;
+    -webkit-text-fill-color: inherit;
+    background: none;
+}
+/* Sous-titres d'en-tête */
+:root :is(.dsub, .ch-sub, .nh-sub, .reco-sub, .page-subtitle, .coach-hero-sub, .admin-hero-subtitle, .admin-page-subtitle),
+:root .recruit-hero-text > p,
+:root .admin-page > header p {
+    margin: .4rem 0 0;
+    max-width: 720px;
+    font-size: .95rem;
+    line-height: 1.6;
+    font-weight: 400;
+    color: var(--ui-muted);
+    opacity: 1;
+}
+:root .admin-page-header { margin-bottom: 1.5rem; }
+:root .admin-page-subtitle { margin-bottom: 1.5rem; }
+/* Actions d'en-tête */
+:root .recruit-hero-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+/* Chiffres de l'en-tête « Mes compétences » : petites cartes claires */
+:root .banner-stats { display: flex; gap: .75rem; }
+:root .banner-stat-box {
+    background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm);
+    padding: .6rem 1rem; min-width: 0; box-shadow: none; backdrop-filter: none;
+}
+:root .banner-stat-num { color: var(--ui-text); font-size: 1.25rem; font-weight: 700; }
+:root .banner-stat-label { color: var(--ui-muted); font-size: .75rem; letter-spacing: .02em; }
+
+/* ── Boutons ──────────────────────────────────────────────────────────────── */
+:root body.has-sidebar :is(.recruit-hero-btn, .btn-nav-outline, .btn-nav-filled, .btn-op, .recruit-btn-primary, .recruit-btn-secondary, .btn-primary, .btn-secondary, .btn-action, .btn-edit, .btn-mark-all, .btn-filter, .btn-reset) {
+    border-radius: var(--ui-radius-sm);
+    box-shadow: none !important;
+    transform: none !important;
+    font-weight: 600;
+    gap: .45rem;
+    background-image: none;
+}
+/* Primaires : vert plein */
+:root body.has-sidebar :is(.recruit-hero-btn.primary, .btn-nav-filled, .btn-op, .recruit-btn-primary, .btn-primary, .btn-green, .btn-indigo) {
+    background: var(--ui-primary) !important;
+    border: 1px solid var(--ui-primary);
+    color: #fff !important;
+}
+:root body.has-sidebar :is(.recruit-hero-btn.primary, .btn-nav-filled, .btn-op, .recruit-btn-primary, .btn-primary, .btn-green, .btn-indigo):hover {
+    background: var(--ui-primary-hover) !important;
+}
+/* Secondaires : contour neutre */
+:root body.has-sidebar :is(.recruit-hero-btn:not(.primary), .btn-nav-outline, .recruit-btn-secondary, .btn-secondary, .btn-surface) {
+    background: var(--ui-surface) !important;
+    border: 1px solid var(--ui-border-strong);
+    color: var(--ui-text) !important;
+}
+:root body.has-sidebar :is(.recruit-hero-btn:not(.primary), .btn-nav-outline, .recruit-btn-secondary, .btn-secondary, .btn-surface):hover {
+    background: var(--ui-surface-2) !important;
+}
+:root body.has-sidebar :is(.recruit-hero-btn, .btn-nav-outline) {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 40px; padding: .55rem 1rem; font-size: .875rem; text-decoration: none;
+}
+/* Danger : rouge doux */
+:root body.has-sidebar :is(.btn-red, .btn-danger) {
+    background: var(--ui-danger-soft) !important;
+    color: var(--ui-danger) !important;
+    border: 1px solid #f3c7c2;
+}
+:root body.has-sidebar :is(button, a):hover { transform: none; }
+
+/* ── Cartes ───────────────────────────────────────────────────────────────── */
+:root body.has-sidebar :is(
+    .sc, .qc, .pc, .dash-summary, .coach-card, .sum-card, .box-card,
+    .recruit-stat-card, .recruit-profile-card, .recruit-card, .candidat-card, .recruit-detail-card, .recruit-form,
+    .kpi-card, .stat-card, .stats-card, .table-card, .chart-card, .admin-card, .panel,
+    .filter-card, .filter-panel, .account-card, .workspace-launch-card, .launch-card
+) {
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow);
+    background-image: none;
+}
+:root body.has-sidebar :is(.sc, .qc, .recruit-stat-card, .recruit-card, .candidat-card, .kpi-card, .stat-card, .workspace-launch-card, .launch-card):hover {
+    transform: none;
+    box-shadow: var(--ui-shadow);
+    border-color: var(--ui-border-strong);
+}
+/* Pas de liseré coloré en haut des cartes de chiffres */
+:root body.has-sidebar :is(.sc, .recruit-stat-card, .kpi-card, .coach-card, .dash-summary)::before { display: none; }
+:root body.has-sidebar :is(.sc, .recruit-stat-card, .kpi-card) { border-top: 1px solid var(--ui-border); border-left: 1px solid var(--ui-border); }
+
+/* Cartes de chiffres : libellé sobre, valeur sombre */
+:root body.has-sidebar :is(.slb, .kpi-label, .recruit-stat-card h2, .recruit-stat-card h3) {
+    color: var(--ui-muted);
+    font-size: .85rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+}
+:root body.has-sidebar :is(.sv, .kpi-value, .recruit-count, .recruit-count.teal, .recruit-count.slate) {
+    color: var(--ui-text) !important;
+    font-size: 1.85rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    -webkit-text-fill-color: currentColor;
+}
+:root body.has-sidebar :is(.ss, .recruit-stat-desc) { color: var(--ui-muted); font-size: .8rem; }
+:root body.has-sidebar :is(.sci, .qci, .recruit-stat-icon-wrap, .kpi-icon-pill, .kpi-icon-pill.blue, .kpi-icon-pill.purple, .kpi-icon-pill.green, .kpi-icon-pill.amber) {
+    background: var(--ui-primary-soft) !important;
+    color: var(--ui-primary) !important;
+    border-radius: var(--ui-radius-sm);
+    box-shadow: none;
+}
+
+/* ── États vides : même carte partout ─────────────────────────────────────── */
+:root body.has-sidebar :is(.empty-state, .recruit-empty, .empty-history) {
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    box-shadow: none;
+}
+:root body.has-sidebar :is(.empty-state, .recruit-empty, .empty-history) :is(h3, h4, .recruit-empty-title, .empty-title) {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+:root body.has-sidebar :is(.empty-icon, .recruit-empty-icon) {
+    background: var(--ui-primary-soft);
+    color: var(--ui-primary);
+    border-radius: var(--ui-radius);
+    box-shadow: none;
+}
+
+/* ── Tableaux ─────────────────────────────────────────────────────────────── */
+:root body.has-sidebar table th {
+    background: var(--ui-surface-2);
+    color: var(--ui-muted);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+}
+
+/* ── Champs de formulaire ─────────────────────────────────────────────────── */
+:root body.has-sidebar :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), select, textarea) {
+    border-radius: var(--ui-radius-sm);
+    border-color: var(--ui-border-strong);
+    box-shadow: none;
+}
+:root body.has-sidebar :is(input, select, textarea):focus {
+    outline: none;
+    border-color: var(--ui-primary);
+    box-shadow: 0 0 0 3px rgba(34, 116, 75, .15);
+}
+
+/* ── Divers ───────────────────────────────────────────────────────────────── */
+/* Pied de page : absent des portails (présent sur certaines pages seulement). */
+:root body.has-sidebar .site-footer { display: none; }
+/* Tiroir du profil : en-tête uni */
+:root body.has-sidebar .drh { background: var(--ui-primary); background-image: none; }
+
+/* ── Correctifs de détail ──────────────────────────────────────────────── */
+/* Cloche : bouton carré, icône lisible */
+:root body.has-sidebar .notif-bell-btn { width: 40px; padding: 0; justify-content: center; position: relative; }
+:root body.has-sidebar .notif-bell-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+:root body.has-sidebar .notif-bell-btn .notif-badge { position: absolute; top: -6px; right: -6px; }
+:root body.has-sidebar .notif-bell-btn .notif-badge.hidden { display: none; }
+/* Doublon de « Publier une offre » dans la carte de bienvenue du recruteur */
+:root body.has-sidebar .recruit-profile-card .recruit-btn.primary { display: none; }
+/* Une seule barre du haut : notifications, déconnexion, compte. Les actions propres
+   à chaque page sont dans son en-tête (évite « Publier une offre » ×3). */
+:root body.has-sidebar .topbar-btn-action { display: none; }
+/* Bouton « Filtrer » des offres : il perdait son fond avec le retrait des dégradés */
+:root body.has-sidebar :is(.btn-filter, .btn-search) {
+    background: var(--ui-primary) !important; color: #fff !important; border: 1px solid var(--ui-primary);
+}
+:root body.has-sidebar :is(.btn-filter, .btn-search):hover { background: var(--ui-primary-hover) !important; }
+/* Couleur des contrôles natifs (curseurs, cases) */
+:root body.has-sidebar { accent-color: var(--ui-primary); }
+/* Badges sur une seule ligne */
+:root body.has-sidebar :is(.statut-badge, .badge-usage-none, .badge-usage, [class^="badge-"], .recruit-tag, .candidat-score-pill, .r-chip-empty, .sum-count-pill) { white-space: nowrap; }
+/* Pastilles décoratives des cartes : retirées */
+:root body.has-sidebar :is(.card-top-bar, .coach-summary-card::before) { display: none; }
+:root body.has-sidebar .coach-summary-card::before { display: none; }
+:root body.has-sidebar .recruit-stat-badge { display: none; }
+/* Cartes de chiffres : aucun liseré coloré */
+:root body.has-sidebar :is(.sc, .sc:nth-child(n), .recruit-stat-card) { border-top-width: 1px; border-top-color: var(--ui-border); }
+/* Bannière d'accueil historique (photo) neutralisée sur les tableaux de bord */
+:root .app-main-layout > .workspace-hero {
+    margin: 0 auto !important;
+    padding: 2rem var(--ui-gutter) .5rem !important;
+    min-height: 0 !important;
+    border-radius: 0;
+}
+:root .workspace-hero :is(.dhi > div:first-child, .recruit-hero-text) { width: auto; }
+:root .workspace-hero :is(.dhi, .recruit-hero-inner) { display: flex; }
+/* Pages « compte » (entretiens) : espace sous le titre */
+:root .account-main > h1 { margin-bottom: 1.25rem; }
+
+/* Statistiques admin : mêmes cartes de chiffres que partout ailleurs */
+:root body.has-sidebar .kpi-box {
+    background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); box-shadow: var(--ui-shadow);
+}
+:root body.has-sidebar .kpi-box-lbl { color: var(--ui-muted); font-size: .85rem; font-weight: 500; }
+:root body.has-sidebar .kpi-box-val { color: var(--ui-text) !important; font-weight: 700; }
+/* Page Coach : le résumé garde ses indicateurs ; la liste détaillée est juste en dessous */
+:root .coach-page-main #coach-cv-card :is(#coach-top-tips, #coach-all-tips, #btn-toggle-all-coach) { display: none !important; }
+
+/* ── Pages de connexion : même disposition (photo à gauche, formulaire à droite) ── */
+:root main.al-main {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+:root .al-visual-panel { order: -1; border-radius: 0; }
+:root .al-visual-panel img { border-radius: 0; }
+:root .al-form-panel { background: #fff; }
+/* Icône à gauche des champs : le texte ne doit jamais passer dessous. */
+:root .al-input-wrap > .al-input { padding-left: 2.6rem !important; }
+:root .admin-portal input.mod-search-input { padding-left: 2.25rem !important; }
+:root .al-input-wrap > .al-input.al-input-pwd { padding-right: 2.75rem !important; }
+
+/* ── Mobile ───────────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+    :root .app-main-layout > :is(.dh, .ch, .nh, .reco-hero, .page-banner, .coach-page-hero, .profil-hero, .recruit-hero, .admin-hero) { padding-top: 1.25rem; }
+    :root :is(.dhi, .chi, .nhi, .reco-hero-inner, .page-banner-inner, .coach-hero-inner, .hero-inner, .recruit-hero-inner) { align-items: stretch; flex-direction: column; }
+    :root .recruit-hero-actions > * { flex: 1 1 auto; }
+    :root body.has-sidebar :is(.topbar-logout, .topbar-btn-logout) span { display: none; }
+    :root body.has-sidebar .topbar-btn-action span { display: none; }
+    :root body.has-sidebar .topbar-btn-action { padding: 0 .7rem; }
+    /* Même barre du haut sur les trois portails : avatar seul sur mobile */
+    :root body.has-sidebar .topbar-user-pill { display: inline-flex !important; padding: 0 .3rem; }
+    :root body.has-sidebar .topbar-user-pill-name { display: none; }
+    /* Bloc Coach : l'icône passe au-dessus du texte au lieu de l'écraser */
+    :root body.has-sidebar .coach-header-left { flex-direction: column; align-items: flex-start; }
+}

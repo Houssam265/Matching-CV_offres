@@ -159,10 +159,10 @@ window.CoachCV = (() => {
                         <span>Chaque point de gain est calculé en temps réel selon les exigences des offres actives.</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
-                        <a href="/coach-cv.html" class="coach-btn-view-all" style="background:transparent;border-color:rgba(31, 100, 66,0.18);color:var(--navy-deep);">
+                        ${location.pathname.endsWith('/coach-cv.html') ? '' : `<a href="/coach-cv.html" class="coach-btn-view-all" style="background:transparent;border-color:rgba(31, 100, 66,0.18);color:var(--navy-deep);">
                             <span>Ouvrir la page Coach</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                        </a>
+                        </a>`}
                         ${hasExtraTips ? `
                             <button type="button" class="coach-btn-view-all" id="btn-toggle-all-coach">
                                 <span id="btn-toggle-label">Voir tous les conseils (${allTips.length})</span>

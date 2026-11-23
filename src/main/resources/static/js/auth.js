@@ -414,7 +414,10 @@ function initEmailCheck() {
 
         try {
             const res = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+            // Erreur serveur, limite atteinte… : ne rien conclure, le serveur revalidera à l'envoi.
+            if (!res.ok) return;
             const data = await res.json();
+            if (typeof data.disponible !== 'boolean') return;
             if (!data.disponible) {
                 setInputState(input, 'is-invalid');
                 setFieldError('error-reg-email', 'Cette adresse email est déjà associée à un compte.');

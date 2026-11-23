@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     sidebar.querySelector('.sidebar-footer')?.remove();
     sidebar.querySelectorAll('.sidebar-link').forEach(link=>{
-        const active=new URL(link.href,location.href).pathname===location.pathname;
+        const target=new URL(link.href,location.href);
+        const active=target.pathname===location.pathname && target.search===location.search;
         link.classList.toggle('active',active);
         if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
     });

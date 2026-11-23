@@ -8,7 +8,7 @@
     <title>Référentiel des Compétences — Admin · Matching CV-Offres</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/sidebar.css?v=3" />
     <link rel="stylesheet" href="/css/navigation.css?v=3" />
@@ -122,7 +122,7 @@
     .admin-page { padding: 1.75rem 2rem 4rem; }
     @media(max-width:860px){ .admin-page { padding: 1.25rem 1rem 3rem; } }
 </style>
-<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script></head>
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script><link rel="stylesheet" href="/css/theme.css"></head>
 <body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
@@ -184,7 +184,6 @@
                 <span class="topbar-bc-sep">/</span>
                 <span class="topbar-bc-current">Référentiel</span>
             </div>
-            <span style="font-size:.62rem;background:rgba(36,119,78,.12);color:#184b32;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.06em;margin-left:6px;">ADMIN</span>
         </div>
         <div class="topbar-right">
             <div class="nav-cta" id="topbar-nav-cta">
@@ -314,7 +313,6 @@
     'use strict';
 
     const user = MatchingCVSession.read();
-    const adminId = user ? user.id : null;
     if (user) {
         document.getElementById('nav-admin-name').textContent = (user.prenom || '') + ' ' + (user.nom || '');
         if (window.NotificationBell) NotificationBell.init({ userId: user.id, role: 'ADMIN' });
@@ -411,13 +409,32 @@
                 <td style="text-align:right">
                     <div style="display:inline-flex;gap:.4rem">
                         <button class="btn-action btn-indigo btn-sm" onclick="openEdit(${c.id})"> Modifier</button>
-                        <button class="btn-action btn-surface btn-sm" onclick="openModifier(${c.id})">Modifier</button>
+                        ${c.statut === 'EN_ATTENTE' ? `<button class="btn-action btn-green btn-sm" onclick="accepterComp(${c.id}, this)">Accepter</button>` : ''}
                         <button class="btn-action btn-red btn-sm" onclick="supprimerComp(${c.id})">Supprimer</button>
                     </div>
                 </td>
             </tr>`;
         }).join('');
     }
+
+    window.accepterComp = async function(id, button) {
+        if (!confirm('Accepter cette compétence dans le référentiel ?')) return;
+        button.disabled = true;
+        try {
+            const response = await fetch(`/api/admin/competences/${id}/valider`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
+            await adminReadJson(response);
+            showToast('Compétence acceptée.');
+            loadCompetences();
+        } catch (error) {
+            showToast(error.message, true);
+        } finally {
+            button.disabled = false;
+        }
+    };
 
     // ── Onglets ──
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -435,7 +452,6 @@
 
         fetch(`/api/competences/${id}`, {
             method: 'DELETE',
-            headers: { 'X-Admin-Id': String(adminId) }
         }).then(async r => {
             if (r.status === 204) {
                 showToast('Compétence supprimée.');
@@ -496,7 +512,7 @@
             // Modifier (PUT /api/admin/competences/{id})
             fetch(`/api/admin/competences/${editingCompetenceId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(adminId) },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nom, categorie: cat, synonymes: syn })
             }).then(r => {
                 if (!r.ok) return r.json().then(j => { throw new Error(j.message || 'Erreur ' + r.status); });
@@ -537,7 +553,6 @@
 
         fetch('/api/admin/competences/import-csv', {
             method: 'POST',
-            headers: { 'X-Admin-Id': String(adminId) },
             body: formData
         }).then(adminReadJson).then(res => {
             const rap = document.getElementById('import-rapport');

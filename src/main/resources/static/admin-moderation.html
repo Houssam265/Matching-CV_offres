@@ -8,7 +8,7 @@
     <title>Modération des Compétences — Admin · Matching CV-Offres</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/sidebar.css?v=3" />
     <link rel="stylesheet" href="/css/navigation.css?v=3" />
@@ -539,7 +539,7 @@
         .toast.error   { background: #dc2626; color: #ffffff; }
         @keyframes toastIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
-</head>
+<link rel="stylesheet" href="/css/theme.css"><script src="/js/admin-ui.js"></script></head>
 <body class="has-sidebar">
 <script>
 try {
@@ -609,7 +609,6 @@ document.body.classList.add('navigation-loading');
                 <span class="topbar-bc-sep">/</span>
                 <span class="topbar-bc-current">Modération</span>
             </div>
-            <span style="font-size:.62rem;background:rgba(36,119,78,.12);color:#184b32;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.06em;margin-left:6px;">ADMIN</span>
         </div>
         <div class="topbar-right">
             <div class="nav-cta" id="topbar-nav-cta">
@@ -753,7 +752,6 @@ document.body.classList.add('navigation-loading');
 
     // ── Session ──
     const session = MatchingCVSession.read();
-    const adminId = session?.id ?? null;
     if (session) {
         const nomAdmin = ((session.prenom || '') + ' ' + (session.nom || '')).trim() || 'Administrateur';
         const el = document.getElementById('nav-admin-name');
@@ -770,7 +768,6 @@ document.body.classList.add('navigation-loading');
     // ── API Helpers ──
     const apiHeaders = () => {
         const h = { 'Content-Type': 'application/json' };
-        if (adminId) h['X-Admin-Id'] = String(adminId);
         return h;
     };
 

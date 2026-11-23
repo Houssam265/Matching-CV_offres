@@ -183,6 +183,8 @@ window.MatchingCVSidebar = (() => {
         const notifLink = document.querySelector('a[href="/notifications.html"].sidebar-link');
         if (pill) {
             pill.textContent = count > 9 ? '9+' : String(count);
+            // Aucun badge « 0 » : le compteur n'apparaît que s'il y a des notifications non lues.
+            pill.hidden = !(count > 0);
             pill.style.removeProperty('display');
         }
         if (notifLink) {
