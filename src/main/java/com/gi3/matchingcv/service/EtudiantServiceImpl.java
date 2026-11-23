@@ -13,6 +13,7 @@ import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.repository.CompetenceRepository;
 import com.gi3.matchingcv.repository.EtudiantRepository;
 import com.gi3.matchingcv.repository.ExperienceProfessionnelleRepository;
+import com.gi3.matchingcv.repository.ProfilCompetenceRepository;
 import com.gi3.matchingcv.repository.ProjetRepository;
 import com.gi3.matchingcv.repository.UtilisateurRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -41,6 +42,7 @@ public class EtudiantServiceImpl implements EtudiantService {
     private final CompetenceService competenceService;
     private final ProjetRepository projetRepository;
     private final ExperienceProfessionnelleRepository experienceRepository;
+    private final ProfilCompetenceRepository profilCompetenceRepository;
 
     /**
      * Injection par constructeur (IoC) : la classe déclare explicitement ses dépendances,
@@ -52,7 +54,8 @@ public class EtudiantServiceImpl implements EtudiantService {
             CompetenceRepository competenceRepository,
             CompetenceService competenceService,
             ProjetRepository projetRepository,
-            ExperienceProfessionnelleRepository experienceRepository
+            ExperienceProfessionnelleRepository experienceRepository,
+            ProfilCompetenceRepository profilCompetenceRepository
     ) {
         this.etudiantRepository = etudiantRepository;
         this.utilisateurRepository = utilisateurRepository;
@@ -60,6 +63,7 @@ public class EtudiantServiceImpl implements EtudiantService {
         this.competenceService = competenceService;
         this.projetRepository = projetRepository;
         this.experienceRepository = experienceRepository;
+        this.profilCompetenceRepository = profilCompetenceRepository;
     }
 
     @Override
@@ -75,7 +79,6 @@ public class EtudiantServiceImpl implements EtudiantService {
                 "Un compte existe déjà avec l'adresse e-mail : " + etudiant.getEmail()
             );
         }
-        // TODO sécurité : le hachage BCrypt du mot de passe sera ajouté avec Spring Security
         etudiant.setRole(Role.ETUDIANT);
         etudiant.setMotDePasse(com.gi3.matchingcv.security.Passwords.hash(etudiant.getMotDePasse()));
         return etudiantRepository.save(etudiant);
@@ -184,6 +187,12 @@ public class EtudiantServiceImpl implements EtudiantService {
             if (exp.getCompetences().removeIf(c -> c.getId().equals(competenceId))) {
                 experienceRepository.save(exp);
             }
+        }
+
+        // 4. Supprimer l'éventuelle ligne de l'ancien modèle ProfilCompetence,
+        //    sinon la migration de démarrage la remettrait dans la liste personnelle.
+        if (profilCompetenceRepository != null) {
+            profilCompetenceRepository.deleteByEtudiantIdAndCompetenceId(etudiantId, competenceId);
         }
     }
 

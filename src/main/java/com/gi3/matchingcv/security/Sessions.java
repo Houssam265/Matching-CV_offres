@@ -20,6 +20,12 @@ public final class Sessions {
         SecurityContextHolder.setContext(context);
         new HttpSessionSecurityContextRepository().saveContext(context, request, response);
     }
+    /** Identifiant du compte connecté, ou null si aucune session (ex. tests sans filtres). */
+    public static Long currentIdOrNull() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.getPrincipal() instanceof AccountPrincipal p ? p.id() : null;
+    }
+
     public static AccountPrincipal current() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof AccountPrincipal p))

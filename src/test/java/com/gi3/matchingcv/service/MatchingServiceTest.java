@@ -16,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 import java.util.List;
 import java.util.Optional;
 
@@ -393,5 +395,58 @@ class MatchingServiceTest {
         assertThat(recos.get(1).score()).isEqualTo(70.0);
         org.mockito.Mockito.verify(projetRepository).findByEtudiantId(1L);
         org.mockito.Mockito.verify(experienceRepository).findByEtudiantId(1L);
+    }
+
+    @Test
+    @DisplayName("Synonymes : une compétence de l'étudiant égale à un synonyme de la compétence exigée est reconnue")
+    void testCalculerScore_synonymeReconnu() {
+        Competence javascript = new Competence();
+        javascript.setId(201L);
+        javascript.setNom("JavaScript");
+        javascript.setNomNormalise("javascript");
+        javascript.setStatut(StatutCompetence.VALIDEE);
+        javascript.setSynonymes(new ArrayList<>(List.of("JS")));
+
+        Competence js = new Competence();
+        js.setId(202L);
+        js.setNom("JS");
+        js.setNomNormalise("js");
+        js.setStatut(StatutCompetence.VALIDEE);
+
+        lien(offre, javascript, TypeExigence.REQUISE);
+        etudiant.getCompetences().add(js);
+
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+        when(offreRepository.findById(10L)).thenReturn(Optional.of(offre));
+        when(projetRepository.findByEtudiantId(1L)).thenReturn(List.of());
+        when(experienceRepository.findByEtudiantId(1L)).thenReturn(List.of());
+
+        MatchingDetailDto detail = matchingService.calculerScore(1L, 10L);
+
+        assertThat(detail.scoreDisponible()).isTrue();
+        assertThat(detail.score()).isEqualTo(40.0); // liste personnelle N = 0,4, sans atout : × 100
+        assertThat(detail.competences().get(0).provenance()).isEqualTo("DECLARATIF");
+    }
+
+    @Test
+    @DisplayName("calculerScoresPourOffre : un score par étudiant actif, comptes désactivés ignorés")
+    void testCalculerScoresPourOffre_ignoreInactifs() {
+        lien(offre, springBoot, TypeExigence.REQUISE);
+        etudiant.getCompetences().add(springBoot);
+
+        Etudiant inactif = new Etudiant();
+        inactif.setId(2L);
+        inactif.setCompetences(new ArrayList<>(List.of(springBoot)));
+        inactif.setActif(false);
+
+        when(offreRepository.findById(10L)).thenReturn(Optional.of(offre));
+        when(etudiantRepository.findAll()).thenReturn(List.of(etudiant, inactif));
+        when(projetRepository.findAll()).thenReturn(List.of());
+        when(experienceRepository.findAll()).thenReturn(List.of());
+
+        Map<Long, MatchingDetailDto> scores = matchingService.calculerScoresPourOffre(10L);
+
+        assertThat(scores.keySet()).isEqualTo(Set.of(1L));
+        assertThat(scores.get(1L).score()).isEqualTo(40.0);
     }
 }

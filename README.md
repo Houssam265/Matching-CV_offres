@@ -216,17 +216,18 @@ Chaque `OffreDto` contient exclusivement `id`, `titre`, `description`, `domaine`
 `localisation`, `typeContrat`, `statut`, `datePublication`, `entreprise` et
 `competences[{competenceId,nom,statut,typeExigence}]`.
 
-Le moteur de matching n'est pas implémenté : il devra ignorer toute compétence
-non `VALIDEE`, ne jamais pénaliser un atout absent et laisser le score indisponible
-sans compétence requise validée. Le formulaire et le détail affichent déjà cet état.
-Les candidatures restent un emplacement réservé à la phase 2.
+Le moteur de matching (`MatchingServiceImpl`) ignore toute compétence non `VALIDEE`,
+ne pénalise jamais un atout absent et laisse le score indisponible sans compétence
+requise validée. Pour chaque compétence de l'offre, le niveau N vaut
+0,8 + 0,2 × min(1, mois / 60) si elle provient d'une expérience, 0,7 d'un projet,
+0,4 de la liste personnelle et 0 sinon. Score = moyenne des N requises × 80 (× 100 sans atout)
++ somme des N atouts possédés / nombre d'atouts × 20. Deux compétences correspondent par
+identifiant, nom normalisé ou synonyme.
 
-**Sécurité différée conformément au périmètre :** les contrôles de propriété
-comparent l'offre au `recruteurId` fourni. Ce paramètre et le rôle du navigateur
-ne prouvent pas l'identité. Les `TODO sécurité` indiquent où brancher l'identité
-authentifiée et la vérification du rôle. Le module recruteur n'expose aucune
-suppression du dictionnaire ; l'endpoint existant du dictionnaire conserve son
-`TODO sécurité : réservé ADMIN`.
+**Sécurité :** l'identité vient de la session serveur. `ResourceAccess` vérifie le rôle et la
+propriété (un `recruteurId` fourni doit être celui du recruteur connecté et propriétaire de
+l'offre), et `/api/admin/**` est réservé au rôle ADMIN. L'administrateur enregistré dans le
+journal d'audit est lu depuis la session, jamais depuis la requête.
 
 Tests ciblés (sans base de données) :
 
@@ -255,6 +256,10 @@ Les pages « Mon compte », « Favoris et suivi » / « Entretiens » complèten
 ## Configuration et validation
 
 - `mvn verify` : tests métier, contrôles d’accès et intégration H2, sans utiliser la base MySQL de développement. La CI exécute également la vérification syntaxique JavaScript.
+- Comptes admin : `app.admin.emails` liste les comptes créés au démarrage. Leurs mots de passe se
+  définissent par la variable d'environnement `ADMIN_PASSWORDS` (séparés par des virgules, même ordre).
+  Sans elle, un compte existant garde son mot de passe et un nouveau compte reçoit un mot de passe
+  aléatoire affiché une seule fois dans les journaux de démarrage.
 - Profil `mail` : définir SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, MAIL_FROM et PUBLIC_URL. Sans SMTP, la récupération et la vérification d’email signalent leur indisponibilité.
 - Profil `prod` : définir DB_URL, DB_USER, DB_PASSWORD, PUBLIC_URL et MAIL_FROM ; HTTPS est nécessaire pour le cookie sécurisé. Le schéma est validé, jamais créé automatiquement en production. Préparer et vérifier sa migration sur une copie de la base avant déploiement. Les migrations SQL versionnées restent à établir pour votre base existante.
 - Compléter l’identité de l’exploitant, son contact et les durées de conservation dans la page de confidentialité avant publication.

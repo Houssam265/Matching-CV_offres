@@ -24,6 +24,7 @@ public class Etudiant extends Utilisateur {
     @Column(length = 150)
     private String etablissement;
 
+    /** Modèle hérité, lu uniquement par la migration de démarrage (voir {@link ProfilCompetence}). */
     @JsonIgnore
     @OneToMany(mappedBy = "etudiant", fetch = FetchType.LAZY)
     private List<ProfilCompetence> profilCompetences = new ArrayList<>();

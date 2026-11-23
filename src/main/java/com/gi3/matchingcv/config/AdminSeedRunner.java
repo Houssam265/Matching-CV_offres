@@ -25,7 +25,10 @@ import java.util.List;
  *   app.admin.emails=admin@matchingcv.fr,superadmin@matchingcv.fr
  *   app.admin.prenoms=Admin,Super
  *   app.admin.noms=Système,Admin
- *   app.admin.passwords=admin123,superadmin123
+ *   app.admin.passwords=${ADMIN_PASSWORDS:}   (variable d'environnement, jamais dans Git)
+ *
+ * Mot de passe absent : un compte existant conserve le sien ; un nouveau compte reçoit
+ * un mot de passe aléatoire affiché une seule fois dans les journaux.
  */
 @Component
 @Order(3)
@@ -48,7 +51,7 @@ public class AdminSeedRunner implements CommandLineRunner {
     @Value("#{'${app.admin.noms:Principal}'.split(',')}")
     private List<String> noms;
 
-    @Value("#{'${app.admin.passwords:admin123}'.split(',')}")
+    @Value("#{'${app.admin.passwords:}'.split(',')}")
     private List<String> passwords;
 
     public AdminSeedRunner(AdministrateurRepository administrateurRepository,
@@ -71,7 +74,8 @@ public class AdminSeedRunner implements CommandLineRunner {
             if (email.isBlank()) {
                 continue;
             }
-            String rawPassword = i < passwords.size() ? passwords.get(i).trim() : "admin123";
+            String rawPassword = i < passwords.size() ? passwords.get(i).trim() : "";
+            boolean motDePasseConfigure = !rawPassword.isEmpty();
             String adminNom = i < noms.size() ? noms.get(i).trim() : "Principal";
             var existingOpt = utilisateurRepository.findByEmail(email);
             if (existingOpt.isPresent()) {
@@ -90,12 +94,18 @@ public class AdminSeedRunner implements CommandLineRunner {
                     existing.setNom(adminNom);
                     log.info("Nom admin corrigé : '{}' → '{}' pour {}", nomActuel, adminNom, email);
                 }
-                if (!com.gi3.matchingcv.security.Passwords.matches(rawPassword, existing.getMotDePasse())) {
+                if (motDePasseConfigure
+                        && !com.gi3.matchingcv.security.Passwords.matches(rawPassword, existing.getMotDePasse())) {
                     existing.setMotDePasse(com.gi3.matchingcv.security.Passwords.hash(rawPassword));
                     log.info("Mot de passe réinitialisé pour l'admin : {}", email);
                 }
                 utilisateurRepository.save(existing);
                 continue;
+            }
+            if (!motDePasseConfigure) {
+                rawPassword = genererMotDePasse();
+                log.warn("Compte admin {} créé avec un mot de passe aléatoire : {} "
+                        + "(affiché une seule fois ; changez-le ou définissez ADMIN_PASSWORDS).", email, rawPassword);
             }
             Administrateur admin = new Administrateur();
             admin.setEmail(email);
@@ -113,5 +123,15 @@ public class AdminSeedRunner implements CommandLineRunner {
         if (crees == 0) {
             log.info("Tous les comptes admin existent déjà.");
         }
+    }
+
+    private static String genererMotDePasse() {
+        final String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+        java.security.SecureRandom random = new java.security.SecureRandom();
+        StringBuilder sb = new StringBuilder("Adm-");
+        for (int i = 0; i < 16; i++) {
+            sb.append(alphabet.charAt(random.nextInt(alphabet.length())));
+        }
+        return sb.append("-9").toString();
     }
 }

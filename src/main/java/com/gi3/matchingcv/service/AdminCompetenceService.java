@@ -9,7 +9,6 @@ import java.util.Map;
 
 /**
  * Service de gestion administrative des compétences.
- * // TODO sécurité : toutes les méthodes sont réservées ADMIN.
  */
 public interface AdminCompetenceService {
 

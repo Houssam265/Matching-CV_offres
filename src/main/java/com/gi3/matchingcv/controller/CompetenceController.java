@@ -93,12 +93,10 @@ public class CompetenceController {
 
     /**
      * Supprime une compétence du référentiel par son identifiant unique.
-     * // TODO sécurité : réservé ADMIN.
      *
      * @param id identifiant de la compétence à supprimer
      * @return 204 NO CONTENT si succès, 404 NOT FOUND si inexistante, 409 CONFLICT si utilisée, ou 400 BAD REQUEST en cas d'erreur
      */
-    // TODO sécurité : réservé ADMIN
     @DeleteMapping("/{id}")
     public ResponseEntity<?> supprimer(@PathVariable Long id) {
         try {
@@ -140,7 +138,6 @@ public class CompetenceController {
     /**
      * Valide une compétence en attente (réservé ADMIN).
      */
-    // TODO sécurité : réservé ADMIN
     @PatchMapping("/{id}/valider")
     public ResponseEntity<?> valider(@PathVariable Long id) {
         try {
@@ -156,7 +153,6 @@ public class CompetenceController {
     /**
      * Rejette une compétence en attente (réservé ADMIN).
      */
-    // TODO sécurité : réservé ADMIN
     @PatchMapping("/{id}/rejeter")
     public ResponseEntity<?> rejeter(@PathVariable Long id) {
         try {

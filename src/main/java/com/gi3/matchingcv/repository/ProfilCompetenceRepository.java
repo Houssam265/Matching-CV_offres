@@ -10,4 +10,5 @@ import java.util.List;
 public interface ProfilCompetenceRepository extends JpaRepository<ProfilCompetence, Long> {
     List<ProfilCompetence> findByCompetenceId(Long competenceId);
     void deleteByCompetenceId(Long competenceId);
+    void deleteByEtudiantIdAndCompetenceId(Long etudiantId, Long competenceId);
 }

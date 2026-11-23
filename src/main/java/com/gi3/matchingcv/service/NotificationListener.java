@@ -2,19 +2,19 @@ package com.gi3.matchingcv.service;
 
 import com.gi3.matchingcv.dto.MatchingDetailDto;
 import com.gi3.matchingcv.event.*;
-import com.gi3.matchingcv.model.Etudiant;
 import com.gi3.matchingcv.model.enums.StatutCandidature;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.model.enums.TypeNotification;
-import com.gi3.matchingcv.repository.EtudiantRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.List;
+import java.util.Map;
 
 @Component
 public class NotificationListener {
@@ -22,7 +22,6 @@ public class NotificationListener {
     private static final Logger log = LoggerFactory.getLogger(NotificationListener.class);
 
     private final NotificationService notificationService;
-    private final EtudiantRepository etudiantRepository;
     private final MatchingService matchingService;
 
     @Value("${app.notifications.seuil-offre:70}")
@@ -30,11 +29,9 @@ public class NotificationListener {
 
     public NotificationListener(
             NotificationService notificationService,
-            EtudiantRepository etudiantRepository,
             MatchingService matchingService
     ) {
         this.notificationService = notificationService;
-        this.etudiantRepository = etudiantRepository;
         this.matchingService = matchingService;
     }
 
@@ -42,15 +39,27 @@ public class NotificationListener {
      * Traitement asynchrone lors de la publication d'une offre :
      * calcule le score pour chaque étudiant et notifie ceux qui atteignent le seuil.
      */
+    // AFTER_COMMIT : le thread asynchrone ne démarre qu'une fois l'offre et ses compétences
+    // réellement enregistrées ; sinon il pourrait lire une offre absente ou incomplète.
+    // fallbackExecution : l'événement est aussi traité s'il est publié hors transaction.
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onOffrePubliee(OffrePublieeEvent event) {
         log.info("Traitement asynchrone de l'offre publiée [{}] : {}", event.offreId(), event.titre());
 
-        List<Etudiant> etudiants = etudiantRepository.findAll();
-        for (Etudiant etudiant : etudiants) {
+        Map<Long, MatchingDetailDto> scores;
+        try {
+            // Offre, projets et expériences chargés une seule fois pour tous les étudiants actifs.
+            scores = matchingService.calculerScoresPourOffre(event.offreId());
+        } catch (Exception e) {
+            log.warn("Calcul du matching impossible pour l'offre {} : {}", event.offreId(), e.getMessage());
+            return;
+        }
+
+        for (Map.Entry<Long, MatchingDetailDto> entree : scores.entrySet()) {
+            Long etudiantId = entree.getKey();
+            MatchingDetailDto matching = entree.getValue();
             try {
-                MatchingDetailDto matching = matchingService.calculerScore(etudiant.getId(), event.offreId());
                 if (matching != null && matching.scoreDisponible() && matching.score() != null) {
                     double score = matching.score();
                     if (score >= seuilOffre) {
@@ -61,7 +70,7 @@ public class NotificationListener {
                         String lien = "/offres-recommandees.html";
 
                         notificationService.notifier(
-                                etudiant.getId(),
+                                etudiantId,
                                 TypeNotification.OFFRE_CORRESPONDANTE,
                                 titre,
                                 message,
@@ -75,8 +84,8 @@ public class NotificationListener {
                     }
                 }
             } catch (Exception e) {
-                log.warn("Erreur calcul matching pour notification étudiant {} / offre {} : {}",
-                        etudiant.getId(), event.offreId(), e.getMessage());
+                log.warn("Erreur de notification pour l'étudiant {} / offre {} : {}",
+                        etudiantId, event.offreId(), e.getMessage());
             }
         }
     }

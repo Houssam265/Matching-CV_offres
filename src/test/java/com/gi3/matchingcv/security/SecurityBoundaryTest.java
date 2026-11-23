@@ -44,4 +44,6 @@ class SecurityBoundaryTest {
       {"recruteurId":2,"titre":"Poste","description":"Description","domaine":"IT","localisation":"Rabat","typeContrat":"CDI","competences":[{"competenceId":1,"typeExigence":"REQUISE"}]}
       """)).andExpect(status().isForbidden());verifyNoInteractions(service);}
     @Test void passwordHashAndLegacyUpgrade(){Assertions.assertTrue(Passwords.matches("a-long-password",user.getMotDePasse()));Assertions.assertFalse(Passwords.matches("wrong",user.getMotDePasse()));Assertions.assertTrue(Passwords.matches("legacy","legacy"));}
+    @Test void emailCheckIsPublicForRegistration()throws Exception{when(users.existsByEmail("libre@example.com")).thenReturn(false);mvc.perform(get("/api/auth/check-email").param("email","libre@example.com")).andExpect(status().isOk()).andExpect(jsonPath("$.disponible").value(true));}
+    @Test void adminApiDeniedToStudent()throws Exception{mvc.perform(get("/api/admin/statistiques").with(as(Role.ETUDIANT))).andExpect(status().isForbidden());}
 }

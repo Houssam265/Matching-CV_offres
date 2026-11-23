@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -288,5 +289,23 @@ class AdminControllerTest {
 
         verify(adminCompetenceService).rejeterGroupes(eq(List.of(4L, 5L)), eq("Doublons"), any());
     }
-}
 
+    @Test
+    @DisplayName("L'admin enregistré pour l'audit vient de la session, l'en-tête X-Admin-Id est ignoré")
+    void testAdminIdLuDepuisLaSession() throws Exception {
+        var principal = new com.gi3.matchingcv.security.AccountPrincipal(7L, Role.ADMIN, 0L);
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                org.springframework.security.authentication.UsernamePasswordAuthenticationToken.authenticated(
+                        principal, null, List.of()));
+        try {
+            mockMvc.perform(patch("/api/admin/offres/5/cloturer")
+                            .header("X-Admin-Id", "999")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"motif\":\"Doublon\"}"))
+                    .andExpect(status().isOk());
+            verify(adminOffreService).cloturerOffre(5L, "Doublon", 7L);
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
+        }
+    }
+}

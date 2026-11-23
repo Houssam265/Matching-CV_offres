@@ -227,7 +227,6 @@ public class CandidatureServiceImpl implements CandidatureService {
         Offre offre = offreRepository.findById(offreId)
                 .orElseThrow(() -> new EntityNotFoundException("Offre introuvable : " + offreId));
 
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }
@@ -259,7 +258,6 @@ public class CandidatureServiceImpl implements CandidatureService {
                 .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable : " + candidatureId));
 
         Offre offre = cand.getOffre();
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }
@@ -399,7 +397,6 @@ public class CandidatureServiceImpl implements CandidatureService {
                 .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable : " + candidatureId));
 
         Offre offre = cand.getOffre();
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }
@@ -418,7 +415,6 @@ public class CandidatureServiceImpl implements CandidatureService {
                 .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable : " + candidatureId));
 
         Offre offre = cand.getOffre();
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }
@@ -434,7 +430,6 @@ public class CandidatureServiceImpl implements CandidatureService {
                 .orElseThrow(() -> new EntityNotFoundException("Candidature introuvable : " + candidatureId));
 
         Offre offre = cand.getOffre();
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }
@@ -448,7 +443,6 @@ public class CandidatureServiceImpl implements CandidatureService {
         Offre offre = offreRepository.findById(offreId)
                 .orElseThrow(() -> new EntityNotFoundException("Offre introuvable : " + offreId));
 
-        // TODO sécurité côté serveur : seul le recruteur propriétaire de l'offre lit ou modifie ses candidats, notes et favoris.
         if (offre.getRecruteur() == null || !Objects.equals(offre.getRecruteur().getId(), recruteurId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé : cette offre appartient à un autre recruteur.");
         }

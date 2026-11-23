@@ -21,8 +21,8 @@ import java.util.Optional;
  *     VUE     → ACCEPTEE | REFUSEE
  *     ACCEPTEE, REFUSEE → définitifs (aucun changement possible)
  *
- * TODO sécurité : changerStatut doit être restreint au recruteur propriétaire de l'offre ;
- *                 listerParEtudiant doit être restreint à l'étudiant connecté ou un Admin.
+ * Accès : changerStatut est réservé au recruteur propriétaire de l'offre et listerParEtudiant
+ * à l'étudiant connecté ou à un Admin (contrôlé par security.ResourceAccess).
  */
 public interface CandidatureService {
 

@@ -10,7 +10,6 @@ import java.util.List;
 
 /**
  * Service de gestion des utilisateurs pour les administrateurs.
- * // TODO sécurité : toutes les méthodes sont réservées ADMIN.
  */
 public interface AdminUtilisateurService {
 

@@ -30,7 +30,6 @@ public class RecruteurServiceImpl implements RecruteurService {
     }
 
     private Recruteur entite(Long id) {
-        // TODO sécurité : vérifier le rôle RECRUTEUR et que l'identité authentifiée correspond à id.
         return recruteurs.findById(id).orElseThrow(() -> new EntityNotFoundException("Recruteur introuvable."));
     }
 

@@ -12,7 +12,6 @@ import java.util.Locale;
 
 /**
  * Implémentation du service d'audit.
- * // TODO sécurité : réservé ADMIN.
  */
 @Service
 @Transactional

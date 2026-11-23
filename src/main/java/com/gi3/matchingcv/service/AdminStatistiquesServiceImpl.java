@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 /**
  * Implémentation du service des statistiques pour l'espace administrateur.
- * // TODO sécurité : toutes les méthodes sont réservées ADMIN.
  */
 @Service
 @Transactional(readOnly = true)

@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * Service de gestion des offres pour les administrateurs.
- * // TODO sécurité : toutes les méthodes sont réservées ADMIN.
  */
 public interface AdminOffreService {
 

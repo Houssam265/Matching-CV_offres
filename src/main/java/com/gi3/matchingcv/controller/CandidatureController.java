@@ -21,7 +21,7 @@ import java.util.Optional;
 /**
  * Endpoints REST pour les candidatures.
  *
- * TODO sécurité :
+ * Accès (appliqué par security.ResourceAccess) :
  *   - POST   /api/candidatures                    → étudiant connecté seulement
  *   - GET    /api/etudiants/{id}/candidatures      → étudiant connecté ou Admin
  *   - GET    /api/offres/{id}/candidatures         → recruteur propriétaire ou Admin

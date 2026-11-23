@@ -6,7 +6,6 @@ import java.util.List;
 
 /**
  * Service de gestion du journal d'audit administratif.
- * // TODO sécurité : réservé ADMIN.
  */
 public interface AuditService {
 

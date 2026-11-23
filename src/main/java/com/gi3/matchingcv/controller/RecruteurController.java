@@ -25,11 +25,9 @@ public class RecruteurController {
         return recruteurs.inscrire(request);
     }
 
-    // TODO sécurité : vérifier RECRUTEUR et que l'identité authentifiée correspond à id.
     @GetMapping("/{id}")
     public RecruteurDto trouver(@PathVariable Long id) { return recruteurs.trouver(id); }
 
-    // TODO sécurité : vérifier RECRUTEUR et que l'identité authentifiée correspond à id.
     @PutMapping("/{id}")
     public RecruteurDto modifier(@PathVariable Long id, @Valid @RequestBody RecruteurProfilRequest request) {
         return recruteurs.modifier(id, request);

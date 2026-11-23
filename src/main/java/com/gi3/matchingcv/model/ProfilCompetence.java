@@ -9,6 +9,13 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Modèle hérité : plus aucune fonctionnalité n'écrit dans cette table.
+ * Les compétences de l'étudiant sont portées par {@link Etudiant#getCompetences()}
+ * (liste personnelle), ses projets et ses expériences. Les anciennes lignes sont recopiées
+ * dans la liste personnelle au démarrage par EtudiantCompetenceMigrationRunner ;
+ * la table est conservée pour ne perdre aucune donnée existante.
+ */
 @Entity
 @Table(
     name = "profil_competences",

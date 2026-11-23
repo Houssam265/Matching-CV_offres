@@ -16,7 +16,6 @@ import java.util.Locale;
 
 /**
  * Implémentation du service admin pour la gestion des offres.
- * // TODO sécurité : toutes les méthodes sont réservées ADMIN.
  */
 @Service
 @Transactional

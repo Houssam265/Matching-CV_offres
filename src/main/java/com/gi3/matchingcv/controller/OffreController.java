@@ -24,11 +24,12 @@ public class OffreController {
 
     @GetMapping("/{id}")
     public OffreDto trouver(@PathVariable Long id, @RequestParam(required = false) Long recruteurId) {
-        // TODO sécurité : l'accès propriétaire doit utiliser l'identité authentifiée, pas le paramètre client.
+        // ResourceAccess n'autorise recruteurId que s'il correspond au recruteur connecté et propriétaire.
         return offres.trouver(id, recruteurId);
     }
 
-    // TODO sécurité : vérifier RECRUTEUR et l'identité authentifiée pour toutes les mutations.
+    // Mutations : @PreAuthorize (création/modification) et ResourceAccess (propriétaire) vérifient
+    // que recruteurId correspond au recruteur connecté.
     @PostMapping
     @org.springframework.security.access.prepost.PreAuthorize("#request.recruteurId() == authentication.principal.id()")
     @ResponseStatus(HttpStatus.CREATED)

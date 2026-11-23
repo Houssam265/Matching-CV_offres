@@ -1,6 +1,7 @@
 package com.gi3.matchingcv.config;
 
 import com.gi3.matchingcv.model.Competence;
+import com.gi3.matchingcv.model.ProfilCompetence;
 import com.gi3.matchingcv.model.Etudiant;
 import com.gi3.matchingcv.model.ExperienceProfessionnelle;
 import com.gi3.matchingcv.model.Projet;
@@ -19,7 +20,9 @@ import java.util.Set;
 /**
  * Migration unique et idempotente au démarrage :
  * Pour chaque étudiant, ajoute à sa liste personnelle (etudiant_competence)
- * toutes les compétences déjà attachées à ses projets et à ses expériences.
+ * toutes les compétences déjà attachées à ses projets et à ses expériences,
+ * ainsi que celles de l'ancienne table profil_competences (modèle hérité).
+ * La liste personnelle est ainsi l'unique source « déclarative » lue par le matching.
  */
 @Component
 @Order(2)
@@ -49,6 +52,15 @@ public class EtudiantCompetenceMigrationRunner implements CommandLineRunner {
             }
 
             boolean modifie = false;
+
+            // Ancien modèle ProfilCompetence : conservé en base, mais recopié ici pour être pris en compte.
+            for (ProfilCompetence pc : etudiant.getProfilCompetences()) {
+                Competence c = pc.getCompetence();
+                if (c != null && idsExistants.add(c.getId())) {
+                    etudiant.getCompetences().add(c);
+                    modifie = true;
+                }
+            }
 
             List<Projet> projets = projetRepository.findByEtudiantId(etudiant.getId());
             for (Projet p : projets) {

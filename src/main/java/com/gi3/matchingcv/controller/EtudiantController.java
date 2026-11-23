@@ -27,9 +27,8 @@ import java.util.Optional;
  * Contrôleur REST exposant les points d'accès de gestion des étudiants et de leur profil.
  * Respecte l'Inversion de Contrôle (IoC) en s'appuyant sur les abstractions injectées via le constructeur.
  *
- * TODO sécurité : restreindre GET /api/etudiants à un rôle ADMIN une fois Spring Security en place.
- * TODO sécurité : pour chaque endpoint /{id}/..., vérifier que {id} correspond à l'étudiant connecté
- *                 (ou à un Admin) avant d'autoriser la modification — non implémentable sans auth.
+ * Accès (security.ResourceAccess) : GET/POST /api/etudiants réservés ADMIN ; chaque endpoint
+ * /{id}/... n'est accessible qu'à l'étudiant {id} lui-même ou à un Admin.
  */
 @RestController
 @RequestMapping("/api/etudiants")
@@ -62,7 +61,7 @@ public class EtudiantController {
 
     /**
      * Récupère la liste de tous les étudiants.
-     * TODO sécurité : restreindre à un rôle ADMIN une fois Spring Security en place.
+     * Réservé ADMIN.
      *
      * @return 200 OK avec la liste des étudiants
      */
@@ -73,7 +72,7 @@ public class EtudiantController {
 
     /**
      * Crée un nouvel étudiant (email, nom, prénom obligatoires).
-     * TODO sécurité : le hachage BCrypt du mot de passe sera ajouté avec Spring Security.
+     * Réservé ADMIN. Le mot de passe est haché en BCrypt par le service.
      *
      * @param etudiant l'entité étudiant reçue dans le corps de la requête (validée)
      * @return 201 CREATED, ou 409 CONFLICT si l'e-mail est déjà utilisé
@@ -141,7 +140,6 @@ public class EtudiantController {
 
     /**
      * Retourne la liste personnelle des compétences de l'étudiant avec statistiques d'utilisation.
-     * // TODO sécurité : vérifier que {id} correspond à l'étudiant connecté (ou ADMIN).
      */
     @GetMapping("/{id}/competences")
     public ResponseEntity<?> listerCompetences(@PathVariable Long id) {
@@ -156,7 +154,6 @@ public class EtudiantController {
     /**
      * Ajoute une compétence à la liste personnelle de l'étudiant.
      * Accepte soit {"competenceId": 42} soit {"nouvelleCompetence": "Rust", "categorie": "Backend"}.
-     * // TODO sécurité : vérifier que {id} correspond à l'étudiant connecté (ou ADMIN).
      *
      * @param id      identifiant de l'étudiant
      * @param request corps de la requête
@@ -182,7 +179,6 @@ public class EtudiantController {
     /**
      * Retire une compétence de la liste personnelle de l'étudiant et la détache de ses projets/expériences.
      * Ne supprime jamais la compétence du dictionnaire.
-     * // TODO sécurité : vérifier que {id} correspond à l'étudiant connecté (ou ADMIN).
      */
     @DeleteMapping("/{id}/competences/{competenceId}")
     public ResponseEntity<?> retirerCompetence(@PathVariable Long id,
@@ -199,7 +195,6 @@ public class EtudiantController {
 
     /**
      * Suggère des compétences pour l'autocomplétion (8 résultats max).
-     * // TODO sécurité : vérifier que {id} correspond à l'étudiant connecté (ou ADMIN).
      */
     @GetMapping("/{id}/competences/suggestions")
     public ResponseEntity<?> suggererCompetences(@PathVariable Long id,

@@ -35,4 +35,13 @@ public interface MatchingService {
      * Surcharge pratique acceptant directement les paramètres de filtre.
      */
     List<OffreRecommandeeDto> recommanderOffres(Long etudiantId, String domaine, String localisation, TypeContrat typeContrat);
+
+    /**
+     * Calcule le score de chaque étudiant actif pour une offre, en chargeant l'offre,
+     * les projets et les expériences une seule fois (utilisé pour les notifications de publication).
+     *
+     * @param offreId identifiant de l'offre
+     * @return détail du matching indexé par identifiant d'étudiant
+     */
+    java.util.Map<Long, MatchingDetailDto> calculerScoresPourOffre(Long offreId);
 }

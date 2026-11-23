@@ -15,6 +15,7 @@ public class SecurityConfig {
         http.addFilterBefore(new AccountRateLimitFilter(), org.springframework.security.web.csrf.CsrfFilter.class);
         http.authorizeHttpRequests(a->a
                 .requestMatchers("/api/auth/csrf", "/api/health").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/auth/check-email").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/auth/connexion","/api/auth/inscription","/api/recruteurs",
                         "/api/auth/password-reset/request","/api/auth/password-reset/confirm","/api/auth/verify-email").permitAll()
                 .requestMatchers("/api/**","/ws/**").access((auth,context)-> {

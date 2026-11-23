@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -321,14 +322,61 @@ public class MatchingServiceImpl implements MatchingService {
         return recommanderOffres(etudiantId, new OffreFiltreDto(domaine, localisation, typeContrat));
     }
 
+    @Override
+    public Map<Long, MatchingDetailDto> calculerScoresPourOffre(Long offreId) {
+        if (offreId == null) {
+            throw new IllegalArgumentException("L'identifiant de l'offre est obligatoire.");
+        }
+        Offre offre = offreRepository.findById(offreId)
+                .orElseThrow(() -> new EntityNotFoundException("Offre introuvable avec l'identifiant : " + offreId));
+
+        Map<Long, List<Projet>> projetsParEtudiant = projetRepository.findAll().stream()
+                .filter(p -> p.getEtudiant() != null)
+                .collect(Collectors.groupingBy(p -> p.getEtudiant().getId()));
+        Map<Long, List<ExperienceProfessionnelle>> experiencesParEtudiant = experienceRepository.findAll().stream()
+                .filter(e -> e.getEtudiant() != null)
+                .collect(Collectors.groupingBy(e -> e.getEtudiant().getId()));
+
+        Map<Long, MatchingDetailDto> resultats = new LinkedHashMap<>();
+        for (Etudiant etudiant : etudiantRepository.findAll()) {
+            if (!etudiant.isActif()) {
+                continue; // comptes suspendus ou désactivés : aucune notification
+            }
+            resultats.put(etudiant.getId(), calculerScoreAvecContexte(etudiant, offre,
+                    projetsParEtudiant.getOrDefault(etudiant.getId(), List.of()),
+                    experiencesParEtudiant.getOrDefault(etudiant.getId(), List.of())));
+        }
+        return resultats;
+    }
+
+    /**
+     * Deux compétences correspondent si elles ont le même identifiant, ou si le nom normalisé
+     * ou l'un des synonymes de l'une correspond au nom normalisé ou à un synonyme de l'autre.
+     */
     private boolean correspond(Competence c1, Competence c2) {
         if (c1 == null || c2 == null) return false;
         if (c1.getId() != null && c2.getId() != null && c1.getId().equals(c2.getId())) {
             return true;
         }
-        String n1 = c1.getNomNormalise() != null ? c1.getNomNormalise() : Competence.normaliserNom(c1.getNom());
-        String n2 = c2.getNomNormalise() != null ? c2.getNomNormalise() : Competence.normaliserNom(c2.getNom());
-        return n1 != null && n1.equalsIgnoreCase(n2);
+        Set<String> formes1 = formesNormalisees(c1);
+        return !formes1.isEmpty() && !Collections.disjoint(formes1, formesNormalisees(c2));
+    }
+
+    private Set<String> formesNormalisees(Competence c) {
+        Set<String> formes = new HashSet<>();
+        String nom = c.getNomNormalise() != null ? c.getNomNormalise() : Competence.normaliserNom(c.getNom());
+        if (nom != null && !nom.isBlank()) {
+            formes.add(nom.toLowerCase(Locale.ROOT));
+        }
+        if (c.getSynonymes() != null) {
+            for (String synonyme : c.getSynonymes()) {
+                String normalise = Competence.normaliserNom(synonyme);
+                if (normalise != null && !normalise.isBlank()) {
+                    formes.add(normalise);
+                }
+            }
+        }
+        return formes;
     }
 
     private double calculerDureeMois(ExperienceProfessionnelle exp) {

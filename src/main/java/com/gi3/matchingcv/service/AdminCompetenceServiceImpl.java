@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 /**
  * Implémentation du service admin pour la gestion des compétences.
- * // TODO sécurité : toutes les méthodes sont réservées ADMIN.
  */
 @Service
 @Transactional

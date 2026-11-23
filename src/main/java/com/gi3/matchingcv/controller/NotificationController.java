@@ -16,7 +16,6 @@ import java.util.Map;
 /**
  * Contrôleur REST pour la gestion et la consultation des notifications.
  *
- * // TODO sécurité : un utilisateur n'accède qu'aux siennes.
  */
 @RestController
 public class NotificationController {
@@ -30,7 +29,6 @@ public class NotificationController {
     /**
      * Récupère la liste paginée des notifications pour un utilisateur.
      *
-     * // TODO sécurité : un utilisateur n'accède qu'aux siennes.
      */
     @GetMapping("/api/utilisateurs/{id}/notifications")
     public ResponseEntity<?> listerNotifications(
@@ -51,7 +49,6 @@ public class NotificationController {
     /**
      * Compte le nombre de notifications non lues pour un utilisateur.
      *
-     * // TODO sécurité : un utilisateur n'accède qu'aux siennes.
      */
     @GetMapping("/api/utilisateurs/{id}/notifications/non-lues/count")
     public ResponseEntity<?> compterNonLues(@PathVariable("id") Long id) {
@@ -67,7 +64,6 @@ public class NotificationController {
     /**
      * Marque une notification spécifique comme lue.
      *
-     * // TODO sécurité : un utilisateur n'accède qu'aux siennes.
      */
     @PatchMapping("/api/notifications/{id}/lue")
     public ResponseEntity<?> marquerLue(@PathVariable("id") Long id) {
@@ -82,7 +78,6 @@ public class NotificationController {
     /**
      * Marque toutes les notifications non lues d'un utilisateur comme lues.
      *
-     * // TODO sécurité : un utilisateur n'accède qu'aux siennes.
      */
     @PatchMapping("/api/utilisateurs/{id}/notifications/tout-lire")
     public ResponseEntity<?> toutMarquerLu(@PathVariable("id") Long id) {

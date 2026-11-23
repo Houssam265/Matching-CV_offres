@@ -6,7 +6,6 @@ import com.gi3.matchingcv.model.Etudiant;
 import com.gi3.matchingcv.model.enums.StatutCandidature;
 import com.gi3.matchingcv.model.enums.StatutCompetence;
 import com.gi3.matchingcv.model.enums.TypeNotification;
-import com.gi3.matchingcv.repository.EtudiantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,8 +27,6 @@ class NotificationListenerTest {
 
     @Mock
     private NotificationService notificationService;
-    @Mock
-    private EtudiantRepository etudiantRepository;
     @Mock
     private MatchingService matchingService;
 
@@ -57,17 +54,18 @@ class NotificationListenerTest {
     @Test
     @DisplayName("onOffrePubliee : seuil respecté (69% non notifié, 70% notifié)")
     void onOffrePubliee_seuilStrict() {
-        when(etudiantRepository.findAll()).thenReturn(List.of(etudiant69, etudiant70));
-
         MatchingDetailDto match69 = mock(MatchingDetailDto.class);
         when(match69.scoreDisponible()).thenReturn(true);
         when(match69.score()).thenReturn(69.0);
-        when(matchingService.calculerScore(1L, 100L)).thenReturn(match69);
 
         MatchingDetailDto match70 = mock(MatchingDetailDto.class);
         when(match70.scoreDisponible()).thenReturn(true);
         when(match70.score()).thenReturn(70.0);
-        when(matchingService.calculerScore(2L, 100L)).thenReturn(match70);
+
+        java.util.Map<Long, MatchingDetailDto> scores = new java.util.LinkedHashMap<>();
+        scores.put(etudiant69.getId(), match69);
+        scores.put(etudiant70.getId(), match70);
+        when(matchingService.calculerScoresPourOffre(100L)).thenReturn(scores);
 
         listener.onOffrePubliee(new OffrePublieeEvent(100L, 10L, "Stage Ingénieur"));
 

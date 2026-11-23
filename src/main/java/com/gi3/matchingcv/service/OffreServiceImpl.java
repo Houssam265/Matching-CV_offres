@@ -41,7 +41,6 @@ public class OffreServiceImpl implements OffreService {
 
     private Recruteur recruteur(Long id) {
         if (id == null) throw new IllegalArgumentException("Le recruteur est obligatoire.");
-        // TODO sécurité : vérifier le rôle RECRUTEUR et obtenir l'id depuis l'identité authentifiée.
         return recruteurs.findById(id).orElseThrow(() -> new EntityNotFoundException("Recruteur introuvable."));
     }
 
