@@ -1,0 +1,101 @@
+/* Page « Mon compte » : sections du profil (reprises de l'ancien volet du tableau de bord) en cartes. */
+.ib{background:linear-gradient(135deg,rgba(46, 156, 101,.12),rgba(46, 139, 93,.08));color:#2e9c65;}
+.it{background:linear-gradient(135deg,rgba(46, 139, 93,.14),rgba(46, 156, 101,.08));color:var(--teal);}
+.ig{background:linear-gradient(135deg,rgba(22,163,74,.12),rgba(46, 139, 93,.08));color:var(--green);}
+/* Sections dans Drawer */
+.ds{border-bottom:1px solid var(--border);}
+.dsh{padding:1.1rem 1.75rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
+.dsh:hover{background:#f8fcfa;}
+.dshl{display:flex;align-items:center;gap:.65rem;}
+.dsi{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dst{font-size:.9rem;font-weight:800;color:var(--navy-deep);}
+.dscnt{background:var(--teal);color:#fff;border-radius:100px;font-size:.65rem;font-weight:700;padding:.1rem .5rem;margin-left:.35rem;}
+.dsarr{color:var(--text-light);transition:transform .2s;}
+.ds.open .dsarr{transform:rotate(180deg);}
+.dsbd{display:none;padding:.3rem 1.75rem 1.5rem;}
+.ds.open .dsbd{display:block;}
+
+/* Items dans Drawer */
+.di{background:#f8fcfa;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin-bottom:.8rem;position:relative;}
+.dit{font-size:.9rem;font-weight:700;color:var(--navy-deep);margin-bottom:.15rem;padding-right:2.2rem;}
+.dim{font-size:.78rem;color:var(--text-mid);margin-bottom:.45rem;line-height:1.45;}
+.dicl{font-size:.68rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;margin:.5rem 0 .35rem;}
+.dics{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.55rem;}
+.dic{display:inline-flex;align-items:center;gap:.3rem;background:rgba(46, 139, 93,.1);color:var(--teal);border:1px solid rgba(46, 139, 93,.25);padding:.22rem .65rem;border-radius:100px;font-size:.74rem;font-weight:600;}
+.dicd{background:none;border:none;cursor:pointer;color:inherit;font-size:.95rem;line-height:1;padding:0;opacity:.6;transition:opacity .15s;}
+.dicd:hover{opacity:1;color:#c0392b;}
+.din{font-size:.75rem;color:var(--text-light);font-style:italic;}
+
+/* Inline associate competence inside project/experience */
+.di-link-box{background:#fff;border:1px dashed rgba(46, 139, 93,.35);border-radius:9px;padding:.55rem .75rem;margin-top:.4rem;}
+.btn-inline-link{background:none;border:none;color:var(--teal);font-size:.77rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;padding:0;}
+.btn-inline-link:hover{text-decoration:underline;}
+.di-ac{position:relative;}
+.di-ai{width:100%;padding:.45rem .75rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:inherit;background:#fff;box-sizing:border-box;transition:border-color .2s;}
+.di-ai:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46, 139, 93,.1);}
+.di-ad{position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:9999;display:none;overflow:hidden;max-height:220px;overflow-y:auto;}
+.di-ad.open{display:block;}
+.aitem{display:flex;align-items:center;gap:.45rem;padding:.5rem .85rem;font-size:.8rem;cursor:pointer;transition:background .15s;}
+.aitem:hover{background:#f5faf8;}
+.aitem.prop{color:var(--teal);font-weight:700;border-top:1px solid var(--border);background:#f8fcfa;}
+.aitem.prop:hover{background:#f5faf8;}
+.dide{position:absolute;top:.75rem;right:.75rem;background:none;border:none;cursor:pointer;color:var(--text-light);padding:.25rem;border-radius:6px;transition:color .15s,background .15s;}
+.dide:hover{color:#c0392b;background:#fef2f2;}
+
+/* Formulaire d'ajout dans drawer */
+.addf{background:#f5faf8;border:1.5px dashed rgba(46, 139, 93,.35);border-radius:12px;padding:1.1rem 1.2rem;margin-top:.6rem;display:none;}
+.addf.show{display:block;}
+.adft{font-size:.76rem;font-weight:800;color:var(--teal);margin-bottom:.75rem;display:flex;align-items:center;gap:.35rem;}
+.fi{width:100%;padding:.55rem .85rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:inherit;background:#fff;box-sizing:border-box;transition:border-color .2s;}
+.fi:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46, 139, 93,.1);}
+textarea.fi{resize:vertical;min-height:60px;}
+.fg{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.7rem;}
+.fl{font-size:.72rem;font-weight:700;color:#476958;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.7rem;}
+.schips{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.4rem;}
+.schip{display:inline-flex;align-items:center;gap:.25rem;background:rgba(46, 139, 93,.12);color:var(--teal);border:1px solid rgba(46, 139, 93,.28);padding:.22rem .65rem;border-radius:100px;font-size:.75rem;font-weight:600;}
+.schip button{background:none;border:none;cursor:pointer;color:inherit;font-size:.9rem;line-height:1;padding:0;}
+.bsave{padding:.52rem 1.1rem;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:.8rem;font-weight:700;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;transition:background .2s;}
+.bsave:hover{background:var(--navy);}
+.bcan{padding:.52rem .85rem;background:none;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;font-family:inherit;cursor:pointer;color:var(--text-mid);transition:border-color .2s;}
+.bcan:hover{border-color:var(--navy);color:var(--navy);}
+.badd{display:flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:10px;background:rgba(46, 139, 93,.08);color:var(--teal);border:1.5px dashed rgba(46, 139, 93,.32);font-size:.8rem;font-weight:700;font-family:inherit;cursor:pointer;width:100%;justify-content:center;transition:all .2s;margin-top:.4rem;}
+.badd:hover{background:rgba(46, 139, 93,.15);border-color:var(--teal);}
+
+/* Comp tags dans drawer */
+.ctags{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.85rem;}
+.ctag{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .8rem;border-radius:100px;font-size:.8rem;font-weight:600;background:rgba(46, 156, 101,.07);color:var(--navy);border:1px solid rgba(46, 139, 93,.2);}
+.ctag.pend{background:rgba(251,191,36,.1);color:#B45309;border-color:rgba(251,191,36,.3);}
+.ctdel{background:none;border:none;cursor:pointer;color:inherit;font-size:.9rem;line-height:1;padding:0;opacity:.55;transition:opacity .15s;}
+.ctdel:hover{opacity:1;color:#c0392b;}
+
+/* Alert notifications */
+.alert{display:none;padding:.6rem 1rem;border-radius:8px;font-size:.8rem;font-weight:600;margin-bottom:.75rem;}
+.alert.ok{display:block;background:var(--green-pale);color:var(--green);border:1px solid #86efac;}
+.alert.err{display:block;background:#fef2f2;color:#c0392b;border:1px solid #fca5a5;}
+.badge-ec{background:var(--green-pale);color:var(--green);padding:.12rem .5rem;border-radius:100px;font-size:.66rem;font-weight:700;}
+
+@media(max-width:640px){.fr2{grid-template-columns:1fr;}.pcl{flex-direction:column;align-items:flex-start;}}
+
+/* ---------- Mise en page « page » ---------- */
+.account-page .account-intro { color: var(--ui-muted, #5c7064); margin: -.25rem 0 1.25rem; }
+.account-page .ds {
+    background: var(--ui-surface, #fff); border: 1px solid var(--ui-border, #dfe7e1);
+    border-radius: var(--ui-radius, 12px); margin-bottom: 1.1rem; overflow: visible;
+}
+.account-page .dsh { cursor: default; padding: 1rem 1.25rem; border-bottom: 1px solid var(--ui-border, #dfe7e1); }
+.account-page .dsh:hover { background: transparent; }
+.account-page .dsbd { display: block; padding: 1rem 1.25rem 1.25rem; }
+.account-page .dsarr { display: none; }
+.account-identity { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.account-identity .drav {
+    width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    background: var(--ui-primary, #22744b); color: #fff; font-size: 1.5rem; font-weight: 700;
+}
+.account-identity strong { display: block; font-size: 1.05rem; color: var(--ui-text, #1d3326); }
+.account-identity span { display: block; font-size: .88rem; color: var(--ui-muted, #5c7064); }
+.account-identity .photo-hint { font-size: .8rem; margin-top: .2rem; }
+.account-grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .75rem; }
+@media (max-width: 640px) {
+    .account-grid-2 { grid-template-columns: 1fr; }
+}

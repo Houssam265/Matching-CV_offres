@@ -9,7 +9,7 @@
  <link rel="stylesheet" href="/css/account.css"><link rel="stylesheet" href="/css/notifications.css">
  <link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3">
  <link rel="stylesheet" href="/css/interviews.css">
-<link rel="stylesheet" href="/css/theme.css"></head>
+<link rel="stylesheet" href="/css/theme.css"><script src="/js/vendor/sockjs-1.6.1.min.js"></script><script src="/js/vendor/stomp-2.3.3.min.js"></script><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>
 <body>
  <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
  <main class="account-main" id="main-content">
@@ -20,5 +20,6 @@
  <script src="/js/notifications.js" defer></script><script src="/js/experience.js" defer></script>
  <script src="/js/interviews.js"></script>
  <script>document.addEventListener('DOMContentLoaded',()=>{const user=MatchingCVSession.require('RECRUTEUR');if(user)renderRecruiterInterviews(user);});</script>
+<script src="/js/profile-photo.js" defer></script>
 </body>
 </html>

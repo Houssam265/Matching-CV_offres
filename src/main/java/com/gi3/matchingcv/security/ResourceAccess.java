@@ -35,6 +35,8 @@ public class ResourceAccess {
             if (path.startsWith("/api/utilisateurs/")) return Long.parseLong(parts[3])==p.id();
             if (path.startsWith("/api/notifications/")) return notifications.findById(Long.parseLong(parts[3]))
                     .map(n->n.getDestinataire().getId().equals(p.id())).orElse(false);
+            // Messagerie : la participation à chaque conversation est vérifiée par MessagerieService.
+            if (path.startsWith("/api/messages/")) return p.role()==Role.ETUDIANT || p.role()==Role.RECRUTEUR;
             if (path.startsWith("/api/competences")) return get || (method.equals("POST") && path.equals("/api/competences/proposer"));
             if (path.equals("/api/candidatures")) return method.equals("POST") && p.role()==Role.ETUDIANT && ownParameter(r,"etudiantId",p.id(),true);
             if (path.startsWith("/api/candidatures/")) return applications.findById(Long.parseLong(parts[3])).map(c -> {

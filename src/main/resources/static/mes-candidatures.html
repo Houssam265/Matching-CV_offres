@@ -9,8 +9,8 @@
     <script src="/js/session.js"></script>
     <script>MatchingCVSession.protect('ETUDIANT');</script>
     <!-- SockJS & STOMP pour les notifications en temps réel -->
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="/js/vendor/sockjs-1.6.1.min.js"></script>
+    <script src="/js/vendor/stomp-2.3.3.min.js"></script>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/notifications.css"/>
 
@@ -65,6 +65,14 @@
         .statut-badge.VUE     {background:var(--teal-pale);color:var(--teal-dark);border:1.5px solid rgba(46, 139, 93,.3);}
         .statut-badge.ACCEPTEE{background:var(--green-pale);color:#15803D;border:1.5px solid #86EFAC;}
         .statut-badge.REFUSEE {background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA;}
+        .statut-badge.ENTRETIEN{background:#EEF4FF;color:#1D4ED8;border:1.5px solid #BFDBFE;}
+        .statut-badge.RETIREE{background:#F3F4F6;color:#4B5563;border:1.5px solid #E5E7EB;}
+        .cand-actions{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;}
+        .btn-withdraw{margin-top:.75rem;padding:.44rem 1rem;border-radius:9px;background:#fff;color:#B42318;border:1px solid #F1C4C0;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer;}
+        .btn-withdraw:hover{background:#FDECEB;}
+        .btn-withdraw:disabled{opacity:.6;cursor:wait;}
+        .cand-feedback{margin-top:.5rem;font-size:.82rem;color:#B42318;}
+        .cand-feedback:empty{display:none;}
 
         /* score orb */
         .score-orb{width:56px;height:56px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;}
@@ -78,6 +86,8 @@
         /* link button */
         .btn-link-offre{display:inline-flex;align-items:center;gap:.4rem;margin-top:.75rem;padding:.44rem 1rem;border-radius:9px;background:var(--teal-soft);color:var(--teal);border:1px solid rgba(46, 139, 93,.28);font-size:.78rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .18s;}
         .btn-link-offre:hover{background:var(--teal);color:#fff;}
+        .btn-link-messages{margin-left:.4rem;}
+        .btn-link-messages.has-unread{background:var(--teal);color:#fff;}
 
         /* empty state */
         .empty-state{text-align:center;padding:4rem 2rem;background:#fff;border-radius:16px;border:1px solid var(--border);}
@@ -95,7 +105,7 @@
         @media(max-width:600px){.cand-card{grid-template-columns:1fr;}}
     </style>
     <link rel="stylesheet" href="/css/interface.css" />
-<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"><link rel="stylesheet" href="/css/theme.css"></head>
+<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"><link rel="stylesheet" href="/css/theme.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>
 <body class="has-sidebar"><script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 <a class="skip-link" href="#main-content">Aller au contenu</a>
 
@@ -206,7 +216,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="/dashboard-etudiant.html?open=profil" class="sidebar-link" id="nav-link-profil" title="Consulter et modifier mon profil">
+                    <a href="/mon-compte.html" class="sidebar-link" id="nav-link-profil" title="Consulter et modifier mon profil">
                         <span class="sidebar-link-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -317,8 +327,10 @@
         <button class="filter-btn active" id="filter-all" data-filter="ALL">Toutes</button>
         <button class="filter-btn" id="filter-env" data-filter="ENVOYEE">Envoyée</button>
         <button class="filter-btn" id="filter-vue" data-filter="VUE">Vue</button>
+        <button class="filter-btn" id="filter-ent" data-filter="ENTRETIEN">Entretien</button>
         <button class="filter-btn" id="filter-acc" data-filter="ACCEPTEE">&#10003; Acceptée</button>
         <button class="filter-btn" id="filter-ref" data-filter="REFUSEE">&#10007; Refusée</button>
+        <button class="filter-btn" id="filter-ret" data-filter="RETIREE">Retirée</button>
         <span class="filter-sep"></span>
         <span class="cand-count" id="cand-count">Chargement...</span>
     </div>
@@ -332,10 +344,10 @@
 <!-- TOAST -->
 <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
-<script src="/js/session.js"></script>
 <script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
 <script src="/js/mes-candidatures.js"></script>
 <script src="/js/notifications.js"></script>
     <script src="/js/experience.js" defer></script>
+<script src="/js/profile-photo.js" defer></script>
 </body>
 </html>

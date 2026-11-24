@@ -2,23 +2,66 @@
 <html lang="fr">
 <head>
  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
- <title>Entretiens — MatchingCV</title>
+ <title>Mes entretiens — MatchingCV</title>
  <script src="/js/api-client.js"></script><script src="/js/session.js"></script>
  <script>MatchingCVSession.protect('ETUDIANT');</script>
+ <script src="/js/vendor/sockjs-1.6.1.min.js"></script><script src="/js/vendor/stomp-2.3.3.min.js"></script>
  <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/interface.css">
  <link rel="stylesheet" href="/css/account.css"><link rel="stylesheet" href="/css/notifications.css">
  <link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3">
- <link rel="stylesheet" href="/css/interviews.css">
-<link rel="stylesheet" href="/css/theme.css"></head>
+ <link rel="stylesheet" href="/css/mes-entretiens.css">
+ <link rel="stylesheet" href="/css/theme.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
 <body>
  <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
- <main class="account-main" id="main-content">
-  <h1 id="workflow-title">Mes entretiens</h1><p id="workflow-status" role="status"></p>
-  <section class="account-card"><h2>Mes rendez-vous</h2><div id="applications-list"></div></section>
+ <main class="account-main iv-main" id="main-content">
+  <div class="iv-head">
+   <div>
+    <h1>Mes entretiens</h1>
+    <p class="iv-sub">Vos rendez-vous avec les recruteurs : date, lieu ou lien de visio, consignes. Ajoutez-les à votre agenda pour ne rien manquer.</p>
+   </div>
+   <button type="button" class="iv-btn" id="iv-refresh">Actualiser</button>
+  </div>
+
+  <p class="iv-status" id="iv-status" role="status" aria-live="polite">Chargement de vos entretiens…</p>
+
+  <div class="iv-stats" id="iv-stats" hidden>
+   <div class="iv-stat"><strong id="iv-count-upcoming">0</strong><span>À venir</span></div>
+   <div class="iv-stat"><strong id="iv-count-pending">0</strong><span>En attente de date</span></div>
+   <div class="iv-stat"><strong id="iv-count-past">0</strong><span>Passés</span></div>
+  </div>
+
+  <section class="iv-next" id="iv-next" hidden aria-labelledby="iv-next-title"></section>
+
+  <section class="iv-section" id="iv-upcoming-section" hidden aria-labelledby="iv-upcoming-title">
+   <h2 id="iv-upcoming-title">Autres entretiens à venir</h2>
+   <div class="iv-list" id="iv-upcoming"></div>
+  </section>
+
+  <section class="iv-section" id="iv-pending-section" hidden aria-labelledby="iv-pending-title">
+   <h2 id="iv-pending-title">En attente de planification</h2>
+   <p class="iv-section-hint">Le recruteur souhaite vous rencontrer et va vous proposer un créneau. Vous recevrez une notification dès que la date sera fixée.</p>
+   <div class="iv-list" id="iv-pending"></div>
+  </section>
+
+  <details class="iv-section iv-past" id="iv-past-section" hidden>
+   <summary><h2>Entretiens passés</h2></summary>
+   <div class="iv-list" id="iv-past"></div>
+  </details>
+
+  <div class="iv-empty" id="iv-empty" hidden>
+   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+   <h2>Aucun entretien pour le moment</h2>
+   <p>Quand un recruteur vous invitera à un entretien, il apparaîtra ici avec sa date, son lieu et ses consignes.</p>
+   <div class="iv-actions">
+    <a class="iv-btn iv-btn-primary" href="/offres-recommandees.html">Voir les offres recommandées</a>
+    <a class="iv-btn" href="/mes-candidatures.html">Suivre mes candidatures</a>
+   </div>
+  </div>
  </main>
  <script src="/js/portal-shell.js"></script><script src="/js/sidebar.js"></script>
  <script src="/js/notifications.js" defer></script><script src="/js/experience.js" defer></script>
- <script src="/js/candidate-interviews.js"></script>
-
+ <script src="/js/profile-photo.js" defer></script>
+ <script src="/js/candidate-interviews.js" defer></script>
 </body>
 </html>

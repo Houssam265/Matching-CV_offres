@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Connectez-vous à votre espace Matching CV-Offres — Utilisateurs et Recruteurs." />
     <title>Connexion &mdash; Matching CV-Offres</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/auth.css" />
     <link rel="icon" href="/favicon.svg" />
@@ -58,7 +56,7 @@
         <section class="auth-panel-right">
             <div class="auth-form-container">
 
-                <div class="portal-context"><span>Utilisateur ou recruteur : connectez-vous avec votre compte.</span></div>
+                <div class="portal-context"><span>Candidat, recruteur ou administrateur : un seul accès, votre espace s’ouvre automatiquement.</span></div>
                 <div class="auth-form-header">
                     <h1 class="auth-form-title">Connectez-vous</h1>
                     <p class="auth-form-subtitle">
@@ -128,10 +126,6 @@
 
                 </form>
 
-                <div style="text-align:center;margin-top:1.5rem;font-size:.8rem;">
-                    <a href="/admin-login.html" class="auth-link" style="opacity:.65;">Espace administration</a>
-                </div>
-
 
 
             </div>
@@ -143,16 +137,18 @@
 
     <script src="/js/session.js"></script>
     <script>
-        // Rediriger si déjà connecté
+        // Déjà connecté ? On le vérifie auprès du serveur avant de rediriger (une session expirée ne redirige pas).
         (function() {
-            var u = MatchingCVSession.read();
-            if (u && u.role) {
+            if (!MatchingCVSession.read()) return;
+            fetch('/api/auth/me').then(function(r) { return r.ok ? r.json() : null; }).then(function(u) {
+                if (!u || !u.role) { localStorage.removeItem('matchingcv_user'); return; }
+                localStorage.setItem('matchingcv_user', JSON.stringify({ id: u.id, prenom: u.prenom, nom: u.nom, email: u.email, role: u.role }));
                 window.location.replace(
                     u.role === 'ETUDIANT' ? '/dashboard-etudiant.html' :
                     u.role === 'RECRUTEUR' ? '/dashboard-recruteur.html' :
                     u.role === 'ADMIN' ? '/admin-dashboard.html' : '/index.html'
                 );
-            }
+            }).catch(function() { /* hors ligne : rester sur la page de connexion */ });
         })();
         // Init page connexion
         document.addEventListener('DOMContentLoaded', () => initLoginPage());

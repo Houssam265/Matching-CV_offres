@@ -12,6 +12,7 @@
 window.NotificationBell = (() => {
     let currentUserId = null;
     let stompClient = null;
+    let initializedFor = null;
     let isConnected = false;
     let reconnectAttempts = 0;
     let reconnectTimer = null;
@@ -609,6 +610,11 @@ window.NotificationBell = (() => {
             return;
         }
 
+        // Initialisation unique par page : un second appel (auto + manuel) ne rouvre pas de connexion.
+        if (initializedFor === Number(userId)) {
+            return;
+        }
+
         currentUserId = Number(userId);
 
         // Recherche du conteneur dans la navbar
@@ -621,6 +627,7 @@ window.NotificationBell = (() => {
         }
 
         if (container) {
+            initializedFor = currentUserId;
             renderBellDOM(container);
             fetchUnreadCount();
             connectWebSocket();

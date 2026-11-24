@@ -39,6 +39,18 @@ public class OffreServiceImpl implements OffreService {
         this.eventPublisher = eventPublisher;
     }
 
+    /** Candidatures encore en cours lors d'une clôture : les candidats sont prévenus. */
+    static final java.util.Set<StatutCandidature> EN_COURS =
+            java.util.EnumSet.of(StatutCandidature.ENVOYEE, StatutCandidature.VUE, StatutCandidature.ENTRETIEN);
+
+    private void signalerCloture(Offre offre) {
+        if (eventPublisher == null) return;
+        List<Long> etudiants = candidatures.findByOffreIdAndStatutIn(offre.getId(), EN_COURS).stream()
+                .map(c -> c.getEtudiant().getId()).distinct().toList();
+        if (!etudiants.isEmpty())
+            eventPublisher.publishEvent(new com.gi3.matchingcv.event.OffreClotureeEvent(offre.getId(), offre.getTitre(), etudiants));
+    }
+
     private Recruteur recruteur(Long id) {
         if (id == null) throw new IllegalArgumentException("Le recruteur est obligatoire.");
         return recruteurs.findById(id).orElseThrow(() -> new EntityNotFoundException("Recruteur introuvable."));
@@ -126,7 +138,9 @@ public class OffreServiceImpl implements OffreService {
     @Override
     public OffreDto cloturer(Long id, Long recruteurId) {
         Offre offre = possedee(id, recruteurId);
+        boolean etaitActive = offre.getStatut() == StatutOffre.ACTIVE;
         offre.setStatut(StatutOffre.CLOTUREE);
+        if (etaitActive) signalerCloture(offre);
         long total = candidatures.countByOffreId(offre.getId());
         long aTraiter = candidatures.countByOffreIdAndStatut(offre.getId(), StatutCandidature.ENVOYEE);
         return OffreDto.from(offres.save(offre), total, aTraiter);
@@ -186,6 +200,7 @@ public class OffreServiceImpl implements OffreService {
         List<Offre> echues = offres.findByStatutAndDateLimiteBefore(StatutOffre.ACTIVE, LocalDateTime.now());
         for (Offre o : echues) {
             o.setStatut(StatutOffre.CLOTUREE);
+            signalerCloture(o);
         }
         if (!echues.isEmpty()) {
             offres.saveAll(echues);
@@ -233,6 +248,7 @@ public class OffreServiceImpl implements OffreService {
     public List<OffreDto> listerPubliques(String domaine, String localisation, TypeContrat typeContrat) {
         return offres.findByStatut(StatutOffre.ACTIVE).stream()
                 .filter(o -> o.getRecruteur() == null || o.getRecruteur().isActif())
+                .filter(o -> o.getDateLimite() == null || o.getDateLimite().isAfter(LocalDateTime.now()))
                 .filter(o -> contient(o.getDomaine(), domaine) && contient(o.getLocalisation(), localisation))
                 .filter(o -> typeContrat == null || o.getTypeContrat() == typeContrat)
                 .sorted(Comparator.comparing(Offre::getDatePublication, Comparator.nullsLast(Comparator.reverseOrder())))

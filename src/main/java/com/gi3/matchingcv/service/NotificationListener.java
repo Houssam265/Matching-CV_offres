@@ -132,6 +132,17 @@ public class NotificationListener {
     /**
      * Notifie l'étudiant lorsque le statut de sa candidature change.
      */
+    /** Prévient les candidats encore en cours quand une offre est clôturée. */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void onOffreCloturee(com.gi3.matchingcv.event.OffreClotureeEvent event) {
+        for (Long etudiantId : event.etudiantIds()) {
+            notificationService.notifier(etudiantId, TypeNotification.OFFRE_CLOTUREE,
+                    "Offre clôturée",
+                    "Le recrutement pour « " + event.titre() + " » est clôturé. Votre candidature reste consultable dans votre espace.",
+                    "/mes-candidatures.html", event.offreId(), null, null, null, null);
+        }
+    }
+
     @EventListener
     public void onCandidatureStatutChange(CandidatureStatutChangeEvent event) {
         StatutCandidature nouveauStatut = event.nouveauStatut();

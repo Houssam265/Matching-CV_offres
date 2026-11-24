@@ -23,6 +23,10 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
 
     List<Candidature> findByOffreIdOrderByScoreDesc(Long offreId);
 
+    List<Candidature> findByOffreIdAndStatutIn(Long offreId, java.util.Collection<StatutCandidature> statuts);
+
+    List<Candidature> findByEtudiantIdAndStatutIn(Long etudiantId, java.util.Collection<StatutCandidature> statuts);
+
     long countByEtudiantId(Long etudiantId);
 
     @Query("SELECT COUNT(c) FROM Candidature c WHERE c.offre.id = :offreId")

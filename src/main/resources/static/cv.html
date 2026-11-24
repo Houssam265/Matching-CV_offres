@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>Mon CV — MatchingCV</title>
+ <script src="/js/api-client.js"></script><script src="/js/session.js"></script>
+ <script>(()=>{const u=MatchingCVSession.protect();if(u&&u.role==='ADMIN')location.replace('/admin-dashboard.html');})();</script>
+ <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/interface.css">
+ <link rel="stylesheet" href="/css/account.css"><link rel="stylesheet" href="/css/notifications.css">
+ <link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3">
+ <link rel="stylesheet" href="/css/cv.css">
+<link rel="stylesheet" href="/css/theme.css"><script src="/js/vendor/sockjs-1.6.1.min.js"></script><script src="/js/vendor/stomp-2.3.3.min.js"></script><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>
+<body class="cv-page">
+ <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+ <main class="account-main cv-main" id="main-content">
+  <h1 id="cv-page-title">Mon CV</h1>
+  <p class="cv-sub" id="cv-sub">Un CV clair, généré à partir de votre profil. Téléchargez-le en PDF pour l’envoyer à d’autres recruteurs.</p>
+
+  <div class="cv-toolbar" id="cv-toolbar" hidden>
+   <div class="cv-toolbar-left">
+    <label class="cv-toggle" id="cv-photo-toggle-wrap"><input type="checkbox" id="cv-photo-toggle" checked> Afficher la photo</label>
+   </div>
+   <div class="cv-toolbar-actions" id="cv-actions"></div>
+  </div>
+
+  <section class="cv-editor" id="cv-editor" hidden aria-labelledby="cv-editor-title">
+   <h2 id="cv-editor-title">Modifier mon CV</h2>
+   <p class="cv-editor-hint">Ces informations n’apparaissent que sur votre CV. Vos expériences, projets et compétences se gèrent depuis <a href="/mon-compte.html">Mon compte</a>.</p>
+   <form id="cv-editor-form" novalidate>
+    <fieldset class="cv-fieldset">
+     <legend>En-tête</legend>
+     <div class="cv-field"><label for="cv-headline">Titre professionnel</label><input id="cv-headline" name="headline" maxlength="150" placeholder="Ex. Développeuse Java / Spring Boot — stage de fin d’études"></div>
+     <div class="cv-field"><label for="cv-bio">Résumé</label><textarea id="cv-bio" name="biography" maxlength="2000" rows="4" placeholder="3 à 4 phrases : qui vous êtes, ce que vous savez faire, ce que vous recherchez."></textarea></div>
+     <div class="cv-field"><label for="cv-availability">Disponibilité</label><input id="cv-availability" name="availability" maxlength="150" placeholder="Ex. Stage de 6 mois dès février 2027"></div>
+    </fieldset>
+    <fieldset class="cv-fieldset">
+     <legend>Coordonnées</legend>
+     <div class="cv-grid">
+      <div class="cv-field"><label for="cv-email">Email de contact</label><input id="cv-email" name="contactEmail" type="email" maxlength="254" autocomplete="email"></div>
+      <div class="cv-field"><label for="cv-phone">Téléphone</label><input id="cv-phone" name="telephone" type="tel" maxlength="25" autocomplete="tel" placeholder="+212 6 12 34 56 78"></div>
+      <div class="cv-field"><label for="cv-city">Ville</label><input id="cv-city" name="ville" maxlength="100" autocomplete="address-level2" placeholder="Ex. Tétouan"></div>
+     </div>
+     <p class="cv-field-note">L’email et le téléphone figurent uniquement sur votre propre CV : les recruteurs de la plateforme ne les voient pas et vous contactent via la messagerie.</p>
+    </fieldset>
+    <fieldset class="cv-fieldset">
+     <legend>Liens</legend>
+     <div class="cv-grid">
+      <div class="cv-field"><label for="cv-pro-url">LinkedIn</label><input id="cv-pro-url" name="professionalUrl" type="url" maxlength="500" placeholder="https://www.linkedin.com/in/…"></div>
+      <div class="cv-field"><label for="cv-github-url">GitHub</label><input id="cv-github-url" name="githubUrl" type="url" maxlength="500" placeholder="https://github.com/…"></div>
+      <div class="cv-field"><label for="cv-portfolio-url">Portfolio / site</label><input id="cv-portfolio-url" name="portfolioUrl" type="url" maxlength="500" placeholder="https://…"></div>
+     </div>
+    </fieldset>
+    <fieldset class="cv-fieldset">
+     <legend>Formation, langues et centres d’intérêt</legend>
+     <div class="cv-field"><label for="cv-formation-period">Années de formation</label><input id="cv-formation-period" name="formationPeriode" maxlength="100" placeholder="Ex. 2022 – 2027 · Cycle ingénieur"></div>
+     <div class="cv-grid cv-grid-2">
+      <div class="cv-field"><label for="cv-langues">Langues (une par ligne)</label><textarea id="cv-langues" name="langues" maxlength="500" rows="4" placeholder="Arabe — langue maternelle&#10;Français — courant&#10;Anglais — B2"></textarea></div>
+      <div class="cv-field"><label for="cv-interets">Centres d’intérêt (un par ligne)</label><textarea id="cv-interets" name="interets" maxlength="500" rows="4" placeholder="Robotique&#10;Football (club universitaire)&#10;Bénévolat"></textarea></div>
+     </div>
+    </fieldset>
+    <p class="cv-editor-status" id="cv-editor-status" role="status" aria-live="polite"></p>
+    <div class="cv-editor-actions">
+     <button type="button" class="cv-btn" id="cv-editor-cancel">Annuler</button>
+     <button type="submit" class="cv-btn cv-btn-primary" id="cv-editor-save">Enregistrer</button>
+    </div>
+   </form>
+  </section>
+
+  <aside class="cv-checklist" id="cv-checklist" hidden aria-label="Points à compléter"></aside>
+
+  <p class="cv-status" id="cv-status" role="status">Chargement du CV…</p>
+  <article class="cv-sheet" id="cv-sheet" hidden></article>
+ </main>
+ <script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
+ <script src="/js/notifications.js" defer></script><script src="/js/experience.js" defer></script>
+ <script src="/js/profile-photo.js" defer></script>
+ <script src="/js/cv.js" defer></script>
+</body>
+</html>

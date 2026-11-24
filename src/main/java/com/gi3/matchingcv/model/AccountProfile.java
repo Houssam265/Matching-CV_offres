@@ -10,4 +10,12 @@ public class AccountProfile {
     private String professionalUrl;
     private String portfolioUrl;
     private Boolean notificationsEnabled=true;
+    // Coordonnées et rubriques du CV (toutes optionnelles)
+    @Column(length=254) private String contactEmail;
+    @Column(length=30) private String telephone;
+    @Column(length=100) private String ville;
+    @Column(length=500) private String githubUrl;
+    @Column(length=100) private String formationPeriode;
+    @Column(length=500) private String langues;
+    @Column(length=500) private String interets;
 }

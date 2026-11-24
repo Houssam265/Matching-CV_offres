@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ['search','Gérer les candidatures','Retrouvez les candidats depuis vos offres.','/mes-offres.html'],
         ['profile','Présenter mon entreprise','Donnez envie aux talents de vous rejoindre.','/mon-entreprise.html']
     ] : [
-        ['profile','Construire mon profil','Mettez en valeur vos projets et vos expériences.','/dashboard-etudiant.html?open=profil'],
+        ['profile','Construire mon profil','Mettez en valeur vos projets et vos expériences.','/mon-compte.html'],
         ['search','Trouver une opportunité','Explorez les offres adaptées à vos compétences.','/offres-recommandees.html'],
         ['chart','Améliorer mon CV','Identifiez vos points forts avec le coach.','/coach-cv.html']
     ];
@@ -38,7 +38,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const item=document.createElement('li');item.className='sidebar-item';
         item.innerHTML=`<a class="sidebar-link" href="/mes-entretiens.html"><span class="sidebar-link-icon">${icon('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>')}</span><span class="sidebar-link-label">Mes entretiens</span></a>`;
         sidebar.querySelector('.sidebar-list')?.append(item);
+        // « Mon compte » (profil + paramètres) et « Mon CV » (aperçu + export PDF) sont deux entrées distinctes.
+        const profileLink = sidebar.querySelector('#nav-link-profil');
+        const profileLabel = profileLink?.querySelector('.sidebar-link-label');
+        if (profileLabel) profileLabel.textContent = 'Mon compte';
+        if (profileLink) profileLink.title = 'Mon compte : profil, projets, expériences et paramètres';
+        sidebar.querySelectorAll('a[href="/cv.html"]').forEach(link => link.closest('li')?.remove());
+        const cvItem = document.createElement('li'); cvItem.className = 'sidebar-item';
+        cvItem.innerHTML = `<a class="sidebar-link" href="/cv.html" title="Mon CV : aperçu et export PDF"><span class="sidebar-link-icon">${icon('<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6M9 9h2"/>')}</span><span class="sidebar-link-label">Mon CV</span></a>`;
+        if (profileLink) profileLink.closest('li')?.after(cvItem); else sidebar.querySelector('.sidebar-list')?.append(cvItem);
     }
+    // Messagerie : lien dans le menu (juste avant Notifications) avec compteur de non-lus.
+    sidebar.querySelectorAll('a[href="/messages.html"]').forEach(link => link.closest('li')?.remove());
+    const messagesItem = document.createElement('li'); messagesItem.className = 'sidebar-item';
+    messagesItem.innerHTML = `<a class="sidebar-link" href="/messages.html" title="Messages"><span class="sidebar-link-icon">${icon('<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/>')}</span><span class="sidebar-link-label">Messages</span><span class="sidebar-badge-counter" id="sidebar-msg-pill" hidden>0</span></a>`;
+    const notifItem = sidebar.querySelector('a[href="/notifications.html"]')?.closest('li');
+    if (notifItem) notifItem.before(messagesItem); else sidebar.querySelector('.sidebar-list')?.append(messagesItem);
+    const messagesLink = messagesItem.querySelector('a');
+    const refreshUnread = async () => {
+        try {
+            const r = await fetch('/api/messages/non-lus');
+            if (!r.ok) return;
+            const count = Number((await r.json()).count) || 0;
+            const pill = document.getElementById('sidebar-msg-pill');
+            pill.textContent = count > 9 ? '9+' : String(count);
+            pill.hidden = count === 0;
+            if (count > 0) messagesLink.setAttribute('data-has-notif', 'true'); else messagesLink.removeAttribute('data-has-notif');
+            messagesLink.title = count > 0 ? `Messages (${count} non lu${count > 1 ? 's' : ''})` : 'Messages';
+        } catch (_) { /* compteur indicatif uniquement */ }
+    };
+    window.MatchingCVMessages = { refreshUnread };
+    refreshUnread();
+    setInterval(() => { if (!document.hidden) refreshUnread(); }, 45000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshUnread(); });
     const logout = document.getElementById('sidebar-logout');
     const actions = document.getElementById('topbar-nav-cta');
     if (logout && actions) {

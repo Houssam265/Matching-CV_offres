@@ -88,12 +88,24 @@ public class CandidatureServiceImpl implements CandidatureService {
             throw new IllegalStateException("Impossible de postuler : l'offre n'est plus active.");
         }
 
+        // Une offre dont le recruteur est suspendu ou supprimé n'est plus publiée.
+        if (offre.getRecruteur() == null || !offre.getRecruteur().isActive()) {
+            throw new IllegalStateException("Impossible de postuler : l'offre n'est plus active.");
+        }
+
+        if (!etudiant.isActive()) {
+            throw new IllegalStateException("Votre compte est désactivé : vous ne pouvez pas postuler.");
+        }
+
         if (offre.getDateLimite() != null && LocalDateTime.now().isAfter(offre.getDateLimite())) {
             throw new IllegalStateException("Impossible de postuler : la date limite de candidature est dépassée.");
         }
 
-        if (candidatureRepository.existsByEtudiantIdAndOffreId(etudiantId, offreId)) {
-            throw new IllegalStateException("Vous avez déjà postulé à cette offre.");
+        Optional<Candidature> existante = candidatureRepository.findByEtudiantIdAndOffreId(etudiantId, offreId);
+        if (existante.isPresent()) {
+            throw new IllegalStateException(existante.get().getStatut() == StatutCandidature.RETIREE
+                    ? "Vous avez déjà postulé à cette offre puis retiré votre candidature : il n'est pas possible de postuler à nouveau."
+                    : "Vous avez déjà postulé à cette offre.");
         }
 
         // Snapshoter le score calculé au moment de la candidature (peut être null si indisponible)
@@ -171,9 +183,7 @@ public class CandidatureServiceImpl implements CandidatureService {
         Set<StatutCandidature> cibles = TRANSITIONS.getOrDefault(actuel, Set.of());
 
         if (!cibles.contains(nouveauStatut)) {
-            throw new IllegalStateException(
-                    String.format("Transition refusée : %s → %s. Statut actuel : %s, transitions autorisées : %s.",
-                            actuel, nouveauStatut, actuel, cibles));
+            throw new IllegalStateException(messageTransitionRefusee(actuel, nouveauStatut));
         }
 
         cand.setStatut(nouveauStatut);
@@ -195,6 +205,18 @@ public class CandidatureServiceImpl implements CandidatureService {
         }
 
         return CandidatureDto.from(saved);
+    }
+
+    /** Message compréhensible pour l'utilisateur quand une action n'est plus possible. */
+    static String messageTransitionRefusee(StatutCandidature actuel, StatutCandidature cible) {
+        if (actuel == StatutCandidature.RETIREE) return "Le candidat a retiré cette candidature : elle ne peut plus être modifiée.";
+        if (actuel == StatutCandidature.ACCEPTEE || actuel == StatutCandidature.REFUSEE) {
+            return cible == StatutCandidature.RETIREE
+                    ? "Le recruteur a déjà rendu sa décision : cette candidature ne peut plus être retirée."
+                    : "Une décision finale a déjà été enregistrée pour cette candidature.";
+        }
+        if (cible == StatutCandidature.VUE) return "Cette candidature a déjà été consultée.";
+        return "Cette action n'est pas possible pour une candidature à ce stade.";
     }
 
     // ──────────────────────────────────────────────────────────
@@ -307,9 +329,6 @@ public class CandidatureServiceImpl implements CandidatureService {
             scoreModifie = true;
         }
 
-        // L'email du candidat n'est affiché qu'une fois la candidature ACCEPTEE. Jamais de motDePasse.
-        String email = (cand.getStatut() == StatutCandidature.ACCEPTEE) ? etudiant.getEmail() : null;
-
         List<Projet> projets = (projetRepository != null) ? projetRepository.findByEtudiantId(etudiant.getId()) : List.of();
         List<ExperienceProfessionnelle> experiences = (experienceRepository != null) ? experienceRepository.findByEtudiantId(etudiant.getId()) : List.of();
 
@@ -339,7 +358,6 @@ public class CandidatureServiceImpl implements CandidatureService {
                 etudiant.getPrenom(),
                 etudiant.getFiliere(),
                 etudiant.getEtablissement(),
-                email,
                 cand.getStatut(),
                 cand.getDateCandidature(),
                 scoreCandidature,

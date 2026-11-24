@@ -56,8 +56,10 @@ async function api(url, opts = {}) {
 
 /* ─── GESTION DU DRAWER ───────────────────────────────────── */
 function openDrawer() {
+    // Le profil est désormais une page à part entière : /mon-compte.html
     const d = document.getElementById('drover');
-    if (d) d.classList.add('open');
+    if (d) { d.classList.add('open'); return; }
+    if (!location.pathname.endsWith('/mon-compte.html')) location.href = '/mon-compte.html';
 }
 
 function closeDrawer() {
@@ -81,6 +83,7 @@ function getCompetenceRelations(compId) {
 function renderDashboardSummary() {
     // 0. Recalculer les compétences depuis projets + expériences
     computeCompetencesFromContext();
+    if (!document.getElementById('sc')) return; // page sans résumé (ex. Mon compte)
 
     // 1. Stats KPI
     document.getElementById('sc').textContent = S.competences.length;
@@ -216,6 +219,7 @@ function computeCompetencesFromContext() {
 function renderDrawer() {
     // 1. Compétences (agrégées automatiquement)
     computeCompetencesFromContext();
+    if (!document.getElementById('cnt-c')) return; // sections du profil absentes (tableau de bord)
     document.getElementById('cnt-c').textContent = S.competences.length;
     const dc = document.getElementById('dr-c');
     if (!S.competences.length) {
@@ -256,7 +260,7 @@ function renderDrawer() {
                 <div class="di-link-box">
                     <button class="btn-inline-link" onclick="toggleInlineLink('plink-${p.id}')">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        + Lier une compétence à ce projet
+                        Lier une compétence à ce projet
                     </button>
                     <div class="di-ac" id="plink-${p.id}" style="display:none;margin-top:.45rem;">
                         <input type="text" class="di-ai" placeholder="Rechercher ou proposer une compétence..." autocomplete="off" oninput="onInlineProjInput(${p.id}, this)" />
@@ -306,7 +310,7 @@ function renderDrawer() {
                 <div class="di-link-box">
                     <button class="btn-inline-link" onclick="toggleInlineLink('elink-${exp.id}')">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        + Lier une compétence à cette expérience
+                        Lier une compétence à cette expérience
                     </button>
                     <div class="di-ac" id="elink-${exp.id}" style="display:none;margin-top:.45rem;">
                         <input type="text" class="di-ai" placeholder="Rechercher ou proposer une compétence..." autocomplete="off" oninput="onInlineExpInput(${exp.id}, this)" />
@@ -585,7 +589,7 @@ async function loadAllData(id) {
         const init = ((prenom.charAt(0) || '') + (nom.charAt(0) || '')).toUpperCase() || '?';
 
         // Hero & Navbar & Sidebar
-        document.getElementById('user-prenom').textContent = prenom || 'Utilisateur';
+        { const el = document.getElementById('user-prenom'); if (el) el.textContent = prenom || 'Utilisateur'; }
         const navU = document.getElementById('nav-user-name');
         if (navU) navU.textContent = prenom + ' ' + nom;
         if (window.MatchingCVSidebar) {
@@ -593,9 +597,9 @@ async function loadAllData(id) {
         }
 
         // Profil Card
-        document.getElementById('pc-av').textContent = init;
-        document.getElementById('pc-nm').textContent = prenom + ' ' + nom;
-        document.getElementById('pc-em').textContent = e.email || '';
+        { const el = document.getElementById('pc-av'); if (el) el.textContent = init; }
+        { const el = document.getElementById('pc-nm'); if (el) el.textContent = prenom + ' ' + nom; }
+        { const el = document.getElementById('pc-em'); if (el) el.textContent = e.email || ''; }
         const roleLabel = e.role === 'ETUDIANT' ? 'Utilisateur' : (e.role || 'Utilisateur');
         
         let tagsHtml = `<span class="pct"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:2px;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>${esc(roleLabel)}</span>`;
@@ -606,20 +610,20 @@ async function loadAllData(id) {
             tagsHtml += `<span class="pct"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:2px;"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>${esc(e.etablissement)}</span>`;
         }
         tagsHtml += `<span class="pct" style="color:var(--green);border-color:rgba(22,163,74,.25);background:var(--green-pale);">Compte Actif</span>`;
-        document.getElementById('pc-tags').innerHTML = tagsHtml;
+        { const el = document.getElementById('pc-tags'); if (el) el.innerHTML = tagsHtml; }
 
         // Drawer Header & Inputs
-        document.getElementById('dr-av').textContent = init;
-        document.getElementById('dr-nm').textContent = prenom + ' ' + nom;
-        document.getElementById('dr-em').textContent = e.email || '';
+        { const el = document.getElementById('dr-av'); if (el) el.textContent = init; }
+        { const el = document.getElementById('dr-nm'); if (el) el.textContent = prenom + ' ' + nom; }
+        { const el = document.getElementById('dr-em'); if (el) el.textContent = e.email || ''; }
         if (document.getElementById('dr-prenom')) document.getElementById('dr-prenom').value = prenom;
         if (document.getElementById('dr-nom')) document.getElementById('dr-nom').value = nom;
         if (document.getElementById('dr-filiere')) document.getElementById('dr-filiere').value = e.filiere || '';
         if (document.getElementById('dr-etablissement')) document.getElementById('dr-etablissement').value = e.etablissement || '';
         document.getElementById('profile-retry')?.remove();
     } catch (_) {
-        document.getElementById('pc-nm').textContent = 'Votre profil est momentanément indisponible';
-        document.getElementById('pc-em').textContent = 'Réessayez dans quelques instants pour retrouver vos informations.';
+        { const el = document.getElementById('pc-nm'); if (el) el.textContent = 'Votre profil est momentanément indisponible'; }
+        { const el = document.getElementById('pc-em'); if (el) el.textContent = 'Réessayez dans quelques instants pour retrouver vos informations.'; }
         if (!document.getElementById('profile-retry')) {
             const retry = document.createElement('button');
             retry.id = 'profile-retry';
@@ -630,7 +634,7 @@ async function loadAllData(id) {
                 retry.disabled = true;
                 try { await loadAllData(id); } finally { retry.disabled = false; }
             });
-            document.getElementById('pc-tags').append(retry);
+            (document.getElementById('pc-tags') || document.getElementById('al-info'))?.append(retry);
         }
     }
 

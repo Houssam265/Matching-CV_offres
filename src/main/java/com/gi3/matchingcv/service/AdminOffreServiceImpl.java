@@ -80,13 +80,21 @@ public class AdminOffreServiceImpl implements AdminOffreService {
             }
             notificationService.notifier(
                     offre.getRecruteur().getId(),
-                    TypeNotification.CANDIDATURE_REFUSEE, // notification d'alerte
+                    TypeNotification.OFFRE_CLOTUREE,
                     "Offre clôturée",
                     message,
                     "/mes-offres.html",
-                    null, offreId, null, null, adminId
+                    offreId, null, null, null, adminId
             );
         }
+
+        // Prévenir les candidats dont la candidature était encore en cours
+        candidatureRepository.findByOffreIdAndStatutIn(offreId, OffreServiceImpl.EN_COURS).stream()
+                .map(c -> c.getEtudiant().getId()).distinct()
+                .forEach(etudiantId -> notificationService.notifier(etudiantId, TypeNotification.OFFRE_CLOTUREE,
+                        "Offre clôturée",
+                        "Le recrutement pour « " + offre.getTitre() + " » est clôturé. Votre candidature reste consultable dans votre espace.",
+                        "/mes-candidatures.html", offreId, null, null, null, adminId));
 
         auditService.journaliser(adminId, "CLOTURER_OFFRE",
                 "Offre #" + offreId + " '" + offre.getTitre() + "'",

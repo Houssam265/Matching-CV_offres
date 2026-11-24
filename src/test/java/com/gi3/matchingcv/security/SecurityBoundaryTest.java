@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 
 @WebMvcTest({AuthController.class,OffreController.class})
-@Import({SecurityConfig.class,ResourceAccess.class,AuthServiceImpl.class})
+@Import({SecurityConfig.class,ResourceAccess.class,AuthServiceImpl.class,LoginThrottle.class})
 class SecurityBoundaryTest {
     @Autowired MockMvc mvc;
     @MockBean UtilisateurRepository users;

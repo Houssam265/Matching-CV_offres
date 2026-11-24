@@ -75,7 +75,7 @@ class CandidatureServiceTest {
     void postuler_ok() {
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
         when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
-        when(candidatureRepository.existsByEtudiantIdAndOffreId(1L, 100L)).thenReturn(false);
+        when(candidatureRepository.findByEtudiantIdAndOffreId(1L, 100L)).thenReturn(Optional.empty());
 
         MatchingDetailDto detail = mock(MatchingDetailDto.class);
         when(detail.scoreDisponible()).thenReturn(true);
@@ -97,7 +97,7 @@ class CandidatureServiceTest {
     void postuler_scoreIndisponible() {
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
         when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
-        when(candidatureRepository.existsByEtudiantIdAndOffreId(1L, 100L)).thenReturn(false);
+        when(candidatureRepository.findByEtudiantIdAndOffreId(1L, 100L)).thenReturn(Optional.empty());
 
         MatchingDetailDto detail = mock(MatchingDetailDto.class);
         when(detail.scoreDisponible()).thenReturn(false);
@@ -115,11 +115,46 @@ class CandidatureServiceTest {
     void postuler_doublon() {
         when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
         when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
-        when(candidatureRepository.existsByEtudiantIdAndOffreId(1L, 100L)).thenReturn(true);
+        when(candidatureRepository.findByEtudiantIdAndOffreId(1L, 100L)).thenReturn(Optional.of(candidature(9L, StatutCandidature.ENVOYEE, 50.0)));
 
         assertThatThrownBy(() -> service.postuler(1L, 100L))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("déjà postulé");
+    }
+
+    @Test
+    @DisplayName("postuler : refusé si le recruteur de l'offre est suspendu")
+    void postuler_recruteurSuspendu() {
+        recruteur.setActif(false);
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+        when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
+
+        assertThatThrownBy(() -> service.postuler(1L, 100L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("plus active");
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("postuler : message clair après un retrait de candidature")
+    void postuler_apresRetrait() {
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+        when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
+        when(candidatureRepository.findByEtudiantIdAndOffreId(1L, 100L)).thenReturn(Optional.of(candidature(9L, StatutCandidature.RETIREE, 50.0)));
+
+        assertThatThrownBy(() -> service.postuler(1L, 100L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("retiré votre candidature");
+    }
+
+    @Test
+    @DisplayName("changerStatut : retrait impossible après décision, avec un message compréhensible")
+    void retraitApresDecision() {
+        when(candidatureRepository.findById(5L)).thenReturn(Optional.of(candidature(5L, StatutCandidature.ACCEPTEE, 80.0)));
+
+        assertThatThrownBy(() -> service.changerStatut(5L, StatutCandidature.RETIREE))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("déjà rendu sa décision");
     }
 
     @Test
@@ -155,7 +190,7 @@ class CandidatureServiceTest {
 
         assertThatThrownBy(() -> service.changerStatut(1L, StatutCandidature.REFUSEE))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Transition refusée");
+                .hasMessageContaining("décision finale");
     }
 
     @Test
@@ -217,8 +252,8 @@ class CandidatureServiceTest {
     }
 
     @Test
-    @DisplayName("listerCandidatsPourRecruteur : email masqué si non ACCEPTEE, dévoilé si ACCEPTEE")
-    void listerCandidatsPourRecruteur_emailMasquage() {
+    @DisplayName("listerCandidatsPourRecruteur : aucun email exposé, même pour une candidature ACCEPTEE")
+    void listerCandidatsPourRecruteur_aucunEmail() {
         etudiant.setEmail("alice@test.com");
         when(offreRepository.findById(100L)).thenReturn(Optional.of(offre));
 
@@ -229,12 +264,11 @@ class CandidatureServiceTest {
         List<com.gi3.matchingcv.dto.CandidatOffreDto> list = service.listerCandidatsPourRecruteur(100L, 10L, null);
 
         assertThat(list).hasSize(2);
-        // c2 est ACCEPTEE -> email visible
         assertThat(list.get(0).statut()).isEqualTo(StatutCandidature.ACCEPTEE);
-        assertThat(list.get(0).email()).isEqualTo("alice@test.com");
-        // c1 est ENVOYEE -> email masqué (null)
         assertThat(list.get(1).statut()).isEqualTo(StatutCandidature.ENVOYEE);
-        assertThat(list.get(1).email()).isNull();
+        // Le DTO ne porte plus aucune coordonnée : le contact passe par la messagerie.
+        assertThat(java.util.Arrays.stream(com.gi3.matchingcv.dto.CandidatOffreDto.class.getRecordComponents())
+                .map(java.lang.reflect.RecordComponent::getName)).doesNotContain("email");
     }
 
     @Test
@@ -312,7 +346,7 @@ class CandidatureServiceTest {
 
         assertThatThrownBy(() -> service.changerStatutPourRecruteur(50L, StatutCandidature.REFUSEE, 10L))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Transition refusée");
+                .hasMessageContaining("décision finale");
     }
 
     @Test

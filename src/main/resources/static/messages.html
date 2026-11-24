@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>Messages — MatchingCV</title>
+ <script src="/js/api-client.js"></script><script src="/js/session.js"></script>
+ <script>(()=>{const u=MatchingCVSession.protect();if(u&&u.role==='ADMIN')location.replace('/admin-dashboard.html');})();</script>
+ <script src="/js/vendor/sockjs-1.6.1.min.js"></script>
+ <script src="/js/vendor/stomp-2.3.3.min.js"></script>
+ <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/interface.css">
+ <link rel="stylesheet" href="/css/account.css"><link rel="stylesheet" href="/css/notifications.css">
+ <link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3">
+ <link rel="stylesheet" href="/css/messages.css">
+<link rel="stylesheet" href="/css/theme.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>
+<body>
+ <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
+ <main class="account-main messages-main" id="main-content">
+  <h1>Messages</h1>
+  <p class="messages-sub" id="messages-sub">Vos échanges avec les recruteurs, liés à chacune de vos candidatures.</p>
+  <div class="msg-layout" id="msg-layout">
+   <aside class="msg-list" aria-label="Conversations">
+    <div class="msg-list-head">
+     <label class="visually-hidden" for="msg-search">Rechercher une conversation</label>
+     <input type="search" id="msg-search" placeholder="Rechercher un nom ou une offre" autocomplete="off">
+    </div>
+    <ul class="msg-conversations" id="conv-list" aria-busy="true"></ul>
+   </aside>
+   <section class="msg-thread" id="thread" aria-label="Conversation">
+    <div class="msg-empty" id="thread-empty">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/></svg>
+     <h2>Sélectionnez une conversation</h2>
+     <p id="thread-empty-text">Les messages apparaissent ici.</p>
+    </div>
+   </section>
+  </div>
+ </main>
+ <script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
+ <script src="/js/notifications.js" defer></script><script src="/js/experience.js" defer></script>
+ <script src="/js/profile-photo.js" defer></script>
+ <script src="/js/messages.js" defer></script>
+</body>
+</html>

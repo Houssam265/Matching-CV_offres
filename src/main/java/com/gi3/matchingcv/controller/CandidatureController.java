@@ -155,7 +155,7 @@ public class CandidatureController {
 
     /**
      * Export CSV de la liste des candidats d'une offre pour le recruteur propriétaire.
-     * Colonnes : Nom, Prénom, Filière, Établissement, Score, Statut, Date, Email (email uniquement si ACCEPTEE).
+     * Colonnes : Nom, Prénom, Filière, Établissement, Score, Statut, Date (aucune coordonnée personnelle).
      */
     @GetMapping(value = "/api/offres/{id}/candidats/export-csv", produces = "text/csv; charset=UTF-8")
     public ResponseEntity<String> exporterCsvCandidats(
@@ -169,7 +169,7 @@ public class CandidatureController {
             List<CandidatOffreDto> dtos = candidatureService.listerCandidatsPourRecruteur(id, recruteurId, statut, favoris, scoreMin, tri);
 
             StringBuilder sb = new StringBuilder();
-            sb.append("Nom,Prenom,Filiere,Etablissement,Score,Statut,Date,Email\n");
+            sb.append("Nom,Prenom,Filiere,Etablissement,Score,Statut,Date\n");
             for (CandidatOffreDto c : dtos) {
                 sb.append(escapeCsv(c.nom())).append(",")
                   .append(escapeCsv(c.prenom())).append(",")
@@ -177,8 +177,7 @@ public class CandidatureController {
                   .append(escapeCsv(c.etablissement())).append(",")
                   .append(c.score() != null ? String.format(Locale.ROOT, "%.1f", c.score()) : "").append(",")
                   .append(c.statut() != null ? c.statut().name() : "").append(",")
-                  .append(c.dateCandidature() != null ? c.dateCandidature().toString() : "").append(",")
-                  .append(escapeCsv(c.email())) // Jamais d'email avant acceptation (garanti par c.email() null)
+                  .append(c.dateCandidature() != null ? c.dateCandidature().toString() : "")
                   .append("\n");
             }
 

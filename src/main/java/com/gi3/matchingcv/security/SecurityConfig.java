@@ -23,6 +23,23 @@ public class SecurityConfig {
                     return new AuthorizationDecision(value!=null && value.getPrincipal() instanceof AccountPrincipal p
                             && access.allowed(p,context.getRequest()));
                 }).anyRequest().permitAll())
+            .headers(h->h
+                // Toutes les ressources (scripts, police, images) sont servies par le site lui-même ; aucun cadre externe.
+                .contentSecurityPolicy(c->c.policyDirectives(String.join("; ",
+                        "default-src 'self'",
+                        "script-src 'self' 'unsafe-inline'",
+                        "style-src 'self' 'unsafe-inline'",
+                        "font-src 'self' data:",
+                        "img-src 'self' data: blob:",
+                        "connect-src 'self'",
+                        "object-src 'none'",
+                        "base-uri 'self'",
+                        "form-action 'self'",
+                        "frame-ancestors 'none'")))
+                .frameOptions(f->f.deny())
+                .referrerPolicy(r->r.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                .addHeaderWriter(new org.springframework.security.web.header.writers.StaticHeadersWriter(
+                        "Permissions-Policy","camera=(), microphone=(), geolocation=(), payment=(), usb=()")))
             .csrf(c->c.ignoringRequestMatchers("/ws/**"))
             .requestCache(c->c.disable())
             .exceptionHandling(e->e

@@ -93,7 +93,7 @@
         .admin-topbar-right { display: flex; align-items: center; gap: .75rem; }
         .admin-nav-user { font-size: .84rem; color: #184b32; font-weight: 600; }
     </style>
-<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script><link rel="stylesheet" href="/css/theme.css"></head>
+<link rel="stylesheet" href="/css/admin-theme.css"><script src="/js/admin-ui.js"></script><link rel="stylesheet" href="/css/theme.css"><script src="/js/vendor/sockjs-1.6.1.min.js"></script><script src="/js/vendor/stomp-2.3.3.min.js"></script></head>
 <body class="has-sidebar"><script>document.body.classList.add("admin-portal");try{document.body.classList.toggle("sidebar-pinned",localStorage.getItem("matchingcv_sidebar_pinned")!=="false");}catch(e){}</script>
 <script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 
@@ -291,6 +291,16 @@
         <div class="activity-list" id="activity-list">
             <div class="loading-center"><div class="spinner"></div></div>
         </div>
+
+        <!-- Compte administrateur -->
+        <h2 class="section-title" id="admin-account" style="margin-top:2rem;">Mon compte</h2>
+        <div class="activity-list" style="padding:1.25rem 1.5rem;">
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
+                <span data-photo-self data-photo-edit style="width:56px;height:56px;border-radius:50%;display:inline-block;border:1px solid var(--ui-border,#dfe7e1);"></span>
+                <span style="font-size:.85rem;color:var(--ui-muted,#5c7064);">Cliquez sur la photo pour la changer.</span>
+            </div>
+            <div id="account-settings"></div>
+        </div>
     </main>
 </div>
 
@@ -417,5 +427,7 @@
     loadActivity();
 })();
 </script>
+<script src="/js/profile-photo.js" defer></script>
+<script src="/js/account-settings.js" defer></script>
 </body>
 </html>

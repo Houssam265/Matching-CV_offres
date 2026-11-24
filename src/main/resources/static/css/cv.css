@@ -1,0 +1,147 @@
+/* CV : feuille A4 sobre, une colonne, lisible par les logiciels de recrutement. */
+.cv-main .cv-sub { color: var(--ui-muted, #5c7064); margin: -.25rem 0 1.25rem; }
+.cv-status:empty { display: none; }
+.cv-status { color: var(--ui-muted, #5c7064); }
+
+.cv-toolbar {
+    display: flex; justify-content: space-between; align-items: center; gap: .75rem; flex-wrap: wrap;
+    max-width: 210mm; margin: 0 auto 1rem;
+}
+.cv-toolbar[hidden] { display: none; }
+.cv-toolbar-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.cv-toolbar-actions :is(a, button) { text-decoration: none; display: inline-flex; align-items: center; }
+.cv-btn {
+    display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 1rem; box-sizing: border-box;
+    border-radius: 8px; border: 1px solid var(--ui-border-strong, #c7d5cb); background: var(--ui-surface, #fff);
+    color: var(--ui-text, #1d3326); font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.cv-btn:hover { background: var(--ui-surface-2, #f2f6f3); }
+.cv-btn-primary { background: var(--ui-primary, #22744b); border-color: var(--ui-primary, #22744b); color: #fff; }
+.cv-btn-primary:hover { background: var(--ui-primary-hover, #1a5c3b); }
+.cv-btn:disabled { opacity: .6; cursor: wait; }
+.cv-toggle { display: inline-flex; align-items: center; gap: .45rem; font-size: .9rem; color: var(--ui-text, #1d3326); cursor: pointer; }
+
+.cv-editor {
+    max-width: 210mm; margin: 0 auto 1rem; box-sizing: border-box;
+    background: var(--ui-surface, #fff); border: 1px solid var(--ui-border, #dfe7e1); border-radius: var(--ui-radius, 12px);
+    padding: 1.25rem 1.5rem;
+}
+.cv-editor[hidden] { display: none; }
+.cv-editor h2 { font-size: 1.05rem; margin: 0 0 .25rem; }
+.cv-editor-hint { color: var(--ui-muted, #5c7064); font-size: .88rem; margin: 0 0 1rem; }
+.cv-editor-hint a { color: var(--ui-primary, #22744b); font-weight: 600; }
+.cv-field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .85rem; }
+.cv-field label { font-size: .85rem; font-weight: 600; color: var(--ui-text, #1d3326); }
+.cv-field :is(input, textarea) {
+    font: inherit; font-size: .92rem; padding: .55rem .7rem; border: 1px solid var(--ui-border-strong, #c7d5cb);
+    border-radius: 8px; background: var(--ui-surface, #fff); color: var(--ui-text, #1d3326); box-sizing: border-box; width: 100%;
+}
+.cv-field textarea { resize: vertical; }
+.cv-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 .85rem; }
+.cv-editor-status { min-height: 1.2em; margin: 0 0 .5rem; font-size: .88rem; color: var(--ui-muted, #5c7064); }
+.cv-editor-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+
+/* ---------- Feuille ---------- */
+.cv-sheet {
+    --cv-ink: #1b2a22; --cv-muted: #56665c; --cv-accent: #22744b; --cv-rule: #d9e2dc;
+    width: 210mm; max-width: 100%; min-height: 297mm; box-sizing: border-box; margin: 0 auto 2rem;
+    padding: 16mm 17mm; background: #fff; color: var(--cv-ink);
+    border: 1px solid var(--ui-border, #dfe7e1); border-radius: 4px; box-shadow: 0 6px 24px rgba(20, 40, 30, .08);
+    font-family: Inter, "Segoe UI", Arial, sans-serif; font-size: 10.5pt; line-height: 1.45;
+}
+.cv-sheet[hidden] { display: none; }
+/* En-tête : photo · identité · coordonnées (une par ligne) */
+.cv-head {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 6mm;
+    padding-bottom: 5mm; border-bottom: 2px solid var(--cv-accent); margin-bottom: 5mm;
+}
+.cv-sheet.no-photo .cv-head { grid-template-columns: minmax(0, 1fr) auto; }
+/* Photo portrait 4:5 aux coins légèrement arrondis : même rendu que dans le PDF téléchargé */
+.cv-photo { width: 26mm; height: 32.5mm; border-radius: 2mm; flex-shrink: 0; background: #eef3f0 center / cover no-repeat; }
+.cv-sheet.no-photo .cv-photo { display: none; }
+.cv-identity { min-width: 0; }
+.cv-sheet h1.cv-name { font-size: 22pt; line-height: 1.1; margin: 0; font-weight: 700; color: var(--cv-ink); letter-spacing: -.01em; -webkit-text-fill-color: currentColor; background: none; }
+.cv-title { margin: 1.5mm 0 0; font-size: 12pt; color: var(--cv-accent); font-weight: 600; }
+.cv-availability { margin: 1.5mm 0 0; font-size: 9.5pt; color: var(--cv-muted); font-weight: 600; }
+.cv-contact {
+    list-style: none; margin: 0; padding: 0 0 0 5mm; border-left: 1px solid var(--cv-rule);
+    display: flex; flex-direction: column; gap: 1.4mm; font-size: 9.2pt; color: var(--cv-muted); max-width: 66mm;
+}
+.cv-contact-item { display: flex; align-items: center; gap: 2mm; min-width: 0; }
+.cv-contact-icon { width: 4.2mm; height: 4.2mm; flex-shrink: 0; color: var(--cv-accent); display: inline-flex; }
+.cv-contact-icon svg { width: 100%; height: 100%; }
+.cv-contact-text { color: var(--cv-ink); text-decoration: none; overflow-wrap: anywhere; min-width: 0; }
+a.cv-contact-text:hover { text-decoration: underline; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.cv-section { margin-top: 5mm; break-inside: auto; }
+.cv-section-title {
+    font-size: 10.5pt; text-transform: uppercase; letter-spacing: .08em; color: var(--cv-accent);
+    margin: 0 0 2.5mm; padding-bottom: 1.2mm; border-bottom: 1px solid var(--cv-rule); font-weight: 700;
+    -webkit-text-fill-color: currentColor; background: none;
+}
+.cv-summary { margin: 0; text-align: justify; white-space: pre-line; }
+.cv-item { margin-bottom: 3.2mm; break-inside: avoid; }
+.cv-item:last-child { margin-bottom: 0; }
+.cv-item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; }
+.cv-item-title { font-size: 10.8pt; margin: 0; font-weight: 600; color: var(--cv-ink); -webkit-text-fill-color: currentColor; background: none; }
+.cv-item-org-line { margin: .3mm 0 0; color: var(--cv-muted); }
+.cv-item-date { font-size: 9.5pt; color: var(--cv-muted); white-space: nowrap; }
+.cv-item-text { margin: .8mm 0 0; white-space: pre-line; }
+.cv-item-skills { margin: .8mm 0 0; font-size: 9.5pt; color: var(--cv-muted); }
+.cv-skill-row { display: grid; grid-template-columns: 38mm 1fr; gap: 4mm; margin-bottom: 1.5mm; }
+.cv-skill-cat { font-weight: 600; }
+/* Ordre de lecture = ordre du document (important pour les logiciels de lecture de CV) */
+.cv-list-2col { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1mm 0; }
+.cv-list-2col li { flex: 0 0 50%; box-sizing: border-box; padding-right: 4mm; }
+.cv-list-2col li::before { content: "•"; color: var(--cv-accent); font-weight: 700; margin-right: 2mm; }
+
+/* ---------- Formulaire et points à compléter (écran uniquement) ---------- */
+.cv-fieldset { border: 0; padding: 0; margin: 0 0 1.1rem; }
+.cv-fieldset legend { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ui-primary, #22744b); margin-bottom: .6rem; }
+.cv-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cv-field-note { margin: -.2rem 0 0; font-size: .8rem; color: var(--ui-muted, #5c7064); }
+.cv-checklist {
+    max-width: 210mm; margin: 0 auto 1rem; box-sizing: border-box; padding: 1rem 1.25rem;
+    background: var(--ui-primary-soft, #e7f1ea); border: 1px solid var(--ui-border, #dfe7e1); border-radius: var(--ui-radius, 12px);
+}
+.cv-checklist[hidden] { display: none; }
+.cv-checklist h2 { font-size: .95rem; margin: 0 0 .5rem; color: var(--ui-text, #1d3326); }
+.cv-checklist ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: .4rem; }
+.cv-check-link {
+    display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .7rem; border-radius: 999px; border: 1px solid var(--ui-border-strong, #c7d5cb);
+    background: #fff; color: var(--ui-primary, #22744b); font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.cv-check-link::before { content: "+"; font-weight: 700; }
+.cv-check-link:hover { background: var(--ui-surface-2, #f2f6f3); }
+
+@media screen and (max-width: 760px) {
+    .cv-grid { grid-template-columns: 1fr; }
+    .cv-sheet { min-height: 0; padding: 7mm 6mm; font-size: 10pt; }
+    .cv-sheet .cv-head, .cv-sheet.no-photo .cv-head { grid-template-columns: 1fr; align-items: start; gap: 3mm; }
+    .cv-contact { border-left: 0; padding-left: 0; max-width: none; }
+    .cv-grid-2 { grid-template-columns: 1fr; }
+    .cv-list-2col li { flex-basis: 100%; }
+    .cv-photo { width: 20mm; height: 25mm; }
+    .cv-sheet h1.cv-name { font-size: 17pt; }
+    .cv-item-top { flex-direction: column; gap: .5mm; }
+    .cv-skill-row { grid-template-columns: 1fr; gap: .5mm; }
+}
+
+/* ---------- Impression / PDF : uniquement la feuille ---------- */
+@page { size: A4; margin: 0; }
+@media print {
+    :root html, :root body.cv-page { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+    :root body.cv-page > :not(.app-main-layout) { display: none !important; }
+    :root body.cv-page .app-main-layout > :not(main) { display: none !important; }
+    :root body.cv-page .app-main-layout,
+    :root body.cv-page .app-main-layout > main.cv-main {
+        margin: 0 !important; padding: 0 !important; max-width: none !important; width: auto !important;
+        position: static !important; transform: none !important; min-height: 0 !important; background: #fff !important;
+    }
+    :root body.cv-page .cv-main > :not(.cv-sheet) { display: none !important; }
+    :root body.cv-page .cv-sheet {
+        width: 210mm; min-height: 0; margin: 0; border: 0; border-radius: 0; box-shadow: none; max-width: none;
+        print-color-adjust: exact; -webkit-print-color-adjust: exact;
+    }
+}

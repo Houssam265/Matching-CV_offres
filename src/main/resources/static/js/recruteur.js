@@ -841,7 +841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             ${topCands.map(c => `
                                 <div style="display:flex; justify-content:space-between; align-items:center; padding:0.9rem 1.1rem; background:#f8fcfa; border:1px solid var(--rec-border); border-radius:var(--rec-radius-sm); flex-wrap:wrap; gap:0.75rem;">
                                     <div style="display:flex; align-items:center; gap:0.75rem;">
-                                        <div class="candidat-avatar" style="width:38px;height:38px;font-size:0.95rem;">${esc(((c.prenom?.[0] || '') + (c.nom?.[0] || '')).toUpperCase())}</div>
+                                        <div class="candidat-avatar" style="width:38px;height:38px;font-size:0.95rem;"${c.etudiantId ? ` data-photo-user="${esc(c.etudiantId)}"` : ''}>${esc(((c.prenom?.[0] || '') + (c.nom?.[0] || '')).toUpperCase())}</div>
                                         <div>
                                             <div style="font-weight:800; color:var(--rec-navy); font-size:1rem;">${esc(c.prenom)} ${esc(c.nom)}</div>
                                             <div class="recruit-muted" style="font-size:0.82rem;">${esc(c.filiere || 'Filière non renseignée')} · ${esc(c.etablissement || '')}</div>
@@ -1184,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <article class="${cardClasses}" data-cand-id="${c.candidatureId}">
                 <div class="candidat-card-top">
                     <div class="candidat-info-group">
-                        <div class="candidat-avatar">${initials}</div>
+                        <div class="candidat-avatar" data-photo-user="${esc(c.etudiantId)}">${initials}</div>
                         <div>
                             <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
                                 <h3 class="candidat-name" style="margin:0 0 0.25rem;">${esc(c.prenom)} ${esc(c.nom)}</h3>
@@ -1211,16 +1211,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
 
-                ${c.statut === 'ACCEPTEE' && c.email ? `
-                <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:var(--rec-radius-sm); padding:0.65rem 0.9rem; display:flex; align-items:center; gap:0.5rem; font-size:0.88rem; color:#166534; margin-top:0.6rem;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                    <strong>Contact candidat débloqué :</strong>
-                    <a href="mailto:${esc(c.email)}" style="color:#15803D; font-weight:700; text-decoration:underline;">${esc(c.email)}</a>
-                </div>` : `
-                <div style="font-size:0.82rem; color:#648b78; display:flex; align-items:center; gap:0.4rem; margin-top:0.4rem;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    <span>Email protégé : disponible immédiatement dès acceptation de la candidature.</span>
-                </div>`}
 
                 ${c.message ? `
                 <div style="margin-top:0.6rem; background:#f4faf7; border:1px solid #d2ebde; border-radius:var(--rec-radius-sm); padding:0.6rem 0.85rem; font-size:0.84rem; color:#2ba267;">
@@ -1244,6 +1234,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         Consulter profil &amp; score
                     </button>
+                    <a class="recruit-btn" href="/cv.html?candidature=${c.candidatureId}" title="CV généré à partir du profil du candidat">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"></path><path d="M14 3v5h5M9 13h6M9 17h6"></path></svg>
+                        Voir le CV
+                    </a>
+                    <a class="recruit-btn" href="/messages.html?c=${c.candidatureId}" title="Échanger avec le candidat via la messagerie">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"></path></svg>
+                        Message
+                    </a>
 
                     ${!isTerminal ? `
                     <button type="button" class="recruit-btn" style="color:#15803D; border-color:#86EFAC; margin-left:auto;" data-quick-action="ACCEPTEE" data-cand-id="${c.candidatureId}" data-cand-name="${esc(c.prenom)} ${esc(c.nom)}">
@@ -1415,7 +1413,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (decisionPrompt) {
                 decisionPrompt.innerHTML = newStatut === 'ACCEPTEE'
-                    ? `Vous êtes sur le point d'<strong>accepter</strong> cette candidature. Les coordonnées email du candidat vous seront immédiatement débloquées.`
+                    ? `Vous êtes sur le point d'<strong>accepter</strong> cette candidature. Le candidat est notifié et vous poursuivez l’échange avec lui via la messagerie.`
                     : `Vous êtes sur le point de <strong>refuser</strong> cette candidature. Cette décision est définitive.`;
             }
             if (decisionMessage) {
@@ -1469,12 +1467,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (idx !== -1) {
                         allCandidats[idx].statut = updated.statut || newStatut;
                         allCandidats[idx].message = updated.message;
-                        if (newStatut === 'ACCEPTEE') {
-                            try {
-                                const d = await api(`/api/candidatures/${candId}?${owned}`);
-                                allCandidats[idx].email = d.email;
-                            } catch (_) {}
-                        }
                     }
                     closeDecisionModal();
                     updateCounts();
@@ -1558,7 +1550,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 // Corps de la modal
-                const isAcceptee = detail.statut === 'ACCEPTEE';
                 const isTerminal = detail.statut === 'ACCEPTEE' || detail.statut === 'REFUSEE';
                 const match = detail.matchingDetail || {};
                 const compScores = match.competences || [];
@@ -1577,30 +1568,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>`;
                 }
 
-                // Coordonnées de contact
-                if (isAcceptee && detail.email) {
-                    html += `
-                    <div class="candidate-detail-block" style="background:#F0FDF4; border-color:#86EFAC;">
-                        <div class="candidate-detail-block-title" style="color:#166534;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            Coordonnées de contact (Débloquées)
-                        </div>
-                        <div style="font-size:0.95rem; color:#14532D;">
-                            Email du candidat : <a href="mailto:${esc(detail.email)}" style="font-weight:700; color:#15803D; text-decoration:underline;">${esc(detail.email)}</a>
-                        </div>
-                    </div>`;
-                } else {
-                    html += `
-                    <div class="candidate-detail-block" style="background:#f8fcfa;">
-                        <div class="candidate-detail-block-title" style="color:#476958;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            Coordonnées de contact protégées
-                        </div>
-                        <p class="recruit-muted" style="margin:0; font-size:0.88rem;">
-                            L’adresse email du candidat est confidentielle à ce stade. Elle sera accessible dès acceptation de sa candidature.
-                        </p>
-                    </div>`;
-                }
+                // Contact : jamais d'email, tout passe par la messagerie de la plateforme.
+                html += `
+                <div class="candidate-detail-block" style="background:#f8fcfa;">
+                    <div class="candidate-detail-block-title" style="color:#476958;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"></path></svg>
+                        Contacter le candidat
+                    </div>
+                    <p class="recruit-muted" style="margin:0 0 .75rem; font-size:0.88rem;">
+                        Les coordonnées personnelles restent privées. Échangez avec ${esc(detail.prenom || 'le candidat')} via la messagerie et consultez son CV complet.
+                    </p>
+                    <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+                        <a class="recruit-btn primary" href="/messages.html?c=${detail.candidatureId}">Envoyer un message</a>
+                        <a class="recruit-btn" href="/cv.html?candidature=${detail.candidatureId}">Voir le CV</a>
+                    </div>
+                </div>`;
 
                 // Message accompagnant la décision si déjà statué
                 if (detail.message) {

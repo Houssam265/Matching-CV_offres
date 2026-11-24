@@ -288,7 +288,8 @@ public class MatchingServiceImpl implements MatchingService {
         List<ExperienceProfessionnelle> experiences = experienceRepository.findByEtudiantId(etudiantId);
 
         return offresActives.stream()
-                .filter(o -> o.getRecruteur() == null || o.getRecruteur().isActif())
+                .filter(o -> o.getRecruteur() == null || o.getRecruteur().isActive())
+                .filter(o -> o.getDateLimite() == null || o.getDateLimite().isAfter(java.time.LocalDateTime.now()))
                 .filter(o -> correspondFiltreTexte(o.getDomaine(), domaine))
                 .filter(o -> correspondFiltreTexte(o.getLocalisation(), localisation))
                 .filter(o -> typeContrat == null || o.getTypeContrat() == typeContrat)

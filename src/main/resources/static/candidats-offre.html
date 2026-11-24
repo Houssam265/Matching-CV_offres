@@ -7,8 +7,8 @@
     <title>Candidats &amp; Scores de matching — Matching CV-Offres</title>
     <script src="/js/session.js"></script>
     <script>MatchingCVSession.protect('RECRUTEUR');</script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="/js/vendor/sockjs-1.6.1.min.js"></script>
+    <script src="/js/vendor/stomp-2.3.3.min.js"></script>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/recruteur.css">
     <link rel="stylesheet" href="/css/notifications.css">
@@ -16,7 +16,7 @@
     <script src="/js/notifications.js" defer></script>
     <script src="/js/recruteur.js" defer></script>
     <link rel="stylesheet" href="/css/interface.css" />
-<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"><link rel="stylesheet" href="/css/theme.css"></head>
+<link rel="stylesheet" href="/css/sidebar.css?v=3"><link rel="stylesheet" href="/css/navigation.css?v=3"><link rel="stylesheet" href="/css/theme.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>
 <body class="has-sidebar" data-page="candidats"><script>try{document.body.classList.toggle('sidebar-pinned',localStorage.getItem('matchingcv_sidebar_pinned')!=='false');}catch(e){document.body.classList.add('sidebar-pinned');}document.body.classList.add('navigation-loading');</script>
 <a class="skip-link" href="#main-content">Aller au contenu</a>
     <!-- BACKDROP OVERLAY SUR MOBILE -->
@@ -434,5 +434,6 @@
 
     <script src="/js/portal-shell.js"></script><script src="/js/sidebar.js?v=2.0"></script>
     <script src="/js/experience.js" defer></script>
-<script src="/js/dialog-accessibility.js"></script></body>
+<script src="/js/dialog-accessibility.js"></script><script src="/js/profile-photo.js" defer></script>
+</body>
 </html>

@@ -25,6 +25,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     long countByDestinataireIdAndLueFalse(Long destinataireId);
 
+    @Query("SELECT COUNT(n) > 0 FROM Notification n WHERE n.destinataire.id = :destinataireId AND n.type = :type AND n.candidature.id = :candidatureId AND n.lue = false")
+    boolean existsNonLueParCandidature(@Param("destinataireId") Long destinataireId, @Param("type") TypeNotification type, @Param("candidatureId") Long candidatureId);
+
     @Query("SELECT COUNT(n) > 0 FROM Notification n WHERE n.destinataire.id = :destinataireId AND n.type = :type AND n.offre.id = :offreId")
     boolean existsByDestinataireIdAndTypeAndOffreId(@Param("destinataireId") Long destinataireId, @Param("type") TypeNotification type, @Param("offreId") Long offreId);
 

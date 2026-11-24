@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Créez votre compte Matching CV-Offres — Utilisateur ou Recruteur, c'est gratuit." />
     <title>Cr&eacute;er un compte &mdash; Matching CV-Offres</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/auth.css" />
     <link rel="icon" href="/favicon.svg" />
@@ -138,14 +136,7 @@
                             <label for="reg-filiere" class="auth-label">Fili&egrave;re d&apos;&eacute;tudes</label>
                             <div class="auth-input-wrap">
                                 <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                                <input type="text" id="reg-filiere" name="filiere" class="auth-input" placeholder="ex. G&eacute;nie Informatique (GI3)" list="filieres-list" />
-                                <datalist id="filieres-list">
-                                    <option value="Génie Informatique (GI3)"></option>
-                                    <option value="Génie Télécoms & Réseaux (GTR)"></option>
-                                    <option value="Génie Mécatronique"></option>
-                                    <option value="Génie Civil"></option>
-                                    <option value="Supply Chain Management"></option>
-                                </datalist>
+                                <input type="text" id="reg-filiere" name="filiere" class="auth-input" autocomplete="off" placeholder="ex. G&eacute;nie Informatique (GI3)" />
                             </div>
                         </div>
 
@@ -153,15 +144,7 @@
                             <label for="reg-etablissement" class="auth-label">&Eacute;tablissement / &Eacute;cole</label>
                             <div class="auth-input-wrap">
                                 <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
-                                <input type="text" id="reg-etablissement" name="etablissement" class="auth-input" placeholder="ex. ENSA T&eacute;touan" list="ecoles-list" />
-                                <datalist id="ecoles-list">
-                                    <option value="ENSA Tétouan"></option>
-                                    <option value="ENSA Tanger"></option>
-                                    <option value="ENSAM"></option>
-                                    <option value="EMI"></option>
-                                    <option value="ENSIAS"></option>
-                                    <option value="FST Tanger"></option>
-                                </datalist>
+                                <input type="text" id="reg-etablissement" name="etablissement" class="auth-input" autocomplete="off" placeholder="ex. ENSA T&eacute;touan" />
                             </div>
                         </div>
                     </div>
@@ -207,15 +190,16 @@
     <script src="/js/portal.js" defer></script>
     <script src="/js/session.js"></script>
     <script>
-        // Rediriger si déjà connecté
+        // Déjà connecté (session vérifiée par le serveur) : direction l'espace correspondant.
         (function() {
-            var u = MatchingCVSession.read();
-            if (u && u.role) {
+            if (!MatchingCVSession.read()) return;
+            fetch('/api/auth/me').then(function(r) { return r.ok ? r.json() : null; }).then(function(u) {
+                if (!u || !u.role) { localStorage.removeItem('matchingcv_user'); return; }
                 window.location.replace(
                     u.role === 'ETUDIANT' ? '/dashboard-etudiant.html' :
-                    u.role === 'RECRUTEUR' ? '/dashboard-recruteur.html' : '/competences.html'
+                    u.role === 'RECRUTEUR' ? '/dashboard-recruteur.html' : '/admin-dashboard.html'
                 );
-            }
+            }).catch(function() { /* reste sur l'inscription */ });
         })();
         document.addEventListener('DOMContentLoaded', () => {
             // Pré-sélection du rôle si passé dans l'URL (?role=RECRUTEUR)

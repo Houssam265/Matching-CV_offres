@@ -23,14 +23,17 @@ public class AuthController {
 
     private final AuthService authService;
     private final UtilisateurRepository utilisateurRepository;
+    private final com.gi3.matchingcv.security.LoginThrottle loginThrottle;
 
     /**
      * Injection par constructeur (IoC) : Spring injecte AuthService (interface)
      * et UtilisateurRepository directement depuis le conteneur IoC.
      */
-    public AuthController(AuthService authService, UtilisateurRepository utilisateurRepository) {
+    public AuthController(AuthService authService, UtilisateurRepository utilisateurRepository,
+                          com.gi3.matchingcv.security.LoginThrottle loginThrottle) {
         this.authService = authService;
         this.utilisateurRepository = utilisateurRepository;
+        this.loginThrottle = loginThrottle;
     }
 
     /**
@@ -78,11 +81,20 @@ public class AuthController {
                     .orElse("Données invalides");
             return ResponseEntity.badRequest().body(Map.of("message", message));
         }
+        long bloque = loginThrottle.minutesRestantes(request.getEmail());
+        if (bloque > 0) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .header(org.springframework.http.HttpHeaders.RETRY_AFTER, String.valueOf(bloque * 60))
+                    .body(Map.of("message", "Trop de tentatives sur ce compte. Réessayez dans " + bloque + " minute" + (bloque > 1 ? "s" : "")
+                            + " ou réinitialisez votre mot de passe."));
+        }
         try {
             AuthResponse response = authService.connecter(request);
             com.gi3.matchingcv.security.Sessions.login(utilisateurRepository.findById(response.getId()).orElseThrow(), httpRequest, httpResponse);
+            loginThrottle.succes(request.getEmail());
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
+            loginThrottle.echec(request.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

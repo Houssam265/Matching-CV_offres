@@ -19,7 +19,21 @@ public class ApplicationWorkflowController {
     private final com.gi3.matchingcv.service.NotificationService notifications;
     public ApplicationWorkflowController(CandidatureRepository applications,InterviewRepository interviews,CandidatureService service,com.gi3.matchingcv.service.NotificationService notifications){this.applications=applications;this.interviews=interviews;this.service=service;this.notifications=notifications;}
     @PatchMapping("/api/candidatures/{id}/retirer") @PreAuthorize("hasRole('ETUDIANT')")
-    public CandidatureDto withdraw(@PathVariable Long id){var c=applications.findById(id).orElseThrow();if(!c.getEtudiant().getId().equals(Sessions.current().id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN);if(c.getStatut()==StatutCandidature.RETIREE)return CandidatureDto.from(c);return service.changerStatut(id,StatutCandidature.RETIREE);}
+    public CandidatureDto withdraw(@PathVariable Long id){
+        var c=applications.findById(id).orElseThrow();
+        if(!c.getEtudiant().getId().equals(Sessions.current().id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        if(c.getStatut()==StatutCandidature.RETIREE)return CandidatureDto.from(c);
+        CandidatureDto result=service.changerStatut(id,StatutCandidature.RETIREE);
+        // Le recruteur est prévenu : il n'attend plus de réponse de ce candidat.
+        var recruteur=c.getOffre().getRecruteur();
+        if(recruteur!=null){
+            String candidat=((c.getEtudiant().getPrenom()==null?"":c.getEtudiant().getPrenom())+" "+(c.getEtudiant().getNom()==null?"":c.getEtudiant().getNom())).trim();
+            notifications.notifier(recruteur.getId(),TypeNotification.CANDIDATURE_RETIREE,"Candidature retirée",
+                (candidat.isEmpty()?"Un candidat":candidat)+" a retiré sa candidature à l'offre « "+c.getOffre().getTitre()+" ».",
+                "/candidats-offre.html?offre="+c.getOffre().getId(),c.getOffre().getId(),id,null,null,Sessions.current().id());
+        }
+        return result;
+    }
     public record InterviewRequest(@NotNull @Future OffsetDateTime startsAt,@NotBlank @Size(max=500) String location,@Size(max=2000) String instructions){}
     @PutMapping("/api/candidatures/{id}/entretien") @PreAuthorize("hasRole('RECRUTEUR')")
     public Interview schedule(@PathVariable Long id,@Valid @RequestBody InterviewRequest r){

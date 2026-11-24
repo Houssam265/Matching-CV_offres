@@ -33,8 +33,8 @@ window.MatchingCVSidebar = (() => {
                     while (profilePill.firstChild) profileLink.append(profilePill.firstChild);
                     profilePill.replaceWith(profileLink);
                 }
-                profileLink.href = '/dashboard-etudiant.html?open=profil';
-                const label = 'Mon profil';
+                profileLink.href = '/mon-compte.html';
+                const label = 'Mon compte';
                 profileLink.title = label;
                 profileLink.setAttribute('aria-label', label);
             }

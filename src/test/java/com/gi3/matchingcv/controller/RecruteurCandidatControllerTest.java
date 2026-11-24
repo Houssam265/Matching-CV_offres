@@ -40,17 +40,17 @@ class RecruteurCandidatControllerTest {
     private CandidatureService candidatureService;
 
     @Test
-    @DisplayName("GET /api/offres/{id}/candidats : 200, liste classée, aucun mot de passe, email masqué si non acceptée")
+    @DisplayName("GET /api/offres/{id}/candidats : 200, liste classée, aucun mot de passe, aucun email (contact via la messagerie)")
     void listerCandidats_okEtSecurise() throws Exception {
         CandidatOffreDto c1 = new CandidatOffreDto(
                 1L, 10L, 5L, "Dev Fullstack", "Martin", "Alice",
                 "Génie Info", "ENSIAS", 88.0, StatutCandidature.ENVOYEE,
-                LocalDateTime.of(2026, 10, 11, 10, 0), null
+                LocalDateTime.of(2026, 10, 11, 10, 0)
         );
         CandidatOffreDto c2 = new CandidatOffreDto(
                 2L, 11L, 5L, "Dev Fullstack", "Dupont", "Bob",
                 "Génie Info", "EMI", 92.5, StatutCandidature.ACCEPTEE,
-                LocalDateTime.of(2026, 10, 11, 11, 0), "bob@example.com"
+                LocalDateTime.of(2026, 10, 11, 11, 0)
         );
 
         when(candidatureService.listerCandidatsPourRecruteur(5L, 1L, null))
@@ -62,7 +62,7 @@ class RecruteurCandidatControllerTest {
                 .andExpect(jsonPath("$[0].nom").value("Dupont"))
                 .andExpect(jsonPath("$[0].score").value(92.5))
                 .andExpect(jsonPath("$[0].statut").value("ACCEPTEE"))
-                .andExpect(jsonPath("$[0].email").value("bob@example.com"))
+                .andExpect(jsonPath("$[0].email").doesNotExist())
                 .andExpect(jsonPath("$[0].motDePasse").doesNotExist())
                 .andExpect(jsonPath("$[1].nom").value("Martin"))
                 .andExpect(jsonPath("$[1].statut").value("ENVOYEE"))
@@ -82,11 +82,11 @@ class RecruteurCandidatControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/candidatures/{id} : 200, détail profil, aucun mot de passe, email masqué si non ACCEPTEE")
+    @DisplayName("GET /api/candidatures/{id} : 200, détail profil, aucun mot de passe, aucun email")
     void obtenirDetail_securiseSansMotDePasse() throws Exception {
         CandidatDetailDto detail = new CandidatDetailDto(
                 10L, 20L, 5L, "Dev Fullstack", "Martin", "Alice",
-                "Génie Info", "ENSIAS", null,
+                "Génie Info", "ENSIAS",
                 StatutCandidature.VUE, LocalDateTime.of(2026, 10, 11, 10, 0),
                 85.0, 85.0, false, null, List.of(), List.of(), List.of()
         );
@@ -102,11 +102,11 @@ class RecruteurCandidatControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/candidatures/{id} : 200, email exposé quand candidature ACCEPTEE")
-    void obtenirDetail_emailPresentSiAcceptee() throws Exception {
+    @DisplayName("GET /api/candidatures/{id} : email jamais exposé, même quand la candidature est ACCEPTEE")
+    void obtenirDetail_aucunEmailMemeSiAcceptee() throws Exception {
         CandidatDetailDto detail = new CandidatDetailDto(
                 10L, 20L, 5L, "Dev Fullstack", "Dupont", "Bob",
-                "Génie Info", "EMI", "bob@example.com",
+                "Génie Info", "EMI",
                 StatutCandidature.ACCEPTEE, LocalDateTime.of(2026, 10, 11, 10, 0),
                 92.0, 92.0, false, null, List.of(), List.of(), List.of()
         );
@@ -116,7 +116,7 @@ class RecruteurCandidatControllerTest {
         mvc.perform(get("/api/candidatures/10").param("recruteurId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statut").value("ACCEPTEE"))
-                .andExpect(jsonPath("$.email").value("bob@example.com"))
+                .andExpect(jsonPath("$.email").doesNotExist())
                 .andExpect(jsonPath("$.motDePasse").doesNotExist());
     }
 
@@ -224,17 +224,17 @@ class RecruteurCandidatControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/offres/{id}/candidats/export-csv : 200 avec en-têtes et email masqué sauf ACCEPTEE")
+    @DisplayName("GET /api/offres/{id}/candidats/export-csv : 200 avec en-têtes et sans aucun email")
     void exporterCsv_200() throws Exception {
         CandidatOffreDto c1 = new CandidatOffreDto(
                 1L, 10L, 5L, "Dev Fullstack", "Martin", "Alice",
                 "Génie Info", "ENSIAS", 88.0, StatutCandidature.ENVOYEE,
-                LocalDateTime.of(2026, 10, 11, 10, 0), null
+                LocalDateTime.of(2026, 10, 11, 10, 0)
         );
         CandidatOffreDto c2 = new CandidatOffreDto(
                 2L, 11L, 5L, "Dev Fullstack", "Dupont", "Bob",
                 "Génie Info", "EMI", 92.5, StatutCandidature.ACCEPTEE,
-                LocalDateTime.of(2026, 10, 11, 11, 0), "bob@example.com"
+                LocalDateTime.of(2026, 10, 11, 11, 0)
         );
 
         when(candidatureService.listerCandidatsPourRecruteur(5L, 1L, null, null, null, "score"))
@@ -243,9 +243,10 @@ class RecruteurCandidatControllerTest {
         mvc.perform(get("/api/offres/5/candidats/export-csv").param("recruteurId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Content-Disposition", "attachment; filename=\"candidats-offre-5.csv\""))
-                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(containsString("Nom,Prenom,Filiere,Etablissement,Score,Statut,Date,Email")))
-                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(containsString("Martin,Alice,Génie Info,ENSIAS,88.0,ENVOYEE,2026-10-11T10:00,")))
-                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(containsString("Dupont,Bob,Génie Info,EMI,92.5,ACCEPTEE,2026-10-11T11:00,bob@example.com")));
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(containsString("Nom,Prenom,Filiere,Etablissement,Score,Statut,Date\n")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(containsString("Martin,Alice,Génie Info,ENSIAS,88.0,ENVOYEE,2026-10-11T10:00\n")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(containsString("Dupont,Bob,Génie Info,EMI,92.5,ACCEPTEE,2026-10-11T11:00\n")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(org.hamcrest.Matchers.not(containsString("@"))));
     }
 }
 

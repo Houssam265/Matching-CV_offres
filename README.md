@@ -253,6 +253,24 @@ L’accueil propose les espaces utilisateur et recruteur. Les API utilisent une 
 
 Les pages « Mon compte », « Favoris et suivi » / « Entretiens » complètent les portails. Le CV PDF est privé, limité à 5 Mo. La désactivation anonymise les coordonnées du compte et conserve l’historique, comme indiqué dans l’interface. Les identifiants techniques ETUDIANT et les anciennes URL restent compatibles.
 
+## Messagerie, CV et photo de profil
+
+- **Messagerie** (`messages.html`, `/api/messages/**`) : une conversation par candidature, entre l’étudiant et le recruteur propriétaire de l’offre uniquement. Le recruteur écrit en premier, puis le candidat peut répondre. Le premier message fait passer une candidature `ENVOYEE` à `VUE`. Une candidature refusée ou retirée passe la conversation en lecture seule. Le destinataire reçoit une seule notification `NOUVEAU_MESSAGE` tant qu’il ne l’a pas lue.
+- **Coordonnées privées** : l’email du candidat n’est jamais transmis au recruteur, ni dans les listes, ni dans le détail, ni dans l’export CSV. Le contact passe par la messagerie.
+- **CV** (`cv.html`) : CV A4 à une colonne, généré depuis le profil. Ordre des rubriques : profil, formation, expériences, projets, compétences validées, langues, centres d’intérêt. Les coordonnées sont affichées une par ligne : email de contact, téléphone, ville, LinkedIn, GitHub, portfolio.
+- **Téléchargement du CV** : le PDF est généré par le serveur (openhtmltopdf, police Inter embarquée). Le texte est sélectionnable et les liens sont cliquables. Le fichier se nomme `CV-Prenom-Nom.pdf`.
+  - `GET /api/account/cv-pdf?photo=true|false` : CV de l’étudiant connecté.
+  - `GET /api/candidatures/{id}/cv-pdf` : CV d’un candidat, pour le recruteur de l’offre. L’email et le téléphone n’y figurent jamais.
+- **Photo de profil** (tous les rôles) : JPEG, PNG ou WebP de 2 Mo maximum, avec contrôle des octets de signature. `/api/account/photo/{id}` renvoie toujours une image : la photo, sinon un avatar SVG à partir des initiales. Le cache est revalidé par ETag.
+
+## Connexion et sécurité
+
+- **Une seule page de connexion** (`login.html`) pour les candidats, les recruteurs et les administrateurs. L'espace s'ouvre selon le rôle du compte, et l'ancienne adresse `admin-login.html` redirige vers cette page.
+- **Verrouillage temporaire** : après 5 échecs de connexion, le compte est bloqué pendant 15 minutes. Cette limite s'ajoute à celle par adresse IP. Le temps de réponse est le même que l'email existe ou non.
+- **En-têtes HTTP** : CSP limitée au site lui-même (`frame-ancestors 'none'`), `X-Frame-Options: DENY`, `Referrer-Policy` et `Permissions-Policy`.
+- **Ressources locales** : la police Inter (licence OFL, dossier `static/fonts/`) et SockJS/STOMP (`static/js/vendor/`) sont servies par le site. Aucune requête n'est envoyée à un CDN.
+- **Erreurs** : toute erreur d'API renvoie `{"message": …}` avec le bon code HTTP, sans trace technique.
+
 ## Configuration et validation
 
 - `mvn verify` : tests métier, contrôles d’accès et intégration H2, sans utiliser la base MySQL de développement. La CI exécute également la vérification syntaxique JavaScript.

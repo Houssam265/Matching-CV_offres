@@ -15,7 +15,7 @@
         if(url.pathname==='/api/auth/connexion' || url.pathname==='/api/auth/logout')csrfPromise=null;
         if(response.status===401 && !url.pathname.startsWith('/api/auth/')) {
             localStorage.removeItem('matchingcv_user');
-            const target = location.pathname.startsWith('/admin-') ? '/admin-login.html' : '/login.html';
+            const target = '/login.html'; // une seule page de connexion pour tous les rôles
             location.replace(target);
         }
         return response;

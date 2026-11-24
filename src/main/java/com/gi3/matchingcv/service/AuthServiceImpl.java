@@ -90,13 +90,19 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
+    private static final String HASH_FACTICE = com.gi3.matchingcv.security.Passwords.hash("compte-inexistant-" + java.util.UUID.randomUUID());
+
     @Override
     @Transactional
     public AuthResponse connecter(ConnexionRequest request) {
         String emailNormalise = request.getEmail().trim().toLowerCase();
 
-        Utilisateur utilisateur = utilisateurRepository.findByEmail(emailNormalise)
-                .orElseThrow(() -> new IllegalArgumentException("Identifiants incorrects. Vérifiez votre email et mot de passe."));
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(emailNormalise).orElse(null);
+        if (utilisateur == null) {
+            // Même coût qu'une vraie vérification : le temps de réponse ne révèle pas si l'email existe.
+            com.gi3.matchingcv.security.Passwords.matches(request.getMotDePasse(), HASH_FACTICE);
+            throw new IllegalArgumentException("Identifiants incorrects. Vérifiez votre email et mot de passe.");
+        }
 
         // Vérification du mot de passe
         if (!com.gi3.matchingcv.security.Passwords.matches(request.getMotDePasse(), utilisateur.getMotDePasse())) {

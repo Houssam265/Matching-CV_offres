@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── State ────────────────────────────────────────────────
     let toutes = [];
+    let conversations = new Map(); // candidatureId -> conversation (messagerie)
     let filtreActif = 'ALL';
 
     const listEl    = document.getElementById('cand-list');
@@ -34,9 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
     async function charger() {
         listEl.innerHTML = renderLoading();
         try {
-            const res = await fetch(`/api/etudiants/${user.id}/candidatures`);
+            const [res, convRes] = await Promise.all([
+                fetch(`/api/etudiants/${user.id}/candidatures`),
+                fetch('/api/messages/conversations').catch(() => null)
+            ]);
             if (!res.ok) throw new Error('Erreur réseau');
             toutes = await res.json();
+            const convs = convRes && convRes.ok ? await convRes.json().catch(() => []) : [];
+            conversations = new Map(convs.map(conv => [conv.candidatureId, conv]));
             afficher();
         } catch (e) {
             listEl.innerHTML = renderErreur(e.message);
@@ -114,10 +120,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div><span class="statut-badge ${c.statut}">${statutLabel}</span></div>
                 ${dateStr ? `<div class="cand-date">Postulé le ${dateStr}</div>` : ''}
+                <div class="cand-actions">
                 <a href="/offres-recommandees.html?offreId=${c.offreId}" class="btn-link-offre">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     Voir l'offre
                 </a>
+                ${conversations.has(c.id) ? (() => {
+                    const unread = conversations.get(c.id).nonLus || 0;
+                    return `<a href="/messages.html?c=${c.id}" class="btn-link-offre btn-link-messages${unread ? ' has-unread' : ''}">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/></svg>
+                    ${unread ? `Messages (${unread} non lu${unread > 1 ? 's' : ''})` : 'Messages du recruteur'}
+                </a>`;
+                })() : ''}
+                ${['ENVOYEE', 'VUE', 'ENTRETIEN'].includes(c.statut)
+                    ? `<button type="button" class="btn-withdraw" data-withdraw="${c.id}" data-titre="${escapeHtml(c.offreTitre || 'cette offre')}">Retirer ma candidature</button>`
+                    : ''}
+                </div>
+                <p class="cand-feedback" role="alert" data-feedback="${c.id}"></p>
             </div>
             <div class="score-orb ${orbClass}" title="${scoreDisp ? 'Score au moment de la candidature' : 'Score non calculé'}">
                 <span class="sv">${scoreDisp ? `${scoreVal}%` : 'N/D'}</span>
@@ -182,5 +201,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Init ──────────────────────────────────────────────────
+    // Retrait d'une candidature (avant la décision du recruteur), avec confirmation.
+    listEl.addEventListener('click', async event => {
+        const btn = event.target.closest('[data-withdraw]');
+        if (!btn) return;
+        const id = btn.dataset.withdraw;
+        const feedback = listEl.querySelector(`[data-feedback="${id}"]`);
+        if (!window.confirm(`Retirer votre candidature pour « ${btn.dataset.titre} » ?
+
+Le recruteur en sera informé et vous ne pourrez plus postuler à cette offre.`)) return;
+        btn.disabled = true;
+        if (feedback) feedback.textContent = '';
+        try {
+            const res = await fetch(`/api/candidatures/${encodeURIComponent(id)}/retirer`, { method: 'PATCH' });
+            const body = await res.json().catch(() => null);
+            if (!res.ok) throw new Error(body?.message || 'Le retrait n’a pas pu être enregistré. Réessayez.');
+            const item = toutes.find(c => String(c.id) === String(id));
+            if (item) item.statut = 'RETIREE';
+            afficher();
+        } catch (e) {
+            if (feedback) feedback.textContent = e.message;
+            btn.disabled = false;
+        }
+    });
+
     charger();
 });
